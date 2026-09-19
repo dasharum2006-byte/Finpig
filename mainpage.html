@@ -5,28 +5,42 @@
     <!-- адаптируем для экранов телефонов -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Финпиг</title>
+    <link rel="preconnect" href="https://googleapis.com">
+    <link rel="preconnect" href="https://gstatic.com" crossorigin>
+    <link href="https://googleapis.com/css2?family=Comfortaa:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="mainpage.css">
 </head>
 <body>
     <!-- экран загрузки -->
-     <div id="splash-screen" class="splash-container">
-        <div class="splash-content">
-            <h1 class="app-tittle">Финпиг</h1>
-            <!-- !!!!!!!! -->
-            <div class="loader"></div>
-            <!--  копилка со свиньей -->
-              <div class="piggy-bank-container">
-                <!-- монетка падающая в копилку-->
-                 <div class="css-coin-loading">
-                    <div class="coin-inner">1</div>
-                 </div>
-                 <!-- сама свинка -->
-                 <div class="css-pig">
-                    <div class="pig-ear left"></div>
-                    <div class="pig-ear left"></div>
+     <!-- рамка для телефона -->
+      <div class="phone-frame">
+         <!-- экран загрузки -->
+         <div id="splash-screen" class="splash-container">
+            <div class="splash-content">
+                  <h1 class="app-tittle">Финпиг</h1>
+                  <!-- !!!!!!!! -->
+                  <div class="loader"></div>
+                  <!--  копилка со свиньей -->
+                  <div class="piggy-bank-container">
+                     <!-- монетка падающая в копилку-->
+                     <div class="css-coin-loading">
+                        <div class="coin-inner">1</div>
+                     </div>
+                     <!-- сама свинка -->
+                        <img src="/images/piggy_bank.png" class="pig" alt="Свинка-копилка">
+                  </div>
+                  <!-- контейнер загрузки -->
+                  <div class="loading-section">
+                     <div class="loader-text">Загрузка...</div>
 
-                 </div>
-              </div>
+                     <!-- контейнер полоска загрузки -->
+                      <div class="loading-line-container">
+                        <!-- линия -->
+                         <div id="loading-line" class="loading-line"></div>
+                         <!-- проценты -->
+                          <span id="line-text" class="loading-text">0%</span>
+                      </div>
+                  </div>
         </div>
      </div>
 </body>
