@@ -9,6 +9,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 //Экраны
 import CatalogScreen from './src/screens/CatalogScreen';
+import WorldScreen from './src/screens/WorldScreen';
 import PetNameScreen from './src/screens/PetNameScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import KitchenScreen from './src/screens/KitchenScreen';
@@ -129,6 +130,12 @@ export default function App() {
               headerShown: false,
               animation: 'slide_from_right',
             }}
+          />
+
+          <Stack.Screen
+            name="World"
+            component={WorldScreen}
+            options={{ headerShown: false }} 
           />
 
           <Stack.Screen

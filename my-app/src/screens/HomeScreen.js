@@ -168,6 +168,13 @@ export default function HomeScreen({ route, navigation }) {
               <Text style={styles.actionEmoji}>📋</Text>
               <Text style={styles.actionText}>Задания</Text>
             </TouchableOpacity>
+            {/* КНОПКА С ЗЕМЛЕЙ путешествие по странам */}
+            <TouchableOpacity 
+              style={styles.actionButton} 
+              onPress={() => navigation.navigate('World')}>
+              <Text style={styles.actionEmoji}>🌍</Text>
+              <Text style={styles.actionText}>Мир</Text>
+            </TouchableOpacity>
             <TouchableOpacity style={styles.actionButton} onPress={() => setOpenMenu('room')}>
               <Text style={styles.actionEmoji}>🏠</Text>
               <Text style={styles.actionText}>Комната</Text>
@@ -274,8 +281,8 @@ const styles = StyleSheet.create({
   },
   heart: { fontSize: 20, marginHorizontal: 2 },
   heartEmpty: { opacity: 0.5 },
-
-  petWrapper: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: 20 },
+//опустила питомца - flex-end
+  petWrapper: { flex: 1, alignItems: 'center', justifyContent: 'flex-end', paddingTop: 20 },
   petImage: { width: PET_SIZE, height: PET_SIZE },
 
   progressTrack: {
