@@ -1,4 +1,4 @@
-import React, {useEffect, useRef} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import { StyleSheet,View,ImageBackground,Animated,ScrollView,Text,TouchableOpacity,Dimensions } from 'react-native';
 
 // размер глобуса
@@ -8,7 +8,8 @@ export default function WorldScreen({navigation}) {
     // анимация звезд
     const fadeAnim1 = useRef(new Animated.Value(0.3)).current;
     const fadeAnim2 = useRef(new Animated.Value(0.5)).current;
-    //вращение земли анимация
+    //вращение земли можно увеличить на андроиде не работало + добавила для него
+    const [scale,setScale] = useState(1.0);
     const mapScrollAnim = useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
@@ -46,6 +47,11 @@ export default function WorldScreen({navigation}) {
         // ).start();
     }, []);
 
+    //функция которая переключает масштаб
+    const toggleZoom = () => {
+        setScale((prev) => (prev === 1.0?1.5:1.0));
+    };
+
     return (
         <ImageBackground source={require('../../assets/Darksky.png')} style={styles.background}>
         <Animated.View style={[styles.starLayer,{opacity:fadeAnim1}]}>
@@ -55,26 +61,43 @@ export default function WorldScreen({navigation}) {
         <Animated.View style={[styles.starLayer,{opacity:fadeAnim2, transform:[{scale:1.1},{rotate:'45deg'}]}]}>
             <ImageBackground source={require('../../assets/Darksky.png')} style={styles.background} />
         </Animated.View>
+
+        {/* центр */}
+        <View style={styles.centerSpace}>
         {/* Земля - масштабирование*/}
+        <Animated.View
+            style={[styles.planetCircle, {transform:[{scale:scale}]}]}>
         <ScrollView
-            maximumZoomScale={3.0}
-            minimumZoomScale={1.0}
-            showsHorizontalScrollIndicator={false}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.centerSpace}
+            horizontal={false} bounces={false} contentContainerStyle={styles.verticalScrollContainer}
             >
+                {/* // maximumZoomScale={3.0}
+            // minimumZoomScale={1.0}
+            // showsHorizontalScrollIndicator={false}
+            // showsVerticalScrollIndicator={false}
+            // contentContainerStyle={styles.centerSpace} */}
                 {/* ручное вращение а не автоматическое */}
-                <View style={styles.planetCircle}>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} bounces={false}>
+            <ScrollView horizontal={true} bounces={false}>
+                {/* <View style={styles.planetCircle}>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} bounces={false}> */}
                         <Animated.Image
                             source={require('../../assets/mapWorld.png')}
                             style={styles.mapImage}
                                 // {transform: [{translateX: mapScrollAnim}]}
                             resizeMode="cover"/>
                     </ScrollView>
+                </ScrollView>
                     <View style={styles.planetOverlay} pointerEvents='none'/>
-                </View>
-            </ScrollView>
+            </Animated.View>
+            {/* кнопка увеличения */}
+            <TouchableOpacity style={styles.zoomButton} onPress={toggleZoom}>
+                <Text style={styles.zoomButtonText}>
+                    {scale === 1.0? 'Увеличить' : 'Отдалить'}
+                </Text>
+            </TouchableOpacity>
+        </View>
+
+
+
             {/* Меню */}
             <View style={styles.bottomBar}>
                 <TouchableOpacity style={styles.actionButton} onPress={() => setOpenMenu('tasks')}>
@@ -109,6 +132,7 @@ const styles = StyleSheet.create({
     flex: 1, alignItems: 'center', 
     justifyContent:'center'
     },
+
   planetCircle: {
     width: PLANET_SIZE,
     height: PLANET_SIZE,
@@ -124,14 +148,32 @@ const styles = StyleSheet.create({
     shadowRadius: 15,
     elevation: 10,
     },
+    verticalScrollContainer: {
+    height: PLANET_SIZE * 1.6, 
+  },
   mapImage: {
-    width: PLANET_SIZE * 2.5, 
-    height:PLANET_SIZE 
-    },
+    width: PLANET_SIZE * 2.5,  
+    height: PLANET_SIZE * 1.6, 
+  },
   planetOverlay: {...StyleSheet.absoluteFillObject,
     backgroundColor:'rgba(255, 255, 255, 0.08)',
     borderRadius:PLANET_SIZE/2 
     },
+  zoomButton: {
+    position: 'absolute',
+    bottom: 120, 
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 25,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
+  },
+  zoomButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
   bottomBar: {
     position: 'absolute',
     bottom: 0,
