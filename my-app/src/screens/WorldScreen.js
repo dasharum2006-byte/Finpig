@@ -7,9 +7,9 @@ const PLANET_SIZE = 330;
 
 //координаты на карте
 const CITIES_CONFIG = [
-    {id:'egypt',name:'Египет', xPosition: 120, topPosition: 150},
-    {id:'cniva',name:'Китай', xPosition: 450, topPosition: 110},
-    {id:'arctic',name:'Арктика', xPosition: 300, topPosition: 30},
+    {id:'egypt',name:'Египет', xPosition: 430, topPosition: 240},
+    {id:'china',name:'Китай', xPosition: 670, topPosition: 230},
+    {id:'arctic',name:'Арктика', xPosition: 500, topPosition: 60},
 ];
 
 export default function WorldScreen({navigation}) {
@@ -19,6 +19,8 @@ export default function WorldScreen({navigation}) {
     //вращение земли можно увеличить на андроиде не работало + добавила для него
     const [scale,setScale] = useState(1.0);
     const mapScrollAnim = useRef(new Animated.Value(0)).current;
+
+    const [openMenu, setOpenMenu] = useState(null);
 
     useEffect(() => {
         //мерцание звездочек
@@ -65,7 +67,7 @@ export default function WorldScreen({navigation}) {
     if (cityId === 'egypt') {
         navigation.navigate('EgyptScreen'); 
     } else if (cityId === 'china') {
-        navigation.navigate('ChinaScreen'); 
+        navigation.navigate('ChinaScreen',{ isFirstVisit: true }); 
     } else if (cityId === 'arctic') {
         navigation.navigate('ArcticScreen'); 
     }
@@ -143,12 +145,12 @@ export default function WorldScreen({navigation}) {
                         </TouchableOpacity>
                         {/* КНОПКА С ЗЕМЛЕЙ путешествие по странам */}
                         <TouchableOpacity 
-                          style={styles.actionButton} 
-                          onPress={() => navigation.navigate('World')}>
+                           style={[styles.actionButton, { opacity: 0.5 }]} 
+                            disabled={true}>
                           <Text style={styles.actionEmoji}>🌍</Text>
                           <Text style={styles.actionText}>Мир</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.actionButton} onPress={() => setOpenMenu('room')}>
+                        <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('Home')}>
                           <Text style={styles.actionEmoji}>🏠</Text>
                           <Text style={styles.actionText}>Комната</Text>
                 </TouchableOpacity>
@@ -275,8 +277,9 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 11,
     fontWeight: 'bold',
-    backgroundColor: 'rgba(12, 7, 40, 0.85)', 
+    backgroundColor: 'rgba(35, 34, 41, 0.71)', 
     paddingVertical: 3,
+    paddingHorizontal: 2,
     borderRadius: 6,
     marginTop: 4,
     borderWidth: 1,

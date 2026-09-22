@@ -12,12 +12,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../theme';
 
 const IMAGES = [
-  { id: '1', source: require('../../assets/image1.png') },
-  { id: '2', source: require('../../assets/pinguin.png') },
-  { id: '3', source: require('../../assets/image3.png') },
-  { id: '4', source: require('../../assets/image4.png') },
-  { id: '5', source: require('../../assets/image5.png') },
-  { id: '6', source: require('../../assets/image6.png') },
+  { id: '1', source: require('../../assets/eggs/bird.png') },
+  { id: '2', source: require('../../assets/eggs/fox.png') },
+  { id: '3', source: require('../../assets/eggs/image3.png') },
+  { id: '4', source: require('../../assets/eggs/monster.png') },
+  { id: '5', source: require('../../assets/eggs/pinguin.png') },
+  { id: '6', source: require('../../assets/eggs/tiger.png') },
 ];
 
 const { width } = Dimensions.get('window');

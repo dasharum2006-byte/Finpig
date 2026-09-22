@@ -26,9 +26,9 @@ const EVO_FRAME_DURATION = 350;
 const SWIPE_THRESHOLD = 80;
 
 const ROOMS = [
-  { id: 'room1', source: require('../../assets/room.png'), label: 'Комната 1' },
-  { id: 'room2', source: require('../../assets/room2.png'), label: 'Комната 2' },
-  { id: 'room3', source: require('../../assets/room3.png'), label: 'Комната 3' },
+  { id: 'room1', source: require('../../assets/Rooms/room.png'), label: 'Комната 1' },
+  { id: 'room2', source: require('../../assets/Rooms/room2.png'), label: 'Комната 2' },
+  { id: 'room3', source: require('../../assets/Rooms/room3.png'), label: 'Комната 3' },
 ];
 
 export default function HomeScreen({ route, navigation }) {
@@ -47,7 +47,7 @@ export default function HomeScreen({ route, navigation }) {
   const scale = useRef(new Animated.Value(1)).current;
 
   const PET_BASE = item?.source;
-  const PET_EVOLVED = require('../../assets/pinguin1.png');
+  const PET_EVOLVED = require('../../assets/Animals/pinguin/black/pinguin1.png');
 
   // ─── Свайп ВЛЕВО → на кухню (кухня слева от дома) ───
   const panResponder = useRef(
@@ -174,6 +174,10 @@ export default function HomeScreen({ route, navigation }) {
               onPress={() => navigation.navigate('World')}>
               <Text style={styles.actionEmoji}>🌍</Text>
               <Text style={styles.actionText}>Мир</Text>
+            </TouchableOpacity>
+              <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('Town')}>
+              <Text style={styles.actionEmoji}>🏙️</Text>
+              <Text style={styles.actionText}>Город</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.actionButton} onPress={() => setOpenMenu('room')}>
               <Text style={styles.actionEmoji}>🏠</Text>

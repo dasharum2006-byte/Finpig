@@ -13,6 +13,8 @@ import WorldScreen from './src/screens/WorldScreen';
 import PetNameScreen from './src/screens/PetNameScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import KitchenScreen from './src/screens/KitchenScreen';
+import ChinaScreen from './src/screens/ChinaScreen'; 
+import TownScreen from './src/screens/TownScreen'; 
 import { colors } from './src/theme';
 
 const Stack = createNativeStackNavigator();
@@ -122,7 +124,14 @@ export default function App() {
             component={PetNameScreen}
             options={{ title: 'Имя питомца' }}
           />
-
+          <Stack.Screen
+            name="Town"
+            component={TownScreen}
+            options={{
+              headerShown: false,
+              animation: 'fade',
+            }}
+          />
           <Stack.Screen
             name="Home"
             component={HomeScreen}
@@ -130,6 +139,12 @@ export default function App() {
               headerShown: false,
               animation: 'slide_from_right',
             }}
+          />
+
+          <Stack.Screen 
+            name="ChinaScreen" 
+            component={ChinaScreen} 
+            options={{ headerShown: false }} 
           />
 
           <Stack.Screen
