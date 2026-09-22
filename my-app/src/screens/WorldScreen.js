@@ -1,8 +1,16 @@
 import React, {useEffect, useRef, useState} from 'react';
-import { StyleSheet,View,ImageBackground,Animated,ScrollView,Text,TouchableOpacity,Dimensions } from 'react-native';
+import { StyleSheet,View,ImageBackground,Animated,ScrollView,Text,TouchableOpacity,Dimensions,Image } from 'react-native';
 
 // размер глобуса
 const PLANET_SIZE = 330;
+//ширина карты
+
+//координаты на карте
+const CITIES_CONFIG = [
+    {id:'egypt',name:'Египет', xPosition: 120, topPosition: 150},
+    {id:'cniva',name:'Китай', xPosition: 450, topPosition: 110},
+    {id:'arctic',name:'Арктика', xPosition: 300, topPosition: 30},
+];
 
 export default function WorldScreen({navigation}) {
     // анимация звезд
@@ -52,13 +60,25 @@ export default function WorldScreen({navigation}) {
         setScale((prev) => (prev === 1.0?1.5:1.0));
     };
 
+    //ТАПАЕШЬ И В СТРАНУ ПЕРЕНОСИТ ДРУГУЮ
+    const handleSelectCity = (cityId) => {
+    if (cityId === 'egypt') {
+        navigation.navigate('EgyptScreen'); 
+    } else if (cityId === 'china') {
+        navigation.navigate('ChinaScreen'); 
+    } else if (cityId === 'arctic') {
+        navigation.navigate('ArcticScreen'); 
+    }
+};
+
+
     return (
         <ImageBackground source={require('../../assets/Darksky.png')} style={styles.background}>
         <Animated.View style={[styles.starLayer,{opacity:fadeAnim1}]}>
             <ImageBackground source={require('../../assets/Darksky.png')} style={styles.background} />
         </Animated.View>
     
-        <Animated.View style={[styles.starLayer,{opacity:fadeAnim2, transform:[{scale:1.1},{rotate:'45deg'}]}]}>
+        <Animated.View style={[styles.starLayer,{opacity:fadeAnim2, transform:[{scale:1.1},{rotate:'45deg'}]}]} pointerEvents="none">
             <ImageBackground source={require('../../assets/Darksky.png')} style={styles.background} />
         </Animated.View>
 
@@ -76,18 +96,35 @@ export default function WorldScreen({navigation}) {
             // showsVerticalScrollIndicator={false}
             // contentContainerStyle={styles.centerSpace} */}
                 {/* ручное вращение а не автоматическое */}
-            <ScrollView horizontal={true} bounces={false}>
+                {/* горизонтальная прокрутка */}
+            <ScrollView horizontal={true} bounces={false} showsHorizontalScrollIndicator={false}>
                 {/* <View style={styles.planetCircle}>
                     <ScrollView horizontal showsHorizontalScrollIndicator={false} bounces={false}> */}
-                        <Animated.Image
+                    {/* обертка для картинки и точек на карте*/}
+                    <View style={styles.mapWrapper}>
+                        <Image
                             source={require('../../assets/mapWorld.png')}
                             style={styles.mapImage}
                                 // {transform: [{translateX: mapScrollAnim}]}
-                            resizeMode="cover"/>
+                            resizeMode="cover"
+                            />
+                            {/* расставляем точки на карте */}
+                            {CITIES_CONFIG.map((city) => (
+                                <TouchableOpacity
+                                key={city.id}
+                                style={[styles.cityButton,{left: city.xPosition, top:city.topPosition}]}
+                                onPress={() => handleSelectCity(city.id)}
+                                >
+                                    <View style={styles.cityPin}/>
+                                    <Text style={styles.cityText}>{city.name}</Text>
+                                </TouchableOpacity>
+                            ))}
+                            </View>
                     </ScrollView>
                 </ScrollView>
                     <View style={styles.planetOverlay} pointerEvents='none'/>
             </Animated.View>
+
             {/* кнопка увеличения */}
             <TouchableOpacity style={styles.zoomButton} onPress={toggleZoom}>
                 <Text style={styles.zoomButtonText}>
@@ -152,8 +189,11 @@ const styles = StyleSheet.create({
     height: PLANET_SIZE * 1.6, 
   },
   mapImage: {
-    width: PLANET_SIZE * 2.5,  
-    height: PLANET_SIZE * 1.6, 
+    // width: PLANET_SIZE * 2.5,  
+    // height: PLANET_SIZE * 1.6, 
+    width: '100%',  
+    height: '100%', 
+
   },
   planetOverlay: {...StyleSheet.absoluteFillObject,
     backgroundColor:'rgba(255, 255, 255, 0.08)',
@@ -205,5 +245,42 @@ const styles = StyleSheet.create({
     borderColor: '#000',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+    mapWrapper: {
+    position: 'relative',
+    width: PLANET_SIZE * 2.5, 
+    height: PLANET_SIZE * 1.6, 
+  },
+//   контейнер для точки страны
+  cityButton: {
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 20,
+  },
+  cityPin: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: '#ff4757', 
+    borderWidth: 3,
+    borderColor: '#fff', 
+    shadowColor: '#ff4757',
+    shadowOpacity: 0.6,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  //текст с названием страны
+  cityText: {
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: 'bold',
+    backgroundColor: 'rgba(12, 7, 40, 0.85)', 
+    paddingVertical: 3,
+    borderRadius: 6,
+    marginTop: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    overflow: 'hidden',
   }
 })
