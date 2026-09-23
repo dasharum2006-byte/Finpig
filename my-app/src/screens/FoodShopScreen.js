@@ -1,8 +1,8 @@
 import React, {useState} from 'react'
-import { StyleSheet,Text,View,Image,TouchableOpacity,Dimensions} from 'react-native';
+import { StyleSheet,Text,View,Image,ImageBackground,TouchableOpacity,Dimensions} from 'react-native';
 
 const {width} = Dimensions.get('window');
-
+import backgroundImage from '../../assets/fonshop.png';
 //БД товаров
 const SHOP_FOOD_DATA = [
     {
@@ -39,7 +39,7 @@ const SHOP_FOOD_DATA = [
     },
 ];
 
-export default function FoodShopScreen() {
+export default function FoodShopScreen({navigation}) {
     //индекс текущ активности
     const [currentCategoryIndex,setCurrentCategoryIndex] = useState(0);
 
@@ -64,21 +64,47 @@ export default function FoodShopScreen() {
 };
 
 return (
-    <View style={styles.container}>
+    // <View style={styles.container}>
+    <ImageBackground
+        source={backgroundImage} style={styles.container} resizeMode='cover'>
         {/* Шапка магазина */}
-        <View style={styles.headerRow}>
-            <TouchableOpacity style={styles.arrowButton} onPress={handlePrev}>
-                <Text style={styles.arrowText}>◀</Text>
-            </TouchableOpacity>
+        {/* !!!!!!!!!!!поменять на реальную */}
+         <View style={styles.topBar}>
+      
+      {/* ЛЕВАЯ СТОРОНА: Кнопка возврата в город */}
+      <TouchableOpacity 
+        style={styles.cityBackButton} 
+        activeOpacity={0.7} 
+        onPress={() => navigation.goBack()} // Возвращает на предыдущую страницу (в город)
+      >
+        <Text style={styles.cityBackEmoji}>🏙</Text>
+        <Text style={styles.cityBackText}>В город</Text>
+      </TouchableOpacity>
 
-            <View style={styles.titleContainer}>
-                <Text style={styles.categoryTitle}>{currentCategory.title}</Text>
-            </View>
-            <TouchableOpacity style={styles.arrowButton} onPress={handleNext}>
-                <Text style={styles.arrowText}>▶</Text>
-            </TouchableOpacity>
+      {/* ПРАВАЯ СТОРОНА: Вертикальный блок (Деньги, а под ними Корзина) */}
+      <View style={styles.rightInfoColumn}>
+        {/* Баланс монет */}
+        <View style={styles.coinContainer}>
+          <Text style={styles.coinText}>🪙 150</Text>
         </View>
-            {/* полки */}
+
+        {/* Продуктовая корзина прямо под монетами */}
+        <TouchableOpacity 
+          style={styles.cartButton} 
+          activeOpacity={0.7} 
+          onPress={() => alert('Здесь откроется твоя корзина с едой!')}
+        >
+          <Text style={styles.cartEmoji}>🛒</Text>
+          <View style={styles.cartBadge}>
+            <Text style={styles.cartBadgeText}>0</Text>
+          </View>
+        </TouchableOpacity>
+      </View>
+
+    </View>
+
+
+         {/* полки */}
             <View style={styles.showcase}>
                 {currentCategory.shelves.map((shelf,shelfIndex) => (
                     <View key={shelfIndex} style={styles.shelfContainer}>
@@ -102,17 +128,33 @@ return (
                 )
             }
         </View>
-    </View>
+
+
+        <View style={styles.headerRow}>
+            <TouchableOpacity style={styles.arrowButton} onPress={handlePrev}>
+                <Text style={styles.arrowText}>◀</Text>
+            </TouchableOpacity>
+
+            <View style={styles.titleContainer}>
+                <Text style={styles.categoryTitle}>{currentCategory.title}</Text>
+            </View>
+            <TouchableOpacity style={styles.arrowButton} onPress={handleNext}>
+                <Text style={styles.arrowText}>▶</Text>
+            </TouchableOpacity>
+        </View>
+           
+    </ImageBackground>
     );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#3E2723', 
+    // backgroundColor: '#3E2723', 
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingTop: 40,
+    justifyContent: 'space-between',
+    paddingBottom: 10,
+    paddingTop: 30,
   },
   headerRow: {
     flexDirection: 'row',
@@ -120,11 +162,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     width: width * 0.9,
     marginBottom: 30,
-    backgroundColor: '#5D4037',
+    backgroundColor: '#7abcc581',
     borderRadius: 15,
-    padding: 10,
+    padding: 5,
     borderWidth: 2,
-    borderColor: '#8D6E63',
+    borderColor: '#85bdbd',
   },
   arrowButton: {
     paddingHorizontal: 15,
@@ -147,12 +189,12 @@ const styles = StyleSheet.create({
   },
   showcase: {
     width: width * 0.9,
-    backgroundColor: '#4E342E',
+    // backgroundColor: '#cc725d',
     borderRadius: 20,
     paddingVertical: 20,
     paddingHorizontal: 10,
-    borderWidth: 3,
-    borderColor: '#2D1510',
+    // borderWidth: 3,
+    // borderColor: '#2D1510',
   },
   shelfContainer: {
     marginBottom: 25,
@@ -165,14 +207,14 @@ const styles = StyleSheet.create({
     zIndex: 2, 
   },
   productCard: {
-    backgroundColor: '#FFF8E1',
+    backgroundColor: '#e1fffdc4',
     width: '40%',
     borderRadius: 12,
-    padding: 10,
+    padding: 19,
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#FFE082',
-    shadowColor: '#000',
+    borderColor: '#5e8d8bd7',
+    shadowColor: '#c4c4c4',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
@@ -185,7 +227,7 @@ const styles = StyleSheet.create({
   productName: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#5D4037',
+    color: '#5e4740',
     textAlign: 'center',
   },
   productPrice: {
@@ -196,16 +238,86 @@ const styles = StyleSheet.create({
   },
   shelfLine: {
     height: 12,
-    backgroundColor: '#8D6E63', 
+    backgroundColor: '#3d88aaea', 
     borderRadius: 6,
     width: '100%',
     borderWidth: 1,
-    borderColor: '#5D4037',
+    borderColor: '#474443',
     marginTop: -5, 
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.5,
     shadowRadius: 2,
     elevation: 3,
+  },
+    topBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    width: width * 0.9,
+    marginBottom: 0,
+    zIndex: 10,
+  },
+  // Кнопка города слева
+  cityBackButton: {
+    backgroundColor: '#29597494',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 15,
+    borderWidth: 2,
+    borderColor: '#1778a5d8',
+    shadowColor: '#00000083',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 4,
+  },
+  // Вертикальная колонка справа
+  rightInfoColumn: {
+    flexDirection: 'column',
+    alignItems: 'flex-end', // Прижимаем элементы к правому краю
+  },
+   coinContainer: {
+    backgroundColor: 'rgba(0, 0, 0, 0.6)', // Полупрозрачный черный фон, чтобы кошелек читался на любом фоне
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#FFE082',
+    marginBottom: 10,
+  },
+  coinText: {
+    color: '#FFF',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  cartButton: {
+    backgroundColor: '#5D4037',
+    padding: 10,
+    borderRadius: 50,
+    borderWidth: 2,
+    borderColor: '#8D6E63',
+    position: 'relative',
+  },
+  cartEmoji: {
+    fontSize: 24,
+  },
+  cartBadge: {
+    position: 'absolute',
+    top: -5,
+    right: -5,
+    backgroundColor: '#00a5e6',
+    borderRadius: 10,
+    width: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cartBadgeText: {
+    color: '#FFF',
+    fontSize: 11,
+    fontWeight: 'bold',
   },
 });

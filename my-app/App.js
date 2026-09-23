@@ -106,6 +106,7 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <NavigationContainer>
+        
         <Stack.Navigator
           screenOptions={{
             headerStyle: { backgroundColor: colors.background },
@@ -144,7 +145,7 @@ export default function App() {
           <Stack.Screen
             name="FoodShop"
             component={FoodShopScreen}
-            options={{ title: 'Продуктовый магазин' }}
+            options={{ headerShown: false }}
           />
           <Stack.Screen 
             name="ChinaScreen" 
