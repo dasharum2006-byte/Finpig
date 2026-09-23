@@ -15,6 +15,7 @@ import HomeScreen from './src/screens/HomeScreen';
 import KitchenScreen from './src/screens/KitchenScreen';
 import ChinaScreen from './src/screens/ChinaScreen'; 
 import TownScreen from './src/screens/TownScreen'; 
+import FoodShopScreen from './src/screens/FoodShopScreen';
 import { colors } from './src/theme';
 
 const Stack = createNativeStackNavigator();
@@ -105,6 +106,7 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <NavigationContainer>
+        
         <Stack.Navigator
           screenOptions={{
             headerStyle: { backgroundColor: colors.background },
@@ -140,7 +142,11 @@ export default function App() {
               animation: 'slide_from_right',
             }}
           />
-
+          <Stack.Screen
+            name="FoodShop"
+            component={FoodShopScreen}
+            options={{ headerShown: false }}
+          />
           <Stack.Screen 
             name="ChinaScreen" 
             component={ChinaScreen} 
