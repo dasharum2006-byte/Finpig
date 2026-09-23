@@ -30,7 +30,7 @@ export default function TownScreen({ navigation }) {
         <View style={styles.buildingsContainer}>
           
           {/* 1. Продуктовый магазин */}
-          <TouchableOpacity style={styles.buildingCard} onPress={() => alert('Продуктовый магазин откроется скоро!')}>
+          <TouchableOpacity style={styles.buildingCard} onPress={() => navigation.navigate('FoodShop')}>
             <Text style={styles.buildingEmoji}>🍏</Text>
             <Text style={styles.buildingText}>Продуктовый</Text>
           </TouchableOpacity>

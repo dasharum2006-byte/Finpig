@@ -15,6 +15,7 @@ import HomeScreen from './src/screens/HomeScreen';
 import KitchenScreen from './src/screens/KitchenScreen';
 import ChinaScreen from './src/screens/ChinaScreen'; 
 import TownScreen from './src/screens/TownScreen'; 
+import FoodShopScreen from './src/screens/FoodShopScreen';
 import { colors } from './src/theme';
 
 const Stack = createNativeStackNavigator();
@@ -140,7 +141,11 @@ export default function App() {
               animation: 'slide_from_right',
             }}
           />
-
+          <Stack.Screen
+            name="FoodShop"
+            component={FoodShopScreen}
+            options={{ title: 'Продуктовый магазин' }}
+          />
           <Stack.Screen 
             name="ChinaScreen" 
             component={ChinaScreen} 
