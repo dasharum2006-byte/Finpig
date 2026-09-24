@@ -21,7 +21,8 @@ import BlockOneScreen from './src/screens/BlockOneScreen';
 import LevelOneScreen from './src/screens/LevelOneScreen';
 import MyNewGameScreen from './src/screens/MyNewGameScreen';
 import { colors } from './src/theme';
-
+import BlockTwoScreen from './src/screens/BlockTwoScreen';
+import LevelTwoScreen from './src/screens/LevelTwoScreen';
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -153,6 +154,16 @@ export default function App() {
             <Stack.Screen
             name="MyNewGameScreen"
             component={MyNewGameScreen}
+            options={{headerShown: false}}
+            />
+            <Stack.Screen
+            name="BlockTwoScreen"
+            component={BlockTwoScreen}
+            options={{headerShown: false}}
+            />
+            <Stack.Screen
+            name="LevelTwoScreen"
+            component={LevelTwoScreen}
             options={{headerShown: false}}
             />
 

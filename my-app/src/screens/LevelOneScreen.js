@@ -189,10 +189,16 @@ export default function LevelOneScreen({ navigation, route }) {
       setIsAnswered(false);
     } else {
       // Если это последний шаг, показываем финал и выходим
-      Alert.alert(
+            Alert.alert(
         'Победа! 🏆', 
         `Уровень пройден! Твой результат: ${score + (isSortCorrect ? 1 : 0)} из ${LEVEL_STEPS.length}. На твой баланс начислено 50 монет!`,
-        [{ text: 'Круто!', onPress: () => navigation.goBack() }]
+        [{ 
+          text: 'Круто!', 
+          onPress: () => {
+            // ЯВНО говорим карте, что мы прошли 6-й шаг и открываем 7-й (первую игру)
+            navigation.navigate('BlockOneScreen', { highestCompletedStep: 6 }); 
+          } 
+        }]
       );
     }
   };

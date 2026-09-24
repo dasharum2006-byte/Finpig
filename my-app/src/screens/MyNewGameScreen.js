@@ -5,13 +5,36 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 const { width, height } = Dimensions.get('window');
 const GAME_DURATION = 30;
 const COIN_SIZE = 56;
+const HUD_HEIGHT = 90; // Высота верхней панели, чтобы монетки не лезли на кнопки
 
 export default function CatchCoinGame({ navigation }) {
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(GAME_DURATION);
-  const [running, setRunning] = useState(true);
+  const [running, setRunning] = useState(false);
+  const [isReady, setIsReady] = useState(false); // Новое состояние для задержки
   const [coins, setCoins] = useState([]);
   const idRef = useRef(0);
+
+    // Функция запуска/перезапуска игры с задержкой 1 секунда
+  const startGame = () => {
+    setScore(0);
+    setTimeLeft(GAME_DURATION);
+    setCoins([]);
+    setRunning(false);
+    setIsReady(false);
+
+    // Ждем 1 секунду, показываем "Собирай монетки!", потом начинаем
+    setTimeout(() => {
+      setIsReady(true);
+      setRunning(true);
+    }, 1000);
+  };
+
+
+  // Запускаем игру при первом открытии экрана
+  useEffect(() => {
+    startGame();
+  }, []);
 
   // Спавн монеток
   useEffect(() => {
@@ -20,7 +43,7 @@ export default function CatchCoinGame({ navigation }) {
       const id = idRef.current++;
       const x = Math.random() * (width - COIN_SIZE - 20) + 10;
       setCoins((prev) => [...prev, { id, x }]);
-    }, 800);
+    }, 600);
     return () => clearInterval(spawn);
   }, [running]);
 
@@ -61,13 +84,19 @@ export default function CatchCoinGame({ navigation }) {
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <View style={styles.hud}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.hudBtn}>
-          <Text style={styles.hudBtnText}>←</Text>
+          <Text style={styles.hudBtnText}>Выход</Text>
         </TouchableOpacity>
         <Text style={styles.hudStat}>⏱ {timeLeft}s</Text>
         <Text style={styles.hudStat}>🪙 {score}</Text>
       </View>
 
       <View style={styles.playArea}>
+        {/* Оверлей подготовки (1 секунда) */}
+        {!isReady && (
+          <View style={styles.readyOverlay}>
+            <Text style={styles.readyText}>Собирай монетки 🪙</Text>
+          </View>
+        )}
         {coins.map((coin) => (
           <FallingCoin
             key={coin.id}
@@ -98,12 +127,19 @@ export default function CatchCoinGame({ navigation }) {
 }
 
 function FallingCoin({ x, onCatch, onMiss }) {
-  const y = useRef(new Animated.Value(-COIN_SIZE)).current;
-  const duration = 3500 + Math.random() * 1500;
+//   const y = useRef(new Animated.Value(-COIN_SIZE)).current;
+//   const duration = 3500 + Math.random() * 1500;
+// 🚀 ИЗМЕНЕНИЕ 1: Начинаем падение ниже верхней панели (HUD_HEIGHT)
+  const startY = HUD_HEIGHT; 
+  const y = useRef(new Animated.Value(startY)).current;
+  
+  // 🚀 ИЗМЕНЕНИЕ 2: Падают БЫСТРЕЕ (от 1.2 до 1.8 секунды вместо 3.5-5)
+  const duration = 1200 + Math.random() * 600; 
+
 
   useEffect(() => {
     Animated.timing(y, {
-      toValue: height - 100,
+      toValue: height, // Падают до самого низа экрана
       duration,
       useNativeDriver: true,
     }).start(({ finished }) => {
@@ -132,6 +168,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 10,
     backgroundColor: 'rgba(0, 0, 0, 0.2)',
+    zIndex: 10,
   },
   hudBtn: {
     backgroundColor: '#5D4037',

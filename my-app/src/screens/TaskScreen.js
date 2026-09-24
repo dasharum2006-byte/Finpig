@@ -21,6 +21,12 @@ const handleSelectTask = (levelId) => {
   } else {
     alert(`Уровень ${levelId} пока закрыт. Пройди первый уровень! 🔒`);
   }
+  if (levelId === 2) {
+    // Переходим на слой первого уровня
+    navigation.navigate('BlockTwoScreen');
+  } else {
+    alert(`Уровень ${levelId} пока закрыт. Пройди второй уровень! 🔒`);
+  }
 };
 
 

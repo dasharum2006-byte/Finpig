@@ -1,5 +1,5 @@
 import React, { useState,useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Dimensions, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Dimensions, ScrollView, Alert } from 'react-native';
 
 const { width } = Dimensions.get('window');
 
@@ -28,13 +28,14 @@ export default function BlockOneScreen({ navigation, route }) {
       if (nextStep > unlockedStep && nextStep <= BLOCK_ONE_ROUTINE.length) {
         setUnlockedStep(nextStep);
       }
+      navigation.setParams({ highestCompletedStep: undefined });
     }
-  }, [route.params?.highestCompletedStep]);
+  }, [route.params?.highestCompletedStep, navigation, unlockedStep]);
 
   const handlePressItem = (item) => {
     // Если ID элемента больше, чем unlockedStep — значит он заблокирован!
     if (item.id > unlockedStep) {
-      alert("Этот шаг пока закрыт.Пройди предыдущие задания 🔒");
+      Alert.alert("Этот шаг пока закрыт.Пройди предыдущие задания 🔒");
       return;
     }
 

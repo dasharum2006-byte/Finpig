@@ -120,7 +120,8 @@ export default function HomeScreen({ route, navigation }) {
         Math.abs(g.dx) > 15 && Math.abs(g.dx) > Math.abs(g.dy),
       onPanResponderRelease: (_, g) => {
         if (g.dx < -SWIPE_THRESHOLD) {
-          navigation.navigate('Kitchen', { item, petName });
+          //хз тут надо поменять petName -> activePetname
+          navigation.navigate('Kitchen', { item: activePet, petName: activePetName });
         }
       },
     })
