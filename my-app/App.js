@@ -19,7 +19,7 @@ import FoodShopScreen from './src/screens/FoodShopScreen';
 import TasksScreen from './src/screens/TaskScreen';
 import BlockOneScreen from './src/screens/BlockOneScreen';
 import LevelOneScreen from './src/screens/LevelOneScreen';
-
+import MyNewGameScreen from './src/screens/MyNewGameScreen';
 import { colors } from './src/theme';
 
 const Stack = createNativeStackNavigator();
@@ -125,11 +125,6 @@ export default function App() {
             options={{ title: 'Каталог' }}
           />
 
-          <Stack.Screen
-            name="BlockOne"
-            component={BlockOneScreen}
-            options={{headerShown:false}}
-          />
 
           <Stack.Screen
             name="PetName"
@@ -144,11 +139,22 @@ export default function App() {
               animation: 'fade',
             }}
           />
-          <Stack.Screen
-            name="LevelOne"
+      
+            <Stack.Screen
+            name="BlockOneScreen"
+            component={BlockOneScreen}
+            options={{headerShown: false}}
+            />
+            <Stack.Screen
+            name="LevelOneScreen"
             component={LevelOneScreen}
-            options={{ headerShown: false }} 
-          />
+            options={{headerShown: false}}
+            />
+            <Stack.Screen
+            name="MyNewGameScreen"
+            component={MyNewGameScreen}
+            options={{headerShown: false}}
+            />
 
           <Stack.Screen
             name="Home"

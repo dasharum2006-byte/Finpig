@@ -17,7 +17,7 @@ export default function TasksScreen({ navigation }) {
 const handleSelectTask = (levelId) => {
   if (levelId === 1) {
     // Переходим на слой первого уровня
-    navigation.navigate('BlockOne');
+    navigation.navigate('BlockOneScreen');
   } else {
     alert(`Уровень ${levelId} пока закрыт. Пройди первый уровень! 🔒`);
   }
@@ -30,14 +30,14 @@ const handleSelectTask = (levelId) => {
         <TouchableOpacity 
           style={styles.cityBackButton} 
           activeOpacity={0.7} 
-          onPress={() => navigation.goBack()} // Назад 
+          onPress={() => navigation.goBack()} 
         >
 
           <Text style={styles.cityBackText}>Назад</Text>
         </TouchableOpacity>
         
-        <Text style={styles.pageTitle}>Задания</Text>
-        <View style={{ width: 90 }} /> {/* Пустышка для центровки заголовка */}
+        <Text style={styles.pageTitle}>Уровни</Text>
+        <View style={{ width: 90 }} /> 
       </View>
       <ScrollView 
         style={styles.tasksList} 
@@ -51,7 +51,6 @@ const handleSelectTask = (levelId) => {
             activeOpacity={0.8}
             onPress={() => handleSelectTask(task.id)}
           >
-            {/*Номер уровня */}
             <View style={styles.levelBadge}>
               <Text style={styles.levelBadgeText}>{task.id}</Text>
             </View>

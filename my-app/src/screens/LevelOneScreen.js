@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text,Image, View, TouchableOpacity, Dimensions, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, Dimensions, ScrollView, Image, Alert } from 'react-native';
+
 const { width } = Dimensions.get('window');
 
-// Сценарий игры для Уровня 1 
+// Ровно 6 вопросов-шагов, и у каждого СВОЯ картинка из папки assets!
 const LEVEL_STEPS = [
-  {
+{
     id: 1,
     subTitle: 'Откуда взялись деньги?',
     text: 'Давным-давно не было денег. Если тебе нужны были дрова, то тебе тебе приходилось меняться.Люди могли обменивать дрова на горшки,горшки на свинок.',
@@ -12,304 +13,316 @@ const LEVEL_STEPS = [
     imageStyle: 'storyImageTribe',
     question: 'Что люди использовали вместо денег в древности, чтобы меняться?',
     options: [
-      { text: 'Смартфоны и дома', isCorrect: false },
-      { text: 'Вещи, еду, домашних животных', isCorrect: true },
-      { text: 'Шоколадки из супермаркета', isCorrect: false }
+    { text: 'Смартфоны и дома', isCorrect: false },
+    { text: 'Вещи, еду, домашних животных', isCorrect: true },
+    { text: 'Шоколадки из супермаркета', isCorrect: false }
     ]
   },
-   {
+{
     id: 2, // Поставь нужный порядковый номер в массиве
     subTitle: 'Почему появились деньги',
     text: 'У тебя есть плюшевая акула, которую тебе подарили. Вдруг на площадке ты увидел мальчика с вкусным леденцом-петушком на палочке. Тебе в эту секунду ужасно захотелось сладкого! Мальчик предлагает меняться: твоя акула в обмен на его леденец.',
     image: require('../../assets/pictirequestion/shark.png'),
-     // Картинка с акулой и леденцом
-     imageStyle: 'storyImageShark',
+    // Картинка с акулой и леденцом
+    imageStyle: 'storyImageShark',
     question: 'Как ты думаешь, выгодно ли менять плюшевую акулу на леденец, если тебе захотелось сладкого?',
     options: [
-      { text: 'Да, ведь я хочу конфету прямо сейчас', isCorrect: false },
-      { text: 'Нет, акула стоит намного дороже.Это невыгодный обмен', isCorrect: true },
-      { text: 'Да, акулу всё равно нельзя съесть', isCorrect: false }
+    { text: 'Да, ведь я хочу конфету прямо сейчас', isCorrect: false },
+    { text: 'Нет, акула стоит намного дороже.Это невыгодный обмен', isCorrect: true },
+    { text: 'Да, акулу всё равно нельзя съесть', isCorrect: false }
     ]
   },
-  {
+{
     id: 3,
     subTitle: 'Сбережения',
     text: 'Сбережения — это деньги, которые ты не потратил сразу, а отложил на будущее. Тебе подарили деньги. Если купить на них конфеты, деньги закончатся за день. А если положить их в копилку и каждый раз добавлять туда новые деньги, то скоро можно будет купить велосипед.',
     image: require('../../assets/pictirequestion/velosiped.png'),
-     imageStyle: 'storyImagevelosiped',
+    imageStyle: 'storyImagevelosiped',
     question: 'Зачем нужно откладывать деньги?',
     options: [
-      { text: 'Чтобы они просто пылились в шкафу', isCorrect: false },
-      { text: 'Чтобы купить что-то важное  в будущем', isCorrect: true },
-      { text: 'Чтобы поскорее всё потратить за один день', isCorrect: false }
+    { text: 'Чтобы они просто пылились в шкафу', isCorrect: false },
+    { text: 'Чтобы купить что-то важное в будущем', isCorrect: true },
+    { text: 'Чтобы поскорее всё потратить за один день', isCorrect: false }
     ]
   },
-  {
+{
     id: 4,
     subTitle: 'Копим на мечту',
-    text: 'Представь: ты очень хочешь новый телефон. Это твоя финансовая цель — большая покупка, для которой нужно накопить деньги. Можно откладывать понемногу каждую неделю и следить, как сумма растёт. А чтобы деньги не потерялись, в банке можно создать виртуальный «Конверт» —  место для накоплений на конкретную мечту. Например, один конверт — на велосипед, другой — на подарок',
-     image: require('../../assets/pictirequestion/phone.jpg'),
-     imageStyle: 'storyImagephone',
+    text: 'Представь: ты очень хочешь новый телефон. Это твоя финансовая цель — большая покупка, для которой нужно накопить деньги. Можно откладывать понемногу каждую неделю и следить, как сумма растёт. А чтобы деньги не потерялись, в банке можно создать виртуальный «Конверт» — место для накоплений на конкретную мечту. Например, один конверт — на велосипед, другой — на подарок',
+    image: require('../../assets/pictirequestion/phone.jpg'),
+    imageStyle: 'storyImagephone',
     question: 'Что такое "Конверт" в современном банке?',
     options: [
-      { text: 'Конвертик для писем с маркой', isCorrect: false },
-      { text: 'Отдельный счет, где деньги лежат на конкретную цель', isCorrect: true }
+    { text: 'Конвертик для писем с маркой', isCorrect: false },
+    { text: 'Отдельный счет, где деньги лежат на конкретную цель', isCorrect: true }
     ]
   },
-    {
+{
     id: 5,
     subTitle: 'Ловушка Монстра «Хотюна»',
     text: 'Внимание! В супермаркете у кассы прячется монстр — Хотюн. Он специально раскладывает на нижних полках самые яркие жвачки, поп-иты и шоколадки, чтобы загипнотизировать тебя и заставить купить. Хотюн охотится за твоими монетами, чтобы опустошить конверт с твоей главной мечтой. Твоё главное шпионское оружие против него — "Заклинание 10 секунд".',
-    image: require('../../assets/pictirequestion/hotun.jpg'), 
-    imageStyle: 'storyImagehotun', 
+    image: require('../../assets/pictirequestion/hotun.jpg'),
+    imageStyle: 'storyImagehotun',
     question: 'Какой суперприем поможет агенту победить Хотюна у кассы магазина?',
     options: [
-      { text: 'Упасть на пол и требовать купить жвачку, чтобы Хотюн испугался ', isCorrect: false },
-      { text: 'Включить таймер на 10 секунд, сделать глубокий вдох и спросить себя: "Это моя цель или ловушка монстра?"', isCorrect: true },
-      { text: 'Быстро съесть всё прямо в магазине, пока никто не видит', isCorrect: false }
+    { text: 'Упасть на пол и требовать купить жвачку, чтобы Хотюн испугался ', isCorrect: false },
+    { text: 'Включить таймер на 10 секунд, сделать глубокий вдох и спросить себя: "Это моя цель или ловушка монстра?"', isCorrect: true },
+    { text: 'Быстро съесть всё прямо в магазине, пока никто не видит', isCorrect: false }
     ]
+  },
+    {
+    id: 6,
+    type: 'sort', // Указываем новый тип задания
+    subTitle: 'Задание 6: План «Копим на компьютер» 🖥️',
+    text: 'Чтобы купить  игровой компьютер, нужен четкий план действий. Расставь шаги в правильном порядке: от самого первого действия до покупки',
+    question: 'Расположи шаги плана от начала до конца(сверху вниз):',
+    // Изначально перемешанный список для ребенка
+    initialItems: [
+      { id: 'step4', text: '4. Регулярно откладывать деньги в конверт 🪙' },
+      { id: 'step1', text: '1. Узнать точную цену компьютера в магазине 💰' },
+      { id: 'step5', text: '5. Купить компьютер и радоваться покупке! 🎉' },
+      { id: 'step2', text: '2. Посчитать, сколько денег уже есть в копилке 🐷' },
+      { id: 'step3', text: '3. Разделить сумму на недели и понять план 📆' },
+    ],
+    // Правильный порядок ID для проверки
+    correctOrder: ['step1', 'step2', 'step3', 'step4', 'step5']
   }
+
 ];
 
-  export default function LevelOneScreen({ route, navigation }) {
-  // Достаем переданный ID вопроса и функцию успешного прохождения
-  const { questionId = 1, onSuccess = null } = route?.params || {};
 
-  // Находим нужный вопрос в базе по его ID
-  const step = LEVEL_STEPS.find(item => item.id === questionId) || LEVEL_STEPS[0];
-
+export default function LevelOneScreen({ navigation, route }) {
+  // Получаем индекс вопроса, на который нажали. Если не передали — стартуем с 0
+  const startIndex = route.params?.startIndex ?? 0;
+  
+  // Устанавливаем стартовый индекс в состояние
+  const [currentStepIndex, setCurrentStepIndex] = useState(startIndex);
   const [selectedOption, setSelectedOption] = useState(null);
   const [isAnswered, setIsAnswered] = useState(false);
+  const [score, setScore] = useState(0);
+
+  // Состояние для интерактивной сортировки 6-го шага
+  const [sortItems, setSortItems] = useState([]);
+  const [isSortCorrect, setIsSortCorrect] = useState(false);
+  const step = LEVEL_STEPS[currentStepIndex];
+  const [showCorrectHint, setShowCorrectHint] = useState(false);
+
+  // Инициализируем список для сортировки, если это задание 6
+  useEffect(() => {
+    if (step && step.type === 'sort') {
+      setSortItems(step.initialItems);
+      setIsAnswered(false);
+    }
+  }, [currentStepIndex]);
 
   const handleOptionPress = (option) => {
     if (isAnswered) return;
     setSelectedOption(option);
     setIsAnswered(true);
-
     if (option.isCorrect) {
-      alert('Правильно! 🎉 Карта Блока обновлена.');
-      if (onSuccess) onSuccess(); // Вызываем разблокировку на предыдущем экране
-    } else {
-      alert('Неправильно, попробуй еще раз! ❌');
+      setScore(prev => prev + 1);
     }
   };
 
-  return (
+  // Движение элемента вверх по списку
+  const moveUp = (index) => {
+    if (index === 0 || isAnswered) return;
+    const newItems = [...sortItems];
+    const temp = newItems[index];
+    newItems[index] = newItems[index - 1];
+    newItems[index - 1] = temp;
+    setSortItems(newItems);
+  };
+
+  // Движение элемента вниз по списку
+  const moveDown = (index) => {
+    if (index === sortItems.length - 1 || isAnswered) return;
+    const newItems = [...sortItems];
+    const temp = newItems[index];
+    newItems[index] = newItems[index + 1];
+    newItems[index + 1] = temp;
+    setSortItems(newItems);
+  };
+
+  // 🌟 ВОЛШЕБНАЯ ФУНКЦИЯ ПРОВЕРКИ С АВТО-ИСПРАВЛЕНИЕМ 🌟
+  const checkSortOrder = () => {
+    const userOrder = sortItems.map(item => item.id);
+    const isCorrect = JSON.stringify(userOrder) === JSON.stringify(step.correctOrder);
+    
+    setIsAnswered(true); // Сразу блокируем кнопки и показываем результат
+
+    if (isCorrect) {
+      setIsSortCorrect(true);
+      setScore(prev => prev + 1);
+    } else {
+      setIsSortCorrect(false); // Сначала показываем КРАСНЫЙ цвет (ошибка)
+      
+      // Через 1.2 секунды автоматически перестраиваем в ПРАВИЛЬНЫЙ порядок и делаем ЗЕЛЕНЫМ
+      setTimeout(() => {
+        const correctItems = step.correctOrder.map(correctId => 
+          step.initialItems.find(item => item.id === correctId)
+        );
+        setSortItems(correctItems);
+        setIsSortCorrect(true); // Теперь карточки станут зелеными
+        setShowCorrectHint(true); // Показываем надпись "Смотри, как надо было"
+      }, 1200);
+    }
+  };
+  // Проверка правильности сортировки плана
+  // const checkSortOrder = () => {
+  //   const userOrder = sortItems.map(item => item.id);
+  //   const isCorrect = JSON.stringify(userOrder) === JSON.stringify(step.correctOrder);
+  //   setIsSortCorrect(isCorrect);
+  //   setIsAnswered(true);
+  //   if (isCorrect) {
+  //     setScore(prev => prev + 1);
+  //   }
+  // };
+    const handleNextStep = () => {
+    // Сначала обновляем прогресс на карте
+    navigation.setParams({ completedStepId: currentStepIndex + 1 });
+    
+    if (currentStepIndex < LEVEL_STEPS.length - 1) {
+      // Если это не последний шаг, просто идем дальше
+      setCurrentStepIndex(currentStepIndex + 1);
+      setSelectedOption(null);
+      setIsAnswered(false);
+    } else {
+      // Если это последний шаг, показываем финал и выходим
+      Alert.alert(
+        'Победа! 🏆', 
+        `Уровень пройден! Твой результат: ${score + (isSortCorrect ? 1 : 0)} из ${LEVEL_STEPS.length}. На твой баланс начислено 50 монет!`,
+        [{ text: 'Круто!', onPress: () => navigation.goBack() }]
+      );
+    }
+  };
+
+return (
     <View style={styles.container}>
       {/* Шапка */}
       <View style={styles.topBar}>
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Text style={styles.backText}>Назад к карте</Text>
+          <Text style={styles.backText}>Выйти</Text>
         </TouchableOpacity>
-        <Text style={styles.mainTitle}>Задание {step.id}</Text>
-        <View style={{ width: 60 }} />
+        <Text style={styles.mainTitle}>Уровень 1: Шаг {currentStepIndex + 1} из 6</Text>
+        <Text style={styles.scoreText}>🪙 +{score * 10}</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* Карточка истории */}
+        {/* Карточка с историей */}
         <View style={styles.storyCard}>
           <Text style={styles.subTitle}>{step.subTitle}</Text>
-          <Image 
-            source={step.image} 
-            style={[styles.commonImageSettings, styles[step.imageStyle]]} 
-            resizeMode="contain" 
-          />
+          {step.image && <Image source={step.image} style={styles.storyImage} resizeMode="contain" />}
           <Text style={styles.storyText}>{step.text}</Text>
         </View>
 
-        {/* Блок вопроса */}
+        {/* Интерактивный блок */}
         <View style={styles.questionCard}>
           <Text style={styles.questionText}>{step.question}</Text>
-          {step.options.map((option, index) => {
-            let buttonStyle = styles.optionButton;
-            if (isAnswered) {
-              if (option.isCorrect) buttonStyle = { ...styles.optionButton, backgroundColor: '#C8E6C9', borderColor: '#4CAF50' };
-              else if (selectedOption?.text === option.text) buttonStyle = { ...styles.optionButton, backgroundColor: '#FFCDD2', borderColor: '#F44336' };
-            }
+          
+          {/* ЕСЛИ ТИП ЗАДАНИЯ — СОРТИРОВКА ПЛАНА */}
+          {step.type === 'sort' ? (
+            <View style={styles.sortContainer}>
+              {/* Подсказка, которая появляется, если ребенок ошибся */}
+              {isAnswered && !isSortCorrect && showCorrectHint && (
+                <Text style={styles.hintText}>✨ Смотри, как надо было:</Text>
+              )}
+              {sortItems.map((item, index) => {
+                let cardStyle = styles.sortCard;
+                if (isAnswered) {
+                  cardStyle = isSortCorrect 
+                    ? { ...styles.sortCard, backgroundColor: '#C8E6C9', borderColor: '#4CAF50' }
+                    : { ...styles.sortCard, backgroundColor: '#FFCDD2', borderColor: '#F44336' };
+                }
 
-            return (
-              <TouchableOpacity key={index} style={buttonStyle} onPress={() => handleOptionPress(option)}>
-                <Text style={styles.optionText}>{option.text}</Text>
-              </TouchableOpacity>
-            );
-          })}
+                return (
+                  <View key={item.id} style={cardStyle}>
+                    <Text style={styles.sortCardText}>{item.text}</Text>
+                    
+                    {!isAnswered && (
+                      <View style={styles.sortButtons}>
+                        <TouchableOpacity style={styles.arrowBtn} onPress={() => moveUp(index)}>
+                          <Text style={styles.arrowText}>🔼</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.arrowBtn} onPress={() => moveDown(index)}>
+                          <Text style={styles.arrowText}>🔽</Text>
+                        </TouchableOpacity>
+                      </View>
+                    )}
+                  </View>
+                );
+              })}
+
+              {!isAnswered && (
+                <TouchableOpacity style={styles.checkButton} onPress={checkSortOrder}>
+                  <Text style={styles.checkButtonText}>Проверить план 🔍</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          ) : (
+            // ОБЫЧНЫЙ ТЕСТ (Варианты ответов для шагов 1-5)
+            step.options.map((option, index) => {
+              let buttonStyle = styles.optionButton;
+              if (isAnswered) {
+                if (option.isCorrect) {
+                  buttonStyle = { ...styles.optionButton, backgroundColor: '#C8E6C9', borderColor: '#4CAF50' };
+                } else if (selectedOption?.text === option.text) {
+                  buttonStyle = { ...styles.optionButton, backgroundColor: '#FFCDD2', borderColor: '#F44336' };
+                }
+              }
+              return (
+                <TouchableOpacity
+                  key={index}
+                  style={buttonStyle}
+                  onPress={() => handleOptionPress(option)}
+                  activeOpacity={0.7}
+                  isabled={isAnswered}
+                >
+                  <Text style={styles.optionText}>{option.text}</Text>
+                </TouchableOpacity>
+              );
+            })
+          )}
         </View>
 
-        {/* Кнопка возврата */}
-        {isAnswered && selectedOption?.isCorrect && (
-          <TouchableOpacity style={styles.nextButton} onPress={() => navigation.goBack()}>
-            <Text style={styles.nextButtonText}>Вернуться к Блоку 1 ▶</Text>
+        {/* Кнопка Далее */}
+        {isAnswered && (
+          <TouchableOpacity style={styles.nextButton} onPress={handleNextStep}>
+            <Text style={styles.nextButtonText}>
+              {currentStepIndex === LEVEL_STEPS.length - 1 ? 'Финиш ' : 'Дальше '}
+            </Text>
           </TouchableOpacity>
         )}
       </ScrollView>
     </View>
   );
-} 
-
-
+}
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    backgroundColor: '#3c89a0dc', 
-    paddingTop: 30 
-  },
-  topBar: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    alignItems: 'center', 
-    paddingHorizontal: 20, 
-    marginBottom: 20 
-  },
-  backButton: { 
-    backgroundColor: '#3b71af', 
-    paddingHorizontal: 16, 
-    paddingVertical: 10, 
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 3,
-    elevation: 3
-  },
-  backText: { 
-    color: '#FFF', 
-    fontWeight: 'bold',
-    fontSize: 14
-  },
-  mainTitle: { 
-    fontSize: 16, 
-    fontWeight: 'bold', 
-    color: '#FFF',
-    textAlign: 'center',
-    flex: 1,
-    paddingHorizontal: 5
-  },
-  scoreText: { 
-    fontSize: 16, 
-    fontWeight: 'bold', 
-    color: '#83817a',
-    backgroundColor: 'rgba(0,0,0,0.2)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 15,
-    overflow: 'hidden'
-  },
-  scrollContent: { 
-    paddingHorizontal: 20, 
-    paddingBottom: 40 
-  },
-  storyCard: { 
-    backgroundColor: '#FFF', 
-    padding: 10, 
-    width: '100%',
-    borderRadius: 24, 
-    marginBottom: 20, 
-    borderWidth: 2, 
-    overflow: 'hidden',
-    borderColor: '#82aeff',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 3
-  },
-  subTitle: { 
-    fontSize: 18, 
-    fontWeight: 'bold', 
-    color: '#006be6', 
-    marginBottom: 1,
-    textAlign: 'center',
-    paddingHorizontal: 18,
-  },
-
-
-  commonImageSettings: {
-    alignSelf: 'center',
-    borderRadius: 16, 
-    marginBottom: 1,
-  },
-  storyText: { 
-    fontSize: 18, 
-    color: '#333', 
-    lineHeight: 24, 
-    fontWeight: '500',
-    textAlign: 'justify',
-    // marginLeft: 10,
-  },
-  storyImageTribe: {  
-    width: '90%', 
-    height: 170, 
-  },
-  storyImageShark: {  
-    width: '100%', 
-    height: 160, 
-  },
-  storyImagehotun: {  
-    width: '100%', 
-    height: 160, 
-  },
-
-
-  storyImagevelosiped: {
-    width: '100%',
-    height: 170,
-  },
-
-storyImagephone: {
-    width: '100%',
-    height: 170,
-  },
-    questionCard: { 
-    backgroundColor: '#ebeaea', 
-    padding: 15, 
-    borderRadius: 24, 
-    marginBottom: 5,
-    borderWidth: 1,
-    borderColor: '#a8a8a6'
-  },
-  questionText: { 
-    fontSize: 16, 
-    fontWeight: 'bold', 
-    color: '#37415d', 
-    marginBottom: 5,
-    marginTop: -4,
-    lineHeight: 22,
-    textAlign: 'justify',
-  },
-  optionButton: { 
-    backgroundColor: '#FFF', 
-    padding: 10, 
-    borderRadius: 14, 
-    marginBottom: 5, 
-    borderWidth: 2, 
-    borderColor: '#8b8b89',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1
-  },
-  optionText: { 
-    fontSize: 14, 
-    color: '#333', 
-    fontWeight: '600',
-    lineHeight: 20
-  },
-  nextButton: { 
-    backgroundColor: '#E65100', 
-    paddingVertical: 16, 
-    borderRadius: 16, 
-    alignItems: 'center', 
-    marginTop: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4
-  },
-  nextButtonText: { 
-    color: '#FFF', 
-    fontSize: 16, 
-    fontWeight: 'bold' 
-  }
+  container: { flex: 1, backgroundColor: '#365d69', paddingTop: 50 },
+  topBar: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, marginBottom: 15 },
+  backButton: { backgroundColor: '#5D4037', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10 },
+  backText: { color: '#FFF', fontWeight: 'bold', fontSize: 13 },
+  mainTitle: { fontSize: 15, fontWeight: 'bold', color: '#FFF' },
+  scoreText: { fontSize: 16, fontWeight: 'bold', color: '#FFE082' },
+  scrollContent: { paddingHorizontal: 20, paddingBottom: 40 },
+  
+  storyCard: { backgroundColor: '#FFF', padding: 15, borderRadius: 20, marginBottom: 20, borderWidth: 2, borderColor: '#FFE082' },
+  subTitle: { fontSize: 16, fontWeight: 'bold', color: '#E65100', marginBottom: 8 },
+  storyImage: { width: '100%', height: 160, borderRadius: 12, marginBottom: 12 },
+  storyText: { fontSize: 14, color: '#333', lineHeight: 22 },
+  
+  questionCard: { backgroundColor: '#20201e', padding: 15, borderRadius: 20, marginBottom: 20 },
+  questionText: { fontSize: 15, fontWeight: 'bold', color: '#5D4037', marginBottom: 15 },
+  optionButton: { backgroundColor: '#FFF', padding: 12, borderRadius: 12, marginBottom: 10, borderWidth: 2, borderColor: '#E0D4B7' },
+  optionText: { fontSize: 14, color: '#333', fontWeight: '500' },
+   sortContainer: { marginBottom: 10 },
+  sortCard: { backgroundColor: '#FFF', padding: 12, borderRadius: 12, marginBottom: 10, borderWidth: 2, borderColor: '#E0D4B7', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  sortCardText: { fontSize: 14, color: '#333', fontWeight: '500', flex: 1, paddingRight: 10 },
+  sortButtons: { flexDirection: 'row' },
+  arrowBtn: { padding: 5, marginLeft: 5 },
+  arrowText: { fontSize: 18 },
+  checkButton: { backgroundColor: '#3b71af', padding: 12, borderRadius: 12, alignItems: 'center', marginTop: 10 },
+  checkButtonText: { color: '#FFF', fontSize: 15, fontWeight: 'bold' },
+  nextButton: { backgroundColor: '#E65100', padding: 15, borderRadius: 15, alignItems: 'center', marginTop: 10 },
+  nextButtonText: { color: '#FFF', fontSize: 16, fontWeight: 'bold' }
 });
