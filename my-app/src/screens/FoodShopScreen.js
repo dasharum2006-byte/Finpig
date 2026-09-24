@@ -1,8 +1,10 @@
 import React, {useState} from 'react'
-import { StyleSheet,Text,View,Image,ImageBackground,TouchableOpacity,Dimensions} from 'react-native';
+import { StyleSheet,Text,View,Image,Modal,ScrollView,ImageBackground,TouchableOpacity,Dimensions} from 'react-native';
 
 const {width} = Dimensions.get('window');
 import backgroundImage from '../../assets/fonshop.png';
+
+
 //БД товаров
 const SHOP_FOOD_DATA = [
     {
@@ -38,10 +40,85 @@ const SHOP_FOOD_DATA = [
         ]
     },
 ];
-
+//Добавление ЛОгики для покупок - корзина и чек!!!!!!!!!!1
 export default function FoodShopScreen({navigation}) {
     //индекс текущ активности
     const [currentCategoryIndex,setCurrentCategoryIndex] = useState(0);
+
+    //Монеты  и товары в корзине
+    //баланс монет пльзователя
+    const [coins,setCoins] = useState(150);
+    //массив товаров в корзине
+    const [cart,setCart] = useState([]);
+    //окно корзины открывается и закрывается
+    const [isCartVisible, setIsCartVisible] = useState(false);
+    //текст ошибли об оплате
+    const [paymentError, setPaymentError] = useState('');
+
+    //считаем общее количество товаров на значок
+    const getTotalCartItems = () => {
+        return cart.reduce((total, item) => total + item.quantity, 0);
+    };
+    //считаем стоимость для всей корзины
+    const getTotalCartItenms = () => {
+        return cart.reduce((total,item) => total + item.quantity, 0);
+    };
+    //итоговая стоимость всей корзины
+    const getTotalPrice = () => {
+        return cart.reduce((total,item) => total + (item.price * item.quantity),0);
+    }
+    //Добавление в корзину с полки пока что деньги не списываются
+    const handleBuyProduct = (product) => {
+        //сбрасываем старые ошибки
+        setPaymentError('');
+        setCart(prevCart => {
+            const existingItemIndex = SVGAnimatedPreserveAspectRatio.findIndex(item => item,id === product.id);
+            if (existingItemIndex > -1) {
+                const newCart = [...prevCart];
+                newCart[existingItemIndex].quantity += 1;
+                return newCart;
+            } else {
+                return [...prevCart, {...product,quantity: 1}];
+            }
+        });
+    };
+    //Плюсик внутри корзины
+    const handleIncrement = (productId) => {
+        setPaymentError('');
+        setCart(prevCart =>
+            prevCart.map(item => item.id === productId ? {...item,quantity:item.quantity + 1}:item)
+        );
+    };
+    //Минус внутри корзины
+    const handleDecrement = (productId) => {
+        setPaymentError('');
+        setCart(prevCart => {
+            //если 0 штук товаров то удаляем его
+            return prevCart.map(item => item.id === productId ? {...item,quantity:item.quantity - 1}:item)
+            .filter(item => item.quantity > 0);
+        });
+    };
+    //Логика оплаты всей корзины
+    const handlePay = () => {
+        const totalCost = getTotalPrice();
+
+        if (totalCost === 0) {
+            setPaymentError('Корзина пуста, сначала выбери пожалуйста продукты');
+            return;
+        }
+        if (coins < totalCost) {
+            setPaymentError('Не удалось провести оплату.На карте недостаточно денег');
+            return;
+        }
+        //Если денег хватаем, то списываем всю сумму,затем очищаем корзину и закрываем ее
+        setCoins(prev => prev - totalCost);
+        setCart([]);
+        setPaymentError('');
+        setIsCartVisible(false);
+        alert('Оплата прошла успешно.Продукты куплены');
+    };
+
+    //  САМ МАГАЗИН - ПОЛКИ И ЛИСТАНИЕ ТУДА СЮДА
 
     const currentCategory = SHOP_FOOD_DATA[currentCategoryIndex];
     //листание назад
@@ -67,9 +144,8 @@ return (
     // <View style={styles.container}>
     <ImageBackground
         source={backgroundImage} style={styles.container} resizeMode='cover'>
-        {/* Шапка магазина */}
-        {/* !!!!!!!!!!!поменять на реальную */}
-         <View style={styles.topBar}>
+        
+    <View style={styles.topBar}>
       
       {/* ЛЕВАЯ СТОРОНА: Кнопка возврата в город */}
       <TouchableOpacity 
@@ -92,11 +168,15 @@ return (
         <TouchableOpacity 
           style={styles.cartButton} 
           activeOpacity={0.7} 
-          onPress={() => alert('Здесь откроется твоя корзина с едой!')}
+        //   onPress={() => alert('Здесь откроется твоя корзина с едой')}
+        // с помощью нажатия открываем корзину
+        onPress={() => {setPaymentError('');
+            setIsCartVisible(true);
+            }}
         >
           <Text style={styles.cartEmoji}>🛒</Text>
           <View style={styles.cartBadge}>
-            <Text style={styles.cartBadgeText}>0</Text>
+            <Text style={styles.cartBadgeText}>{getTotalCartItems()}</Text>
           </View>
         </TouchableOpacity>
       </View>
@@ -112,10 +192,17 @@ return (
                         {/* на 2 полках продукты */}
                         <View style={styles.productsRow}>
                             {shelf.map((product) => (
-                                <TouchableOpacity key={product.id} style={styles.productCard} activeOpacity={0.7}>
+                                <TouchableOpacity key={product.id} style={styles.productCard} activeOpacity={0.7} onPress={() => handleBuyProduct(product)}>
                                     <Text style={styles.productEmodji}>{product.img}</Text>
-                                    <Text style={styles.productName}>{product.name}</Text>
-                                    <Text style={styles.productPrice}>{product.price}</Text>
+                                     
+                                    <View style={styles.productFooterRow}>
+                                    <Text style={styles.productName} numberOfLines={1}>{product.name}</Text>
+
+                                     <View style={styles.productPriceContainer}>
+                                         <Text style={styles.productPrice}>{product.price}</Text>
+                                        <Text style={styles.coinMiniEmoji}>🪙</Text>
+                                    </View>
+                                    </View>
                                 </TouchableOpacity>
                                 )
                             )
@@ -129,7 +216,7 @@ return (
             }
         </View>
 
-
+        {/* переключатель */}
         <View style={styles.headerRow}>
             <TouchableOpacity style={styles.arrowButton} onPress={handlePrev}>
                 <Text style={styles.arrowText}>◀</Text>
@@ -143,6 +230,64 @@ return (
             </TouchableOpacity>
         </View>
            
+        {/* Окно всплывающее корзины с чеком */}
+        <Modal visible={isCartVisible} animationType="slide" transparent={true}
+        onRequestClose={() => setIsCartVisible(false)}>
+            <View style={styles.modalOverlay}>
+                 <View style={styles.modalContent}>
+          {/* Шапка модалки */}
+          <View style={styles.modalHeader}>
+            <Text style={styles.modalTitle}>Твоя корзина 🛒</Text>
+            <TouchableOpacity style={styles.closeModalButton} onPress={() => setIsCartVisible(false)}>
+              <Text style={styles.closeModalText}>❌</Text>
+            </TouchableOpacity>
+          </View>
+          {/* Список товаров (Scrollable, если еды много) */}
+          <ScrollView style={styles.cartList} showsVerticalScrollIndicator={false}>
+            {cart.length === 0 ? (
+              <Text style={styles.emptyCartText}>Здесь пока пусто... добавь еду с полок</Text>
+            ) : (
+              cart.map((item) => (
+                <View key={item.id} style={styles.cartItemRow}>
+                  {/*Иконка */}
+                  <Text style={styles.cartItemEmoji}>{item.img || '📦'}</Text>
+                  {/* Название и описание цены */}
+                  <View style={styles.cartItemInfo}>
+                    <Text style={styles.cartItemName}>{item.name}</Text>
+                    <Text style={styles.cartItemDescription}>{item.price} 🪙 за шт.</Text>
+                  </View>
+                  {/*Блок управления количеством -  + */}
+                  <View style={styles.quantityControls}>
+                    <TouchableOpacity style={styles.controlButton} onPress={() => handleDecrement(item.id)}>
+                      <Text style={styles.controlButtonText}>-</Text>
+                    </TouchableOpacity>
+                    <Text style={styles.quantityText}>{item.quantity}</Text>
+                    <TouchableOpacity style={styles.controlButton} onPress={() => handleIncrement(item.id)}>
+                      <Text style={styles.controlButtonText}>+</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              ))
+            )}
+            </ScrollView>
+            {/*Итог и Кнопка оплаты */}
+            <View style={styles.modalFooter}>
+                <View style={styles.totalRow}>
+                <Text style={styles.totalLabel}>Итоговая стоимость: </Text>
+                <Text style={styles.totalPriceText}>{getTotalPrice()}🪙</Text>
+                </View>
+                {/*Вывод ошибки, если не хватает денег */}
+                {paymentError ? (
+                <Text style={styles.errorText}>{paymentError}</Text>) : null}
+                <TouchableOpacity style={styles.payButton} activeOpacity={0.8} onPress={handlePay}>
+                <Text style={styles.payButtonText}>Оплатить 💳</Text>
+                </TouchableOpacity>
+            </View>
+            </View>
+        </View>
+        </Modal>
+
+
     </ImageBackground>
     );
 }
@@ -150,7 +295,6 @@ return (
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // backgroundColor: '#3E2723', 
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingBottom: 10,
@@ -208,7 +352,7 @@ const styles = StyleSheet.create({
   },
   productCard: {
     backgroundColor: '#e1fffdc4',
-    width: '40%',
+    width: '45%',
     borderRadius: 12,
     padding: 19,
     alignItems: 'center',
@@ -222,13 +366,29 @@ const styles = StyleSheet.create({
   },
   productEmoji: {
     fontSize: 40,
-    marginBottom: 5,
+    marginBottom: 6,
   },
   productName: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#5e4740',
-    textAlign: 'center',
+    color: '#1d1b1b',
+    textAlign: 'left',
+    flex: 1,
+    textAlign: 'left', 
+    marginRight: 4, 
+  },
+  // Строка-контейнер в самом низу карточки
+  productFooterRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between', 
+    alignItems: 'center', 
+    width: '100%',
+    paddingHorizontal: 2,
+  },
+  // Контейнер для цены и монетки
+  productPriceContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   productPrice: {
     fontSize: 13,
@@ -260,7 +420,7 @@ const styles = StyleSheet.create({
   },
   // Кнопка города слева
   cityBackButton: {
-    backgroundColor: '#29597494',
+    backgroundColor: '#57acddd5',
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 12,
@@ -277,10 +437,10 @@ const styles = StyleSheet.create({
   // Вертикальная колонка справа
   rightInfoColumn: {
     flexDirection: 'column',
-    alignItems: 'flex-end', // Прижимаем элементы к правому краю
+    alignItems: 'flex-end', 
   },
    coinContainer: {
-    backgroundColor: 'rgba(0, 0, 0, 0.6)', // Полупрозрачный черный фон, чтобы кошелек читался на любом фоне
+    backgroundColor: 'rgba(0, 0, 0, 0.6)', 
     paddingHorizontal: 15,
     paddingVertical: 8,
     borderRadius: 20,
@@ -318,6 +478,153 @@ const styles = StyleSheet.create({
   cartBadgeText: {
     color: '#FFF',
     fontSize: 11,
+    fontWeight: 'bold',
+  },
+  // Стили для модального окна корзины
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)', // Затемняем задний фон магазина
+    justifyContent: 'flex-end', // Прижимаем окно к низу экрана
+  },
+  modalContent: {
+    backgroundColor: '#FFF8E1', // Светлый приятный цвет чековой бумаги
+    borderTopLeftRadius: 25,
+    borderTopRightRadius: 25,
+    padding: 20,
+    maxHeight: '75%', // Чтобы корзина не перекрывала весь экран целиком
+    borderTopWidth: 5,
+    borderColor: '#47b7bb9d',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 15,
+    borderBottomWidth: 1,
+    borderColor: '#E0D4B7',
+    paddingBottom: 10,
+  },
+  modalTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#5D4037',
+  },
+  closeModalButton: {
+    padding: 5,
+  },
+  closeModalText: {
+    fontSize: 18,
+  },
+  cartList: {
+    marginVertical: 10,
+  },
+  emptyCartText: {
+    textAlign: 'center',
+    color: '#8D6E63',
+    fontSize: 16,
+    marginVertical: 30,
+    fontStyle: 'italic',
+  },
+  cartItemRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF',
+    padding: 12,
+    borderRadius: 15,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#FFE082',
+  },
+  cartItemEmoji: {
+    fontSize: 30,
+    marginRight: 12,
+  },
+  cartItemInfo: {
+    flex: 1,
+  },
+  cartItemName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#5D4037',
+  },
+  cartItemDescription: {
+    fontSize: 13,
+    color: '#8D6E63',
+    marginTop: 2,
+  },
+  quantityControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F5F5F5',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  controlButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  controlButtonText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#E65100',
+  },
+  quantityText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+    paddingHorizontal: 5,
+  },
+  modalFooter: {
+    borderTopWidth: 2,
+    borderColor: '#E0D4B7',
+    paddingTop: 15,
+    marginTop: 10,
+  },
+  totalRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  totalLabel: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#5D4037',
+  },
+  totalPriceText: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#E65100',
+  },
+  errorText: {
+    color: '#D32F2F', 
+    fontSize: 14,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 12,
+    backgroundColor: '#FFEBEE',
+    padding: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#FFCDD2',
+  },
+  payButton: {
+    backgroundColor: '#69b9b9fb', 
+    paddingVertical: 14,
+    borderRadius: 15,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 4,
+  },
+  payButtonText: {
+    color: '#FFF',
+    fontSize: 18,
     fontWeight: 'bold',
   },
 });
