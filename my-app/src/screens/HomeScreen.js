@@ -108,7 +108,7 @@ export default function HomeScreen({ route, navigation }) {
   const petSource = evolved ? PET_EVOLVED : PET_BASE;
 
   const menus = {
-    tasks: { title: '📋 Задания', text: 'Скоро тут появятся задания для питомца.' },
+    // tasks: { title: '📋 Задания', text: 'Скоро тут появятся задания для питомца.' },
     room: { title: '🏠 Комната', isRoomPicker: true },
   };
 
@@ -164,7 +164,7 @@ export default function HomeScreen({ route, navigation }) {
           </View>
 
           <View style={styles.bottomBar}>
-            <TouchableOpacity style={styles.actionButton} onPress={() => setOpenMenu('tasks')}>
+            <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('Tasks')}>
               <Text style={styles.actionEmoji}>📋</Text>
               <Text style={styles.actionText}>Задания</Text>
             </TouchableOpacity>

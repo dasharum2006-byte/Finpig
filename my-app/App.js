@@ -16,6 +16,9 @@ import KitchenScreen from './src/screens/KitchenScreen';
 import ChinaScreen from './src/screens/ChinaScreen'; 
 import TownScreen from './src/screens/TownScreen'; 
 import FoodShopScreen from './src/screens/FoodShopScreen';
+import TasksScreen from './src/screens/TaskScreen';
+import LevelOneScreen from './src/screens/LevelOneScreen';
+
 import { colors } from './src/theme';
 
 const Stack = createNativeStackNavigator();
@@ -135,6 +138,12 @@ export default function App() {
             }}
           />
           <Stack.Screen
+            name="LevelOne"
+            component={LevelOneScreen}
+            options={{ headerShown: false }} 
+          />
+
+          <Stack.Screen
             name="Home"
             component={HomeScreen}
             options={{
@@ -142,6 +151,12 @@ export default function App() {
               animation: 'slide_from_right',
             }}
           />
+          <Stack.Screen
+            name="Tasks"
+            component={TasksScreen}
+            options={{ headerShown: false }} 
+          />
+
           <Stack.Screen
             name="FoodShop"
             component={FoodShopScreen}
