@@ -17,6 +17,7 @@ import ChinaScreen from './src/screens/ChinaScreen';
 import TownScreen from './src/screens/TownScreen'; 
 import FoodShopScreen from './src/screens/FoodShopScreen';
 import TasksScreen from './src/screens/TaskScreen';
+import BlockOneScreen from './src/screens/BlockOneScreen';
 import LevelOneScreen from './src/screens/LevelOneScreen';
 
 import { colors } from './src/theme';
@@ -122,6 +123,12 @@ export default function App() {
             name="Catalog"
             component={CatalogScreen}
             options={{ title: 'Каталог' }}
+          />
+
+          <Stack.Screen
+            name="BlockOne"
+            component={BlockOneScreen}
+            options={{headerShown:false}}
           />
 
           <Stack.Screen

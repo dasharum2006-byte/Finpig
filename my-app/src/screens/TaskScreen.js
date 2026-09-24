@@ -17,22 +17,22 @@ export default function TasksScreen({ navigation }) {
 const handleSelectTask = (levelId) => {
   if (levelId === 1) {
     // Переходим на слой первого уровня
-    navigation.navigate('LevelOne');
+    navigation.navigate('BlockOne');
   } else {
     alert(`Уровень ${levelId} пока закрыт. Пройди первый уровень! 🔒`);
   }
 };
 
 
-  return (
+    return (
     <View style={styles.container}>
-      {/* ШАПКА*/}
       <View style={styles.topBar}>
         <TouchableOpacity 
           style={styles.cityBackButton} 
           activeOpacity={0.7} 
-          onPress={() => navigation.goBack()} //Назад 
+          onPress={() => navigation.goBack()} // Назад 
         >
+
           <Text style={styles.cityBackText}>Назад</Text>
         </TouchableOpacity>
         

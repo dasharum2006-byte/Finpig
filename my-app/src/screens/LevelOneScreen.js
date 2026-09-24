@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text,Image, View, TouchableOpacity, Dimensions, ScrollView } from 'react-native';
-
 const { width } = Dimensions.get('window');
 
 // Сценарий игры для Уровня 1 
@@ -69,36 +68,29 @@ const LEVEL_STEPS = [
       { text: 'Включить таймер на 10 секунд, сделать глубокий вдох и спросить себя: "Это моя цель или ловушка монстра?"', isCorrect: true },
       { text: 'Быстро съесть всё прямо в магазине, пока никто не видит', isCorrect: false }
     ]
-  },
+  }
 ];
 
-export default function LevelOneScreen({ navigation }) {
-  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  export default function LevelOneScreen({ route, navigation }) {
+  // Достаем переданный ID вопроса и функцию успешного прохождения
+  const { questionId = 1, onSuccess = null } = route?.params || {};
+
+  // Находим нужный вопрос в базе по его ID
+  const step = LEVEL_STEPS.find(item => item.id === questionId) || LEVEL_STEPS[0];
+
   const [selectedOption, setSelectedOption] = useState(null);
   const [isAnswered, setIsAnswered] = useState(false);
-  const [score, setScore] = useState(0);
-
-  const step = LEVEL_STEPS[currentStepIndex];
 
   const handleOptionPress = (option) => {
-    if (isAnswered) return; // Запрещаем менять ответ
+    if (isAnswered) return;
     setSelectedOption(option);
     setIsAnswered(true);
-    if (option.isCorrect) {
-      setScore(prev => prev + 1);
-    }
-  };
 
-  const handleNextStep = () => {
-    setSelectedOption(null);
-    setIsAnswered(false);
-    
-    if (currentStepIndex < LEVEL_STEPS.length - 1) {
-      setCurrentStepIndex(currentStepIndex + 1);
+    if (option.isCorrect) {
+      alert('Правильно! 🎉 Карта Блока обновлена.');
+      if (onSuccess) onSuccess(); // Вызываем разблокировку на предыдущем экране
     } else {
-      // Конец уровня
-      alert(`Уровень пройден,твой результат: ${score + (selectedOption?.isCorrect ? 1 : 0)} из ${LEVEL_STEPS.length}. На твой баланс начислено 50 монет`);
-      navigation.goBack();
+      alert('Неправильно, попробуй еще раз! ❌');
     }
   };
 
@@ -107,65 +99,53 @@ export default function LevelOneScreen({ navigation }) {
       {/* Шапка */}
       <View style={styles.topBar}>
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Text style={styles.backText}>Выйти</Text>
+          <Text style={styles.backText}>Назад к карте</Text>
         </TouchableOpacity>
-        <Text style={styles.mainTitle}>Уровень 1</Text>
-        <Text style={styles.scoreText}>🪙 +{score * 10}</Text>
+        <Text style={styles.mainTitle}>Задание {step.id}</Text>
+        <View style={{ width: 60 }} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* Карточка с историей */}
+        {/* Карточка истории */}
         <View style={styles.storyCard}>
           <Text style={styles.subTitle}>{step.subTitle}</Text>
           <Image 
             source={step.image} 
-            style={[styles.commonImageSettings, styles[step.imageStyle]]}
+            style={[styles.commonImageSettings, styles[step.imageStyle]]} 
             resizeMode="contain" 
           />
-
           <Text style={styles.storyText}>{step.text}</Text>
         </View>
 
         {/* Блок вопроса */}
         <View style={styles.questionCard}>
           <Text style={styles.questionText}>{step.question}</Text>
-
-          {/* Варианты ответов */}
           {step.options.map((option, index) => {
             let buttonStyle = styles.optionButton;
-            let textStyle = styles.optionText;
-
             if (isAnswered) {
-              if (option.isCorrect) {
-                buttonStyle = { ...styles.optionButton, backgroundColor: '#C8E6C9', borderColor: '#4CAF50' }; // Зеленый для правильного
-              } else if (selectedOption?.text === option.text) {
-                buttonStyle = { ...styles.optionButton, backgroundColor: '#FFCDD2', borderColor: '#F44336' }; // Красный для ошибки
-              }
+              if (option.isCorrect) buttonStyle = { ...styles.optionButton, backgroundColor: '#C8E6C9', borderColor: '#4CAF50' };
+              else if (selectedOption?.text === option.text) buttonStyle = { ...styles.optionButton, backgroundColor: '#FFCDD2', borderColor: '#F44336' };
             }
+
             return (
-              <TouchableOpacity
-                key={index}
-                style={buttonStyle}
-                onPress={() => handleOptionPress(option)}
-                activeOpacity={0.7}
-              >
-                <Text style={textStyle}>{option.text}</Text>
+              <TouchableOpacity key={index} style={buttonStyle} onPress={() => handleOptionPress(option)}>
+                <Text style={styles.optionText}>{option.text}</Text>
               </TouchableOpacity>
             );
           })}
         </View>
-        {/* Кнопка Далее */}
-        {isAnswered && (
-          <TouchableOpacity style={styles.nextButton} onPress={handleNextStep}>
-            <Text style={styles.nextButtonText}>
-              {currentStepIndex === LEVEL_STEPS.length - 1 ? 'Финиш' : 'Дальше'}
-            </Text>
+
+        {/* Кнопка возврата */}
+        {isAnswered && selectedOption?.isCorrect && (
+          <TouchableOpacity style={styles.nextButton} onPress={() => navigation.goBack()}>
+            <Text style={styles.nextButtonText}>Вернуться к Блоку 1 ▶</Text>
           </TouchableOpacity>
         )}
       </ScrollView>
     </View>
   );
-}
+} 
+
 
 const styles = StyleSheet.create({
   container: { 
