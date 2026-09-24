@@ -12,8 +12,11 @@ import {
   Dimensions,
   ScrollView,
   PanResponder,
+  ActivityIndicator, // Добавил для экрана загрузки
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+//добавили 
+import AsyncStorage from '@react-native-async-storage/async-storage'; 
 import { colors } from '../theme';
 
 const { width } = Dimensions.get('window');
@@ -32,7 +35,15 @@ const ROOMS = [
 ];
 
 export default function HomeScreen({ route, navigation }) {
-  const { item, petName } = route.params || {};
+  // 1. МАКСИМАЛЬНО БЕЗОПАСНО достаём параметры (даже если route пустой, ошибки не будет)
+  const navItem = route?.params?.item;
+  const navPetName = route?.params?.petName;
+  // const { item, petName } = route.params || {};
+
+  //добавила ---
+  const [localPet, setLocalPet] = useState(null);
+  const [localPetName, setLocalPetName] = useState('');
+  const [isLoading, setIsLoading] = useState(true); // Блокируем экран, пока читаем память
 
   const [openMenu, setOpenMenu] = useState(null);
   const [roomIndex, setRoomIndex] = useState(0);
@@ -46,8 +57,61 @@ export default function HomeScreen({ route, navigation }) {
   const decayTimer = useRef(null);
   const scale = useRef(new Animated.Value(1)).current;
 
-  const PET_BASE = item?.source;
+  // Определяем, какого питомца показывать: из навигации (если только что выбрали) или из памяти
+  const activePet = navItem || localPet;
+  const activePetName = navPetName || localPetName;
+
+//Изменила строку
+  const PET_BASE = activePet?.source;
   const PET_EVOLVED = require('../../assets/Animals/pinguin/black/pinguin1.png');
+
+
+  // ─── 1. ЗАГРУЗКА ПИТОМЦА ИЗ ПАМЯТИ ПРИ СТАРТЕ ───
+  useEffect(() => {
+    loadSavedPet();
+  }, []);
+
+  const loadSavedPet = async () => {
+    try {
+      const savedPet = await AsyncStorage.getItem('currentPet');
+      const savedName = await AsyncStorage.getItem('currentPetName');
+      if (savedPet && savedName) {
+        setLocalPet(JSON.parse(savedPet));
+        setLocalPetName(savedName);
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки питомца:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // ─── 2. СОХРАНЕНИЕ ПИТОМЦА, ЕСЛИ ОН ПРИШЁЛ ИЗ НАВИГАЦИИ (например, из Каталога) ───
+  useEffect(() => {
+    if (navItem && navPetName) {
+      savePetToStorage(navItem, navPetName);
+    }
+  }, [navItem, navPetName]);
+
+  const savePetToStorage = async (pet, name) => {
+    try {
+      await AsyncStorage.setItem('currentPet', JSON.stringify(pet));
+      await AsyncStorage.setItem('currentPetName', name);
+      setLocalPet(pet);
+      setLocalPetName(name);
+    } catch (error) {
+      console.error('Ошибка сохранения питомца:', error);
+    }
+  };
+
+  // Функция для сброса питомца (если захочешь сделать кнопку "Сменить питомца")
+  const clearPet = async () => {
+    await AsyncStorage.removeItem('currentPet');
+    await AsyncStorage.removeItem('currentPetName');
+    setLocalPet(null);
+    setLocalPetName('');
+    navigation.navigate('Catalog'); // Или экран создания питомца
+  };
 
   // ─── Свайп ВЛЕВО → на кухню (кухня слева от дома) ───
   const panResponder = useRef(
@@ -111,22 +175,50 @@ export default function HomeScreen({ route, navigation }) {
     // tasks: { title: '📋 Задания', text: 'Скоро тут появятся задания для питомца.' },
     room: { title: '🏠 Комната', isRoomPicker: true },
   };
+ // ─── 3. ЭКРАН ЗАГРУЗКИ (пока читаем память) ───
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.container} edges={['bottom']}>
+        <View style={styles.emptyState}>
+          <ActivityIndicator size="large" color={colors.accent} />
+          <Text style={styles.emptyText}>Загрузка...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
-  if (!item) {
+  // ─── 4. ЕСЛИ ПИТОМЦА НЕТ НИ В ПАМЯТИ, НИ В НАВИГАЦИИ ───
+  if (!activePet) {
     return (
       <SafeAreaView style={styles.container} edges={['bottom']}>
         <View style={styles.emptyState}>
           <Text style={styles.emptyText}>Питомец не выбран</Text>
+          <Text style={styles.emptySubText}>Давай выберем или создадим нового!</Text>
           <TouchableOpacity
             style={styles.emptyButton}
-            onPress={() => navigation.navigate('Catalog')}
+            onPress={() => navigation.navigate('Catalog')} // <-- Сюда можно поставить экран создания питомца
           >
-            <Text style={styles.emptyButtonText}>В каталог</Text>
+            <Text style={styles.emptyButtonText}>Выбрать питомца</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
     );
   }
+  // if (!item) {
+  //   return (
+  //     <SafeAreaView style={styles.container} edges={['bottom']}>
+  //       <View style={styles.emptyState}>
+  //         <Text style={styles.emptyText}>Питомец не выбран</Text>
+  //         <TouchableOpacity
+  //           style={styles.emptyButton}
+  //           onPress={() => navigation.navigate('Catalog')}
+  //         >
+  //           <Text style={styles.emptyButtonText}>В каталог</Text>
+  //         </TouchableOpacity>
+  //       </View>
+  //     </SafeAreaView>
+  //   );
+  // }
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
@@ -134,7 +226,8 @@ export default function HomeScreen({ route, navigation }) {
         <ImageBackground source={ROOMS[roomIndex].source} style={styles.room} resizeMode="cover">
           <View style={styles.topBar}>
             <View style={styles.namePlate}>
-              <Text style={styles.petName}>{petName}</Text>
+              {/* Изменила строку */}
+              <Text style={styles.petName}>{activePetName}</Text>
             </View>
             <View style={styles.heartsRow}>
               {[0, 1, 2].map((i) => (
@@ -318,7 +411,7 @@ const styles = StyleSheet.create({
   actionButton: {
     alignItems: 'center',
     paddingVertical: 8,
-    paddingHorizontal: 24,
+    paddingHorizontal: 12,
     borderRadius: 16,
     minWidth: 120,
   },
