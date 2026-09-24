@@ -69,7 +69,7 @@ const handleSelectTask = (levelId) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#365d69',
+    backgroundColor: '#4cb9da67',
     paddingTop: 50,
     alignItems: 'center',
   },
@@ -78,17 +78,17 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     width: width * 0.9,
-    marginBottom: 20,
+    marginBottom: 45,
   },
   cityBackButton: {
-    backgroundColor: '#5D4037',
+    backgroundColor: '#558faa',
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 12,
     paddingVertical: 10,
     borderRadius: 15,
     borderWidth: 2,
-    borderColor: '#8D6E63',
+    borderColor: '#1817174b',
   },
   cityBackEmoji: {
     fontSize: 18,
@@ -102,8 +102,9 @@ const styles = StyleSheet.create({
   pageTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#FFE082', 
+    color: '#151516', 
     textAlign: 'center',
+    marginTop: 0,
   },
   tasksList: {
     width: width * 0.9,
@@ -120,7 +121,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     marginBottom: 15,
     borderWidth: 2,
-    borderColor: '#FFE082',
+    borderColor: '#82dcff',
     // Тень
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
@@ -129,8 +130,9 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   levelBadge: {
-    backgroundColor: '#E65100',
+    backgroundColor: '#0064e685',
     height: 40,
+    width: 40,
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
@@ -156,7 +158,7 @@ const styles = StyleSheet.create({
   },
   arrowIcon: {
     fontSize: 18,
-    color: '#8D6E63',
+    color: '#252321',
     fontWeight: 'bold',
     marginLeft: 10,
   },
