@@ -18,6 +18,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { colors } from '../theme';
 import { useBank } from '../context/BankContext';
+import { usePet } from '../context/PetContext';
 
 const { width } = Dimensions.get('window');
 const PET_SIZE = width * 0.7;
@@ -36,6 +37,7 @@ const ROOMS = [
 
 export default function HomeScreen({ route, navigation }) {
   const bank = useBank();
+  const pet = usePet();
 
   const navItem = route?.params?.item;
   const navPetName = route?.params?.petName;
@@ -62,7 +64,6 @@ export default function HomeScreen({ route, navigation }) {
   const PET_BASE = activePet?.source;
   const PET_EVOLVED = require('../../assets/Animals/pinguin/black/pinguin1.png');
 
-  // ─── Загрузка питомца ───
   useEffect(() => {
     loadSavedPet();
   }, []);
@@ -82,25 +83,23 @@ export default function HomeScreen({ route, navigation }) {
     }
   };
 
-  // ─── Сохранение питомца ───
   useEffect(() => {
     if (navItem && navPetName) {
       savePetToStorage(navItem, navPetName);
     }
   }, [navItem, navPetName]);
 
-  const savePetToStorage = async (pet, name) => {
+  const savePetToStorage = async (petData, name) => {
     try {
-      await AsyncStorage.setItem('currentPet', JSON.stringify(pet));
+      await AsyncStorage.setItem('currentPet', JSON.stringify(petData));
       await AsyncStorage.setItem('currentPetName', name);
-      setLocalPet(pet);
+      setLocalPet(petData);
       setLocalPetName(name);
     } catch (error) {
       console.error('Ошибка сохранения питомца:', error);
     }
   };
 
-  // ─── Свайп влево → кухня ───
   const panResponder = useRef(
     PanResponder.create({
       onMoveShouldSetPanResponder: (_, g) =>
@@ -198,7 +197,6 @@ export default function HomeScreen({ route, navigation }) {
           style={styles.room}
           resizeMode="cover"
         >
-          {/* ─── Верхняя панель ─── */}
           <View style={styles.topBar}>
             <View style={styles.namePlate}>
               <Text style={styles.petName}>{activePetName}</Text>
@@ -222,6 +220,24 @@ export default function HomeScreen({ route, navigation }) {
                 </View>
               </View>
 
+              {/* ─── Плашка голода ─── */}
+              <View
+                style={[
+                  styles.hungerBadge,
+                  pet.hunger <= 25 && styles.hungerBadgeDanger,
+                ]}
+              >
+                <Text style={styles.hungerEmoji}>🍽️</Text>
+                <Text
+                  style={[
+                    styles.hungerText,
+                    pet.hunger <= 25 && styles.hungerTextDanger,
+                  ]}
+                >
+                  {pet.hunger}%
+                </Text>
+              </View>
+
               <TouchableOpacity
                 style={styles.balanceBadge}
                 onPress={() => navigation.navigate('Bank')}
@@ -234,7 +250,6 @@ export default function HomeScreen({ route, navigation }) {
             </View>
           </View>
 
-          {/* ─── Питомец ─── */}
           <View style={styles.petWrapper}>
             <TouchableOpacity activeOpacity={0.9} onPress={handlePetClick}>
               <Animated.Image
@@ -257,7 +272,7 @@ export default function HomeScreen({ route, navigation }) {
             </Text>
           </View>
 
-          {/* ─── Нижняя панель ─── */}
+          {/* ─── Нижняя панель: 3 кнопки (убрали Мир) ─── */}
           <View style={styles.bottomBar}>
             <TouchableOpacity
               style={styles.actionButton}
@@ -265,14 +280,6 @@ export default function HomeScreen({ route, navigation }) {
             >
               <Text style={styles.actionEmoji}>📋</Text>
               <Text style={styles.actionText}>Задания</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => navigation.navigate('World')}
-            >
-              <Text style={styles.actionEmoji}>🌍</Text>
-              <Text style={styles.actionText}>Мир</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -372,7 +379,6 @@ const styles = StyleSheet.create({
   emptyButton: { backgroundColor: colors.accent, paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12 },
   emptyButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
 
-  // ─── Верхняя панель ───
   topBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -393,15 +399,8 @@ const styles = StyleSheet.create({
   },
   petName: { color: '#fff', fontSize: 18, fontWeight: '700' },
 
-  rightColumn: {
-    alignItems: 'flex-end',
-    gap: 10,
-  },
-  rightTopRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
+  rightColumn: { alignItems: 'flex-end', gap: 10 },
+  rightTopRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
 
   levelBadge: {
     backgroundColor: '#f1c40f',
@@ -414,11 +413,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     elevation: 2,
   },
-  levelBadgeText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#333',
-  },
+  levelBadgeText: { fontSize: 16, fontWeight: '700', color: '#333' },
 
   heartsRow: {
     flexDirection: 'row',
@@ -435,6 +430,26 @@ const styles = StyleSheet.create({
   heart: { fontSize: 26, marginHorizontal: 2 },
   heartEmpty: { opacity: 0.5 },
 
+  // Плашка голода
+  hungerBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#e0e0e0',
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 20,
+    gap: 6,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
+  },
+  hungerBadgeDanger: { backgroundColor: '#ff4d4d' },
+  hungerEmoji: { fontSize: 18 },
+  hungerText: { fontSize: 16, fontWeight: '700', color: '#333' },
+  hungerTextDanger: { color: '#fff' },
+
   balanceBadge: {
     backgroundColor: colors.accent,
     paddingHorizontal: 20,
@@ -448,13 +463,8 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     elevation: 3,
   },
-  balanceBadgeText: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#fff',
-  },
+  balanceBadgeText: { fontSize: 18, fontWeight: '700', color: '#fff' },
 
-  // ─── Питомец ───
   petWrapper: {
     flex: 1,
     alignItems: 'center',
@@ -473,20 +483,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
-  progressFill: {
-    height: '100%',
-    backgroundColor: colors.accent,
-    borderRadius: 9,
-  },
+  progressFill: { height: '100%', backgroundColor: colors.accent, borderRadius: 9 },
 
-  swipeHint: {
-    marginTop: 10,
-    fontSize: 12,
-    color: colors.textSecondary,
-    fontStyle: 'italic',
-  },
+  swipeHint: { marginTop: 10, fontSize: 12, color: colors.textSecondary, fontStyle: 'italic' },
 
-  // ─── Нижняя панель ───
+  // Нижняя панель — 3 кнопки
   bottomBar: {
     flexDirection: 'row',
     justifyContent: 'space-around',
@@ -502,25 +503,16 @@ const styles = StyleSheet.create({
   actionButton: {
     alignItems: 'center',
     paddingVertical: 8,
-    paddingHorizontal: 8,
+    paddingHorizontal: 16,
     borderRadius: 16,
-    minWidth: 75,
+    minWidth: 100,
   },
-  actionEmoji: { fontSize: 24, marginBottom: 4 },
-  actionText: { fontSize: 12, color: colors.text, fontWeight: '600' },
+  actionEmoji: { fontSize: 26, marginBottom: 4 },
+  actionText: { fontSize: 13, color: colors.text, fontWeight: '600' },
 
-  flash: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#fff',
-    opacity: 0.9,
-  },
+  flash: { ...StyleSheet.absoluteFillObject, backgroundColor: '#fff', opacity: 0.9 },
 
-  // ─── Модалка ───
-  modalBackdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.35)',
-    justifyContent: 'flex-end',
-  },
+  modalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.35)', justifyContent: 'flex-end' },
   modalSheet: {
     backgroundColor: colors.background,
     borderTopLeftRadius: 24,
@@ -530,33 +522,10 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
     minHeight: 220,
   },
-  modalHandle: {
-    alignSelf: 'center',
-    width: 44,
-    height: 5,
-    borderRadius: 3,
-    backgroundColor: colors.border,
-    marginBottom: 16,
-  },
-  modalTitle: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: colors.text,
-    marginBottom: 12,
-  },
-  modalText: {
-    fontSize: 16,
-    color: colors.textSecondary,
-    lineHeight: 22,
-    marginBottom: 24,
-  },
-  modalButton: {
-    backgroundColor: colors.accent,
-    paddingVertical: 14,
-    borderRadius: 14,
-    alignItems: 'center',
-    marginTop: 16,
-  },
+  modalHandle: { alignSelf: 'center', width: 44, height: 5, borderRadius: 3, backgroundColor: colors.border, marginBottom: 16 },
+  modalTitle: { fontSize: 22, fontWeight: '700', color: colors.text, marginBottom: 12 },
+  modalText: { fontSize: 16, color: colors.textSecondary, lineHeight: 22, marginBottom: 24 },
+  modalButton: { backgroundColor: colors.accent, paddingVertical: 14, borderRadius: 14, alignItems: 'center', marginTop: 16 },
   modalButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
 
   roomScroll: { paddingVertical: 4, paddingRight: 8 },
@@ -571,13 +540,7 @@ const styles = StyleSheet.create({
   },
   roomOptionActive: { borderColor: colors.accent },
   roomThumb: { width: '100%', height: 110 },
-  roomLabel: {
-    fontSize: 12,
-    textAlign: 'center',
-    paddingVertical: 6,
-    color: colors.text,
-    fontWeight: '600',
-  },
+  roomLabel: { fontSize: 12, textAlign: 'center', paddingVertical: 6, color: colors.text, fontWeight: '600' },
   roomCheck: {
     position: 'absolute',
     top: 6,
