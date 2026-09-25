@@ -1,16 +1,15 @@
 import React from 'react';
-import {View,Text,StyleSheet,ImageBackground,Image,TouchableOpacity,Dimensions} from 'react-native';
+import { View, Text, StyleSheet, ImageBackground, Image, TouchableOpacity, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
-
 
 export default function TownScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
       {/* Фон города */}
-      <ImageBackground 
-        source={require('../../assets/shopchina.jpg')} 
+      <ImageBackground
+        source={require('../../assets/shopchina.jpg')}
         style={styles.bg}
         resizeMode="cover"
       >
@@ -21,28 +20,37 @@ export default function TownScreen({ navigation }) {
         <Text style={styles.title}>Город</Text>
 
         {/* Питомец гуляет по городу */}
-        <Image 
-          source={require('../../assets/Animals/pinguin/black/pinguin1.png')} 
+        <Image
+          source={require('../../assets/Animals/pinguin/black/pinguin1.png')}
           style={styles.petImage}
         />
 
         {/* Контейнер строго под три твои кнопки */}
         <View style={styles.buildingsContainer}>
-          
+
           {/* 1. Продуктовый магазин */}
-          <TouchableOpacity style={styles.buildingCard} onPress={() => navigation.navigate('FoodShop')}>
+          <TouchableOpacity
+            style={styles.buildingCard}
+            onPress={() => navigation.navigate('FoodShop')}
+          >
             <Text style={styles.buildingEmoji}>🍏</Text>
             <Text style={styles.buildingText}>Продуктовый</Text>
           </TouchableOpacity>
 
           {/* 2. Обычный Магазин одежды/сувениров */}
-          <TouchableOpacity style={styles.buildingCard} onPress={() => alert('Магазин откроется скоро!')}>
+          <TouchableOpacity
+            style={styles.buildingCard}
+            onPress={() => alert('Магазин откроется скоро!')}
+          >
             <Text style={styles.buildingEmoji}>🛍️</Text>
             <Text style={styles.buildingText}>Магазин</Text>
           </TouchableOpacity>
 
           {/* 3. Банк */}
-          <TouchableOpacity style={styles.buildingCard} onPress={() => alert('Банк откроется скоро!')}>
+          <TouchableOpacity
+            style={styles.buildingCard}
+            onPress={() => navigation.navigate('Bank')}
+          >
             <Text style={styles.buildingEmoji}>🏦</Text>
             <Text style={styles.buildingText}>Банк</Text>
           </TouchableOpacity>
@@ -79,7 +87,7 @@ const styles = StyleSheet.create({
   backButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
   petImage: {
     position: 'absolute',
-    bottom: 160, // Высота пингвина над кнопками, настрой под свой фон
+    bottom: 160,
     width: 140,
     height: 140,
     resizeMode: 'contain',
@@ -89,10 +97,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     width: '100%',
     paddingHorizontal: 10,
-    marginBottom: 40, // Отступ снизу экрана
+    marginBottom: 40,
   },
   buildingCard: {
-    width: width * 0.28, // Размер подстроен, чтобы 3 кнопки встали идеально в ряд
+    width: width * 0.28,
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderRadius: 15,
     paddingVertical: 15,

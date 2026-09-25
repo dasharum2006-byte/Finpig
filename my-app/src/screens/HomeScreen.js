@@ -12,12 +12,12 @@ import {
   Dimensions,
   ScrollView,
   PanResponder,
-  ActivityIndicator, // Добавил для экрана загрузки
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-//добавили 
-import AsyncStorage from '@react-native-async-storage/async-storage'; 
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { colors } from '../theme';
+import { useBank } from '../context/BankContext';
 
 const { width } = Dimensions.get('window');
 const PET_SIZE = width * 0.7;
@@ -35,15 +35,14 @@ const ROOMS = [
 ];
 
 export default function HomeScreen({ route, navigation }) {
-  // 1. МАКСИМАЛЬНО БЕЗОПАСНО достаём параметры (даже если route пустой, ошибки не будет)
+  const bank = useBank();
+
   const navItem = route?.params?.item;
   const navPetName = route?.params?.petName;
-  // const { item, petName } = route.params || {};
 
-  //добавила ---
   const [localPet, setLocalPet] = useState(null);
   const [localPetName, setLocalPetName] = useState('');
-  const [isLoading, setIsLoading] = useState(true); // Блокируем экран, пока читаем память
+  const [isLoading, setIsLoading] = useState(true);
 
   const [openMenu, setOpenMenu] = useState(null);
   const [roomIndex, setRoomIndex] = useState(0);
@@ -57,16 +56,13 @@ export default function HomeScreen({ route, navigation }) {
   const decayTimer = useRef(null);
   const scale = useRef(new Animated.Value(1)).current;
 
-  // Определяем, какого питомца показывать: из навигации (если только что выбрали) или из памяти
   const activePet = navItem || localPet;
   const activePetName = navPetName || localPetName;
 
-//Изменила строку
   const PET_BASE = activePet?.source;
   const PET_EVOLVED = require('../../assets/Animals/pinguin/black/pinguin1.png');
 
-
-  // ─── 1. ЗАГРУЗКА ПИТОМЦА ИЗ ПАМЯТИ ПРИ СТАРТЕ ───
+  // ─── Загрузка питомца из памяти ───
   useEffect(() => {
     loadSavedPet();
   }, []);
@@ -86,7 +82,7 @@ export default function HomeScreen({ route, navigation }) {
     }
   };
 
-  // ─── 2. СОХРАНЕНИЕ ПИТОМЦА, ЕСЛИ ОН ПРИШЁЛ ИЗ НАВИГАЦИИ (например, из Каталога) ───
+  // ─── Сохранение питомца ───
   useEffect(() => {
     if (navItem && navPetName) {
       savePetToStorage(navItem, navPetName);
@@ -104,23 +100,13 @@ export default function HomeScreen({ route, navigation }) {
     }
   };
 
-  // Функция для сброса питомца (если захочешь сделать кнопку "Сменить питомца")
-  const clearPet = async () => {
-    await AsyncStorage.removeItem('currentPet');
-    await AsyncStorage.removeItem('currentPetName');
-    setLocalPet(null);
-    setLocalPetName('');
-    navigation.navigate('Catalog'); // Или экран создания питомца
-  };
-
-  // ─── Свайп ВЛЕВО → на кухню (кухня слева от дома) ───
+  // ─── Свайп влево → кухня ───
   const panResponder = useRef(
     PanResponder.create({
       onMoveShouldSetPanResponder: (_, g) =>
         Math.abs(g.dx) > 15 && Math.abs(g.dx) > Math.abs(g.dy),
       onPanResponderRelease: (_, g) => {
         if (g.dx < -SWIPE_THRESHOLD) {
-          //хз тут надо поменять petName -> activePetname
           navigation.navigate('Kitchen', { item: activePet, petName: activePetName });
         }
       },
@@ -173,10 +159,10 @@ export default function HomeScreen({ route, navigation }) {
   const petSource = evolved ? PET_EVOLVED : PET_BASE;
 
   const menus = {
-    // tasks: { title: '📋 Задания', text: 'Скоро тут появятся задания для питомца.' },
     room: { title: '🏠 Комната', isRoomPicker: true },
   };
- // ─── 3. ЭКРАН ЗАГРУЗКИ (пока читаем память) ───
+
+  // ─── Экран загрузки ───
   if (isLoading) {
     return (
       <SafeAreaView style={styles.container} edges={['bottom']}>
@@ -188,7 +174,7 @@ export default function HomeScreen({ route, navigation }) {
     );
   }
 
-  // ─── 4. ЕСЛИ ПИТОМЦА НЕТ НИ В ПАМЯТИ, НИ В НАВИГАЦИИ ───
+  // ─── Нет питомца ───
   if (!activePet) {
     return (
       <SafeAreaView style={styles.container} edges={['bottom']}>
@@ -197,7 +183,7 @@ export default function HomeScreen({ route, navigation }) {
           <Text style={styles.emptySubText}>Давай выберем или создадим нового!</Text>
           <TouchableOpacity
             style={styles.emptyButton}
-            onPress={() => navigation.navigate('Catalog')} // <-- Сюда можно поставить экран создания питомца
+            onPress={() => navigation.navigate('Catalog')}
           >
             <Text style={styles.emptyButtonText}>Выбрать питомца</Text>
           </TouchableOpacity>
@@ -205,40 +191,50 @@ export default function HomeScreen({ route, navigation }) {
       </SafeAreaView>
     );
   }
-  // if (!item) {
-  //   return (
-  //     <SafeAreaView style={styles.container} edges={['bottom']}>
-  //       <View style={styles.emptyState}>
-  //         <Text style={styles.emptyText}>Питомец не выбран</Text>
-  //         <TouchableOpacity
-  //           style={styles.emptyButton}
-  //           onPress={() => navigation.navigate('Catalog')}
-  //         >
-  //           <Text style={styles.emptyButtonText}>В каталог</Text>
-  //         </TouchableOpacity>
-  //       </View>
-  //     </SafeAreaView>
-  //   );
-  // }
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
       <View style={{ flex: 1 }} {...panResponder.panHandlers}>
-        <ImageBackground source={ROOMS[roomIndex].source} style={styles.room} resizeMode="cover">
+        <ImageBackground
+          source={ROOMS[roomIndex].source}
+          style={styles.room}
+          resizeMode="cover"
+        >
+          {/* ─── Верхняя панель ─── */}
           <View style={styles.topBar}>
-            <View style={styles.namePlate}>
-              {/* Изменила строку */}
-              <Text style={styles.petName}>{activePetName}</Text>
-            </View>
-            <View style={styles.heartsRow}>
-              {[0, 1, 2].map((i) => (
-                <Text key={i} style={[styles.heart, i >= hearts && styles.heartEmpty]}>
-                  {i < hearts ? '❤️' : '🤍'}
+            {/* Слева: имя + баланс */}
+            <View style={styles.topLeft}>
+              <View style={styles.namePlate}>
+                <Text style={styles.petName}>{activePetName}</Text>
+              </View>
+
+              <View style={styles.balanceBadge}>
+                <Text style={styles.balanceBadgeText}>
+                  🪙 {bank.balance.toFixed(0)}
                 </Text>
-              ))}
+              </View>
+            </View>
+
+            {/* Справа: уровень + сердечки */}
+            <View style={styles.topRight}>
+              <View style={styles.levelBadge}>
+                <Text style={styles.levelBadgeText}>Lv.{bank.level}</Text>
+              </View>
+
+              <View style={styles.heartsRow}>
+                {[0, 1, 2].map((i) => (
+                  <Text
+                    key={i}
+                    style={[styles.heart, i >= hearts && styles.heartEmpty]}
+                  >
+                    {i < hearts ? '❤️' : '🤍'}
+                  </Text>
+                ))}
+              </View>
             </View>
           </View>
 
+          {/* ─── Питомец ─── */}
           <View style={styles.petWrapper}>
             <TouchableOpacity activeOpacity={0.9} onPress={handlePetClick}>
               <Animated.Image
@@ -250,30 +246,47 @@ export default function HomeScreen({ route, navigation }) {
 
             {!evolved && (
               <View style={styles.progressTrack}>
-                <View style={[styles.progressFill, { width: `${progress * 100}%` }]} />
+                <View
+                  style={[styles.progressFill, { width: `${progress * 100}%` }]}
+                />
               </View>
             )}
 
-            <Text style={styles.swipeHint}>← свайпни влево, чтобы пойти на кухню</Text>
+            <Text style={styles.swipeHint}>
+              ← свайпни влево, чтобы пойти на кухню
+            </Text>
           </View>
 
+          {/* ─── Нижняя панель ─── */}
           <View style={styles.bottomBar}>
-            <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('Tasks')}>
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => navigation.navigate('Tasks')}
+            >
               <Text style={styles.actionEmoji}>📋</Text>
               <Text style={styles.actionText}>Задания</Text>
             </TouchableOpacity>
-            {/* КНОПКА С ЗЕМЛЕЙ путешествие по странам */}
-            <TouchableOpacity 
-              style={styles.actionButton} 
-              onPress={() => navigation.navigate('World')}>
+
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => navigation.navigate('World')}
+            >
               <Text style={styles.actionEmoji}>🌍</Text>
               <Text style={styles.actionText}>Мир</Text>
             </TouchableOpacity>
-              <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('Town')}>
+
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => navigation.navigate('Town')}
+            >
               <Text style={styles.actionEmoji}>🏙️</Text>
               <Text style={styles.actionText}>Город</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.actionButton} onPress={() => setOpenMenu('room')}>
+
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => setOpenMenu('room')}
+            >
               <Text style={styles.actionEmoji}>🏠</Text>
               <Text style={styles.actionText}>Комната</Text>
             </TouchableOpacity>
@@ -283,14 +296,21 @@ export default function HomeScreen({ route, navigation }) {
 
       {flash && <View style={styles.flash} pointerEvents="none" />}
 
+      {/* ─── Модалка выбора комнаты ─── */}
       <Modal
         visible={openMenu !== null}
         transparent
         animationType="slide"
         onRequestClose={() => setOpenMenu(null)}
       >
-        <Pressable style={styles.modalBackdrop} onPress={() => setOpenMenu(null)}>
-          <Pressable style={styles.modalSheet} onPress={(e) => e.stopPropagation()}>
+        <Pressable
+          style={styles.modalBackdrop}
+          onPress={() => setOpenMenu(null)}
+        >
+          <Pressable
+            style={styles.modalSheet}
+            onPress={(e) => e.stopPropagation()}
+          >
             {openMenu && (
               <>
                 <View style={styles.modalHandle} />
@@ -305,7 +325,10 @@ export default function HomeScreen({ route, navigation }) {
                     {ROOMS.map((r, idx) => (
                       <TouchableOpacity
                         key={r.id}
-                        style={[styles.roomOption, idx === roomIndex && styles.roomOptionActive]}
+                        style={[
+                          styles.roomOption,
+                          idx === roomIndex && styles.roomOptionActive,
+                        ]}
                         onPress={() => {
                           setRoomIndex(idx);
                           setOpenMenu(null);
@@ -325,7 +348,10 @@ export default function HomeScreen({ route, navigation }) {
                   <Text style={styles.modalText}>{menus[openMenu].text}</Text>
                 )}
 
-                <TouchableOpacity style={styles.modalButton} onPress={() => setOpenMenu(null)}>
+                <TouchableOpacity
+                  style={styles.modalButton}
+                  onPress={() => setOpenMenu(null)}
+                >
                   <Text style={styles.modalButtonText}>Закрыть</Text>
                 </TouchableOpacity>
               </>
@@ -342,20 +368,32 @@ const styles = StyleSheet.create({
   room: { flex: 1, justifyContent: 'space-between' },
 
   emptyState: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
-  emptyText: { fontSize: 18, color: colors.text, marginBottom: 16 },
+  emptyText: { fontSize: 18, color: colors.text, marginBottom: 8, fontWeight: '600' },
+  emptySubText: { fontSize: 14, color: colors.textSecondary, marginBottom: 16 },
   emptyButton: { backgroundColor: colors.accent, paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12 },
   emptyButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
 
+  // ─── Верхняя панель ───
   topBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     paddingHorizontal: 16,
     paddingTop: 12,
   },
+  topLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  topRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   namePlate: {
     backgroundColor: colors.accent,
-    paddingHorizontal: 18,
+    paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
     shadowColor: '#000',
@@ -364,11 +402,48 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     elevation: 3,
   },
-  petName: { color: '#fff', fontSize: 18, fontWeight: '700' },
+  petName: { color: '#fff', fontSize: 16, fontWeight: '700' },
+
+  balanceBadge: {
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
+  },
+  balanceBadgeText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: colors.text,
+  },
+
+  levelBadge: {
+    backgroundColor: '#f1c40f',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
+  },
+  levelBadgeText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#333',
+  },
+
   heartsRow: {
     flexDirection: 'row',
     backgroundColor: 'rgba(255,255,255,0.85)',
-    paddingHorizontal: 12,
+    paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 20,
     shadowColor: '#000',
@@ -377,10 +452,16 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     elevation: 3,
   },
-  heart: { fontSize: 20, marginHorizontal: 2 },
+  heart: { fontSize: 18, marginHorizontal: 1 },
   heartEmpty: { opacity: 0.5 },
-//опустила питомца - flex-end
-  petWrapper: { flex: 1, alignItems: 'center', justifyContent: 'flex-end', paddingTop: 20 },
+
+  // ─── Питомец ───
+  petWrapper: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    paddingTop: 20,
+  },
   petImage: { width: PET_SIZE, height: PET_SIZE },
 
   progressTrack: {
@@ -393,15 +474,25 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
-  progressFill: { height: '100%', backgroundColor: colors.accent, borderRadius: 9 },
+  progressFill: {
+    height: '100%',
+    backgroundColor: colors.accent,
+    borderRadius: 9,
+  },
 
-  swipeHint: { marginTop: 10, fontSize: 12, color: colors.textSecondary, fontStyle: 'italic' },
+  swipeHint: {
+    marginTop: 10,
+    fontSize: 12,
+    color: colors.textSecondary,
+    fontStyle: 'italic',
+  },
 
+  // ─── Нижняя панель ───
   bottomBar: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    paddingHorizontal: 16,
+    paddingHorizontal: 8,
     paddingVertical: 14,
     backgroundColor: 'rgba(255,255,255,0.92)',
     borderTopLeftRadius: 24,
@@ -412,16 +503,25 @@ const styles = StyleSheet.create({
   actionButton: {
     alignItems: 'center',
     paddingVertical: 8,
-    paddingHorizontal: 12,
+    paddingHorizontal: 8,
     borderRadius: 16,
-    minWidth: 120,
+    minWidth: 75,
   },
-  actionEmoji: { fontSize: 26, marginBottom: 4 },
-  actionText: { fontSize: 13, color: colors.text, fontWeight: '600' },
+  actionEmoji: { fontSize: 24, marginBottom: 4 },
+  actionText: { fontSize: 12, color: colors.text, fontWeight: '600' },
 
-  flash: { ...StyleSheet.absoluteFillObject, backgroundColor: '#fff', opacity: 0.9 },
+  flash: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: '#fff',
+    opacity: 0.9,
+  },
 
-  modalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.35)', justifyContent: 'flex-end' },
+  // ─── Модалка ───
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+    justifyContent: 'flex-end',
+  },
   modalSheet: {
     backgroundColor: colors.background,
     borderTopLeftRadius: 24,
@@ -431,12 +531,36 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
     minHeight: 220,
   },
-  modalHandle: { alignSelf: 'center', width: 44, height: 5, borderRadius: 3, backgroundColor: colors.border, marginBottom: 16 },
-  modalTitle: { fontSize: 22, fontWeight: '700', color: colors.text, marginBottom: 12 },
-  modalText: { fontSize: 16, color: colors.textSecondary, lineHeight: 22, marginBottom: 24 },
-  modalButton: { backgroundColor: colors.accent, paddingVertical: 14, borderRadius: 14, alignItems: 'center', marginTop: 16 },
+  modalHandle: {
+    alignSelf: 'center',
+    width: 44,
+    height: 5,
+    borderRadius: 3,
+    backgroundColor: colors.border,
+    marginBottom: 16,
+  },
+  modalTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: 12,
+  },
+  modalText: {
+    fontSize: 16,
+    color: colors.textSecondary,
+    lineHeight: 22,
+    marginBottom: 24,
+  },
+  modalButton: {
+    backgroundColor: colors.accent,
+    paddingVertical: 14,
+    borderRadius: 14,
+    alignItems: 'center',
+    marginTop: 16,
+  },
   modalButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
 
+  // ─── Комнаты ───
   roomScroll: { paddingVertical: 4, paddingRight: 8 },
   roomOption: {
     width: 110,
@@ -449,7 +573,13 @@ const styles = StyleSheet.create({
   },
   roomOptionActive: { borderColor: colors.accent },
   roomThumb: { width: '100%', height: 110 },
-  roomLabel: { fontSize: 12, textAlign: 'center', paddingVertical: 6, color: colors.text, fontWeight: '600' },
+  roomLabel: {
+    fontSize: 12,
+    textAlign: 'center',
+    paddingVertical: 6,
+    color: colors.text,
+    fontWeight: '600',
+  },
   roomCheck: {
     position: 'absolute',
     top: 6,
