@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, TouchableOpacity, Dimensions, ScrollView, Image
 
 const { width } = Dimensions.get('window');
 
-const LEVEL_TWO_STEPS = [
+const LEVEL_THREE_STEPS = [
   {
     id: 1,
     subTitle: 'Деньги не растут на деревьях 🌳',
@@ -81,7 +81,7 @@ const LEVEL_TWO_STEPS = [
   }
 ];
 
-export default function LevelTwoScreen({ navigation, route }) {
+export default function LevelThreeScreen({ navigation, route }) {
   const startIndex = route.params?.startIndex ?? 0;
   
   const [currentStepIndex, setCurrentStepIndex] = useState(startIndex);
@@ -154,7 +154,7 @@ export default function LevelTwoScreen({ navigation, route }) {
   };
 
   const handleNextStep = () => {
-    if (currentStepIndex < LEVEL_TWO_STEPS.length - 1) {
+    if (currentStepIndex < LEVEL_THREE_STEPS.length - 1) {
       setCurrentStepIndex(currentStepIndex + 1);
       setSelectedOption(null);
       setIsAnswered(false);
@@ -167,7 +167,7 @@ export default function LevelTwoScreen({ navigation, route }) {
           text: 'Круто!', 
           onPress: () => {
             // ВАЖНО: Убедись, что в твоем навигаторе экран называется 'BlockTwo' или 'BlockTwoScreen'
-            navigation.navigate('BlockTwo', { highestCompletedStep: 6 }); 
+            navigation.navigate('BlockThreeScreen', { highestCompletedStep: 6 }); 
           } 
         }]
       );
@@ -180,7 +180,7 @@ export default function LevelTwoScreen({ navigation, route }) {
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Text style={styles.backText}>Выйти</Text>
         </TouchableOpacity>
-        <Text style={styles.mainTitle}>Блок 2: Шаг {currentStepIndex + 1} из 6</Text>
+        <Text style={styles.mainTitle}>Блок 3: Шаг {currentStepIndex + 1} из 6</Text>
         <Text style={styles.scoreText}>🪙 {score * 10}</Text>
       </View>
 
@@ -259,7 +259,7 @@ export default function LevelTwoScreen({ navigation, route }) {
         {isAnswered && (
           <TouchableOpacity style={styles.nextButton} onPress={handleNextStep}>
             <Text style={styles.nextButtonText}>
-              {currentStepIndex === LEVEL_TWO_STEPS.length - 1 ? 'Финиш 🏁' : 'Дальше ▶'}
+              {currentStepIndex === LEVEL_THREE_STEPS.length - 1 ? 'Финиш 🏁' : 'Дальше ▶'}
             </Text>
           </TouchableOpacity>
         )}

@@ -167,7 +167,7 @@ export default function LevelTwoScreen({ navigation, route }) {
           text: 'Круто!', 
           onPress: () => {
             // ВАЖНО: Убедись, что в твоем навигаторе экран называется 'BlockTwo' или 'BlockTwoScreen'
-            navigation.navigate('BlockTwo', { highestCompletedStep: 6 }); 
+            navigation.navigate('BlockTwoScreen', { highestCompletedStep: 6 }); 
           } 
         }]
       );

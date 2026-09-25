@@ -1,6 +1,6 @@
-import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Dimensions, ScrollView,ImageBackground} from 'react-native';
-
+import React, {useState, useEffect} from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, Dimensions, ScrollView,ImageBackground, Alert} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage'; 
 const {width} = Dimensions.get('window');
 
 //6 уровней
@@ -14,24 +14,39 @@ const TASKS_DATA = [
 ];
 
 export default function TasksScreen({ navigation }) {
+    // Состояние: прошел ли игрок первый блок
+  const [isBlockOneCompleted, setIsBlockOneCompleted] = useState(false);
+
+  // При открытии экрана проверяем память
+  useEffect(() => {
+    checkProgress();
+  }, []);
+
+  const checkProgress = async () => {
+    try {
+      const completed = await AsyncStorage.getItem('blockOneCompleted');
+      if (completed === 'true') {
+        setIsBlockOneCompleted(true);
+      }
+    } catch (error) {
+      console.error('Ошибка проверки прогресса:', error);
+    }
+  };
+
 const handleSelectTask = (levelId) => {
   if (levelId === 1) {
     // Переходим на слой первого уровня
     navigation.navigate('BlockOneScreen');
-  } else {
-    alert(`Уровень ${levelId} пока закрыт. Пройди первый уровень! 🔒`);
   }
-  if (levelId === 2) {
+  else if (levelId === 2) {
     // Переходим на слой первого уровня
     navigation.navigate('BlockTwoScreen');
-  } else {
-    alert(`Уровень ${levelId} пока закрыт. Пройди второй уровень! 🔒`);
-  }
-  if (levelId === 3) {
+  } 
+  else if (levelId === 3) {
     // Переходим на слой первого уровня
     navigation.navigate('BlockThreeScreen');
   } else {
-    alert(`Уровень ${levelId} пока закрыт. Пройди второй уровень! 🔒`);
+    Alert.alert(`Уровень ${levelId} пока закрыт. Пройди предыдущие уровни 🔒`);
   }
 };
 

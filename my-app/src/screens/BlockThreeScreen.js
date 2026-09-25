@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Dimensions, ScrollView, Alert } from 'react-native';
 
-const BLOCK_TWO_ROUTINE = [
+const BLOCK_THREE_ROUTINE = [
   { id: 1, type: 'quiz', title: 'Вопрос 1: Откуда деньги?', subtitle: 'Труд и зарплата' },
   { id: 2, type: 'quiz', title: 'Вопрос 2: Нужды и Хотелки', subtitle: 'Учимся выбирать' },
   { id: 3, type: 'quiz', title: 'Вопрос 3: Подушка безопасности', subtitle: 'На черный день' },
@@ -11,13 +11,13 @@ const BLOCK_TWO_ROUTINE = [
   
 ];
 
-export default function BlockTwoScreen({ navigation, route }) {
+export default function BlockThreeScreen({ navigation, route }) {
   const [unlockedStep, setUnlockedStep] = useState(1);
 
   useEffect(() => {
     if (route.params?.highestCompletedStep) {
       const nextStep = route.params.highestCompletedStep + 1;
-      if (nextStep > unlockedStep && nextStep <= BLOCK_TWO_ROUTINE.length) {
+      if (nextStep > unlockedStep && nextStep <= BLOCK_THREE_ROUTINE.length) {
         setUnlockedStep(nextStep);
       }
       navigation.setParams({ highestCompletedStep: undefined });
@@ -26,7 +26,7 @@ export default function BlockTwoScreen({ navigation, route }) {
 
   const handlePressItem = (item) => {
     if (item.id > unlockedStep) {
-      Alert.alert('Заблокировано 🔒', 'Этот шаг пока закрыт. Пройди предыдущие задания!');
+      Alert.alert('Заблокировано 🔒', 'Этот шаг пока закрыт. Пройди предыдущие задания');
       return;
     }
 
@@ -43,12 +43,12 @@ export default function BlockTwoScreen({ navigation, route }) {
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Text style={styles.backButtonText}>Назад</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Блок 2</Text>
+        <Text style={styles.headerTitle}>Блок 3</Text>
         <View style={{ width: 70 }} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {BLOCK_TWO_ROUTINE.map((item) => {
+        {BLOCK_THREE_ROUTINE.map((item) => {
           const isLocked = item.id > unlockedStep;
 
           return (

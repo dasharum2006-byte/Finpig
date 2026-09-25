@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Dimensions, ScrollView, Image, Alert } from 'react-native';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const { width } = Dimensions.get('window');
 
 // Ровно 6 вопросов-шагов, и у каждого СВОЯ картинка из папки assets!
@@ -179,16 +179,14 @@ export default function LevelOneScreen({ navigation, route }) {
   //   }
   // };
     const handleNextStep = () => {
-    // Сначала обновляем прогресс на карте
-    navigation.setParams({ completedStepId: currentStepIndex + 1 });
-    
     if (currentStepIndex < LEVEL_STEPS.length - 1) {
-      // Если это не последний шаг, просто идем дальше
       setCurrentStepIndex(currentStepIndex + 1);
       setSelectedOption(null);
       setIsAnswered(false);
+      setShowCorrectHint(false);
     } else {
-      // Если это последний шаг, показываем финал и выходим
+      // 🌟 СОХРАНЯЕМ ПРОХОЖДЕНИЕ БЛОКА 1 В ПАМЯТЬ
+      AsyncStorage.setItem('blockOneCompleted', 'true');
             Alert.alert(
         'Победа! 🏆', 
         `Уровень пройден! Твой результат: ${score + (isSortCorrect ? 1 : 0)} из ${LEVEL_STEPS.length}. На твой баланс начислено 50 монет!`,
