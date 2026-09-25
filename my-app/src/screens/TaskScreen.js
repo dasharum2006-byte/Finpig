@@ -27,6 +27,12 @@ const handleSelectTask = (levelId) => {
   } else {
     alert(`Уровень ${levelId} пока закрыт. Пройди второй уровень! 🔒`);
   }
+  if (levelId === 3) {
+    // Переходим на слой первого уровня
+    navigation.navigate('BlockThreeScreen');
+  } else {
+    alert(`Уровень ${levelId} пока закрыт. Пройди второй уровень! 🔒`);
+  }
 };
 
 

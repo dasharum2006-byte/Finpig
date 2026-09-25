@@ -14,7 +14,7 @@ const BLOCK_ONE_ROUTINE = [
   
   // А вот твои будущие 3 мини-игры, которые откроются после вопросов!
   { id: 7, type: 'game', screen: 'MyNewGameScreen', title: '🎮 Финансовый щит', subtitle: 'Развиваем ловкость' },
-  { id: 8, type: 'game', screen: 'GameSortExpenses', title: '🎮 Игра 2: Сортируй расходы', subtitle: 'Полочки «Важное» и «Хотелки»' },
+  { id: 8, type: 'game', screen: 'MyNewGameScreen2', title: '🎮 Сортируй расходы', subtitle: 'Полочки «Важное» и «Хотелки»' },
   { id: 9, type: 'game', screen: 'GameSafeBank', title: '🎮 Игра 3: Защити банкомат', subtitle: 'Финал Блока 1 🏆' },
 ];
 
