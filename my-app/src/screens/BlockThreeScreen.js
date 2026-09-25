@@ -9,9 +9,6 @@ const BLOCK_TWO_ROUTINE = [
   { id: 5, type: 'quiz', title: 'Вопрос 5: Ловушка скидок', subtitle: 'Не ведись на маркетинг' },
   { id: 6, type: 'quiz', title: 'Вопрос 6: Что такое бюджет?', subtitle: 'Финальный экзамен' },
   
-  // Мини-игры второго блока (откроются после 6 шага)
-  { id: 7, type: 'game', screen: 'GameBudgetPlanner', title: '🎮 Игра 1: Собери бюджет', subtitle: 'Распредели доходы и расходы' },
-  { id: 8, type: 'game', screen: 'GameShopSimulator', title: '🎮 Игра 2: Симулятор магазина', subtitle: 'Проверка на прочность' },
 ];
 
 export default function BlockTwoScreen({ navigation, route }) {
