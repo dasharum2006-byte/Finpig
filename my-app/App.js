@@ -8,7 +8,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-// Контексты
+// Контекст банка
 import { BankProvider } from './src/context/BankContext';
 
 //Экраны
@@ -235,7 +235,7 @@ export default function App() {
               }}
             />
 
-            {/* НОВЫЙ ЭКРАН — БАНК */}
+            {/* ЭКРАН БАНКА */}
             <Stack.Screen
               name="Bank"
               component={BankScreen}

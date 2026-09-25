@@ -62,7 +62,7 @@ export default function HomeScreen({ route, navigation }) {
   const PET_BASE = activePet?.source;
   const PET_EVOLVED = require('../../assets/Animals/pinguin/black/pinguin1.png');
 
-  // ─── Загрузка питомца из памяти ───
+  // ─── Загрузка питомца ───
   useEffect(() => {
     loadSavedPet();
   }, []);
@@ -162,7 +162,6 @@ export default function HomeScreen({ route, navigation }) {
     room: { title: '🏠 Комната', isRoomPicker: true },
   };
 
-  // ─── Экран загрузки ───
   if (isLoading) {
     return (
       <SafeAreaView style={styles.container} edges={['bottom']}>
@@ -174,7 +173,6 @@ export default function HomeScreen({ route, navigation }) {
     );
   }
 
-  // ─── Нет питомца ───
   if (!activePet) {
     return (
       <SafeAreaView style={styles.container} edges={['bottom']}>
@@ -202,35 +200,37 @@ export default function HomeScreen({ route, navigation }) {
         >
           {/* ─── Верхняя панель ─── */}
           <View style={styles.topBar}>
-            {/* Слева: имя + баланс */}
-            <View style={styles.topLeft}>
-              <View style={styles.namePlate}>
-                <Text style={styles.petName}>{activePetName}</Text>
+            <View style={styles.namePlate}>
+              <Text style={styles.petName}>{activePetName}</Text>
+            </View>
+
+            <View style={styles.rightColumn}>
+              <View style={styles.rightTopRow}>
+                <View style={styles.levelBadge}>
+                  <Text style={styles.levelBadgeText}>Lv.{bank.level}</Text>
+                </View>
+
+                <View style={styles.heartsRow}>
+                  {[0, 1, 2].map((i) => (
+                    <Text
+                      key={i}
+                      style={[styles.heart, i >= hearts && styles.heartEmpty]}
+                    >
+                      {i < hearts ? '❤️' : '🤍'}
+                    </Text>
+                  ))}
+                </View>
               </View>
 
-              <View style={styles.balanceBadge}>
+              <TouchableOpacity
+                style={styles.balanceBadge}
+                onPress={() => navigation.navigate('Bank')}
+                activeOpacity={0.7}
+              >
                 <Text style={styles.balanceBadgeText}>
                   🪙 {bank.balance.toFixed(0)}
                 </Text>
-              </View>
-            </View>
-
-            {/* Справа: уровень + сердечки */}
-            <View style={styles.topRight}>
-              <View style={styles.levelBadge}>
-                <Text style={styles.levelBadgeText}>Lv.{bank.level}</Text>
-              </View>
-
-              <View style={styles.heartsRow}>
-                {[0, 1, 2].map((i) => (
-                  <Text
-                    key={i}
-                    style={[styles.heart, i >= hearts && styles.heartEmpty]}
-                  >
-                    {i < hearts ? '❤️' : '🤍'}
-                  </Text>
-                ))}
-              </View>
+              </TouchableOpacity>
             </View>
           </View>
 
@@ -296,7 +296,6 @@ export default function HomeScreen({ route, navigation }) {
 
       {flash && <View style={styles.flash} pointerEvents="none" />}
 
-      {/* ─── Модалка выбора комнаты ─── */}
       <Modal
         visible={openMenu !== null}
         transparent
@@ -381,53 +380,34 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 12,
   },
-  topLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  topRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
   namePlate: {
     backgroundColor: colors.accent,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 24,
     shadowColor: '#000',
     shadowOpacity: 0.15,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 2 },
     elevation: 3,
   },
-  petName: { color: '#fff', fontSize: 16, fontWeight: '700' },
+  petName: { color: '#fff', fontSize: 18, fontWeight: '700' },
 
-  balanceBadge: {
-    backgroundColor: 'rgba(255,255,255,0.9)',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: colors.border,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
+  rightColumn: {
+    alignItems: 'flex-end',
+    gap: 10,
   },
-  balanceBadgeText: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: colors.text,
+  rightTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
   },
 
   levelBadge: {
     backgroundColor: '#f1c40f',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 16,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 20,
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 6,
@@ -435,7 +415,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   levelBadgeText: {
-    fontSize: 12,
+    fontSize: 16,
     fontWeight: '700',
     color: '#333',
   },
@@ -443,17 +423,36 @@ const styles = StyleSheet.create({
   heartsRow: {
     flexDirection: 'row',
     backgroundColor: 'rgba(255,255,255,0.85)',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 20,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 24,
     shadowColor: '#000',
     shadowOpacity: 0.15,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 2 },
     elevation: 3,
   },
-  heart: { fontSize: 18, marginHorizontal: 1 },
+  heart: { fontSize: 26, marginHorizontal: 2 },
   heartEmpty: { opacity: 0.5 },
+
+  balanceBadge: {
+    backgroundColor: colors.accent,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.1)',
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
+  },
+  balanceBadgeText: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#fff',
+  },
 
   // ─── Питомец ───
   petWrapper: {
@@ -560,7 +559,6 @@ const styles = StyleSheet.create({
   },
   modalButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
 
-  // ─── Комнаты ───
   roomScroll: { paddingVertical: 4, paddingRight: 8 },
   roomOption: {
     width: 110,
