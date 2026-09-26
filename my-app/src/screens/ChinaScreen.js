@@ -22,11 +22,12 @@ export default function ChinaScreen({ route, navigation }) {
   const [fortuneText, setFortuneText] = useState('Нажми на печеньку, чтобы узнать предсказание');
   const [isBroken, setIsBroken] = useState(false);
 
-  // Реальный питомец из контекста
+  const currentStage = petCtx.pet?.stage ?? 0;
+
   const petImage = petCtx.pet
-    ? (petCtx.pet.hatched
-        ? getPetImage(petCtx.pet.speciesId, petCtx.pet.variationId, petCtx.pet.stage)
-        : getEggImage(petCtx.pet.speciesId))
+    ? (currentStage === 0
+        ? getEggImage(petCtx.pet.speciesId)
+        : getPetImage(petCtx.pet.speciesId, petCtx.pet.variationId, currentStage - 1))
     : require('../../assets/Animals/Pinguin/Black/pinguin1_m.png');
 
   const fortunes = [

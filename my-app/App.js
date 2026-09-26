@@ -12,7 +12,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { BankProvider } from './src/context/BankContext';
 import { PetProvider } from './src/context/PetContext';
 
-//Экраны
+// Экраны
 import CatalogScreen from './src/screens/CatalogScreen';
 import WorldScreen from './src/screens/WorldScreen';
 import PetNameScreen from './src/screens/PetNameScreen';
@@ -35,9 +35,10 @@ import EgyptScreen from './src/screens/EgyptScreen';
 import EgyptMarketScreen from './src/screens/EgyptMarketScreen';
 import EgyptBankScreen from './src/screens/EgyptBankScreen';
 import ArcticScreen from './src/screens/ArcticScreen';
-import { colors } from './src/theme';
 import ArcticBankScreen from './src/screens/ArcticBankScreen';
-import ArcticMarketScreen from './src/screens/ ArcticMarketScreen';
+import ArcticMarketScreen from './src/screens/ArcticMarketScreen';
+
+import { colors } from './src/theme';
 
 const Stack = createNativeStackNavigator();
 
@@ -123,166 +124,236 @@ export default function App() {
                 headerTitleStyle: { fontWeight: '600' },
               }}
             >
-              <Stack.Screen name="Catalog" component={CatalogScreen} options={{ title: 'Каталог' }} />
-              <Stack.Screen name="PetName" component={PetNameScreen} options={{ title: 'Имя питомца' }} />
-              <Stack.Screen name="Town" component={TownScreen} options={{ headerShown: false, animation: 'fade' }} />
-              <Stack.Screen name="BlockOneScreen" component={BlockOneScreen} options={{ headerShown: false }} />
-              <Stack.Screen name="LevelOneScreen" component={LevelOneScreen} options={{ headerShown: false }} />
-              <Stack.Screen name="MyNewGameScreen" component={MyNewGameScreen} options={{ headerShown: false }} />
-              <Stack.Screen name="MyNewGameScreen2" component={MyNewGameScreen2} options={{ headerShown: false }} />
-              <Stack.Screen name="BlockTwoScreen" component={BlockTwoScreen} options={{ headerShown: false }} />
-              <Stack.Screen name="LevelTwoScreen" component={LevelTwoScreen} options={{ headerShown: false }} />
-              <Stack.Screen name="BlockThreeScreen" component={BlockThreeScreen} options={{ headerShown: false }} />
-              <Stack.Screen name="LevelThreeScreen" component={LevelThreeScreen} options={{ headerShown: false }} />
-              <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false, animation: 'slide_from_right' }} />
-              <Stack.Screen name="Tasks" component={TasksScreen} options={{ headerShown: false }} />
-              <Stack.Screen name="FoodShop" component={FoodShopScreen} options={{ headerShown: false }} />
-              <Stack.Screen name="ChinaScreen" component={ChinaScreen} options={{ headerShown: false }} />
-              <Stack.Screen name="World" component={WorldScreen} options={{ headerShown: false }} />
-              <Stack.Screen name="Kitchen" component={KitchenScreen} options={{ headerShown: false, animation: 'slide_from_left' }} />
-              <Stack.Screen name="Bank" component={BankScreen} options={{ title: '🏦 Банк' }} />
+              {/* ─── ГЛАВНЫЕ ─── */}
+              <Stack.Screen
+                name="Catalog"
+                component={CatalogScreen}
+                options={{ title: 'Каталог' }}
+              />
+              <Stack.Screen
+                name="PetName"
+                component={PetNameScreen}
+                options={{ title: 'Имя питомца' }}
+              />
+              <Stack.Screen
+                name="Home"
+                component={HomeScreen}
+                options={{ headerShown: false, animation: 'slide_from_right' }}
+              />
+              <Stack.Screen
+                name="Kitchen"
+                component={KitchenScreen}
+                options={{ headerShown: false, animation: 'slide_from_left' }}
+              />
 
+              {/* ─── ГОРОД ─── */}
+              <Stack.Screen
+                name="Town"
+                component={TownScreen}
+                options={{ headerShown: false, animation: 'fade' }}
+              />
+              <Stack.Screen
+                name="FoodShop"
+                component={FoodShopScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="Bank"
+                component={BankScreen}
+                options={{ title: '🏦 Банк' }}
+              />
 
-            <Stack.Screen
-              name="BlockOneScreen"
-              component={BlockOneScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="EgyptMarketScreen"
-              component={EgyptMarketScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="ArcticMarketScreen"
-              component={ArcticMarketScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="ArcticBankScreen"
-              component={ArcticBankScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="EgyptBankScreen"
-              component={EgyptBankScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="ArcticScreen"
-              component={ArcticScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="LevelOneScreen"
-              component={LevelOneScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="MyNewGameScreen"
-              component={MyNewGameScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="MyNewGameScreen2"
-              component={MyNewGameScreen2}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="BlockTwoScreen"
-              component={BlockTwoScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="LevelTwoScreen"
-              component={LevelTwoScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="BlockThreeScreen"
-              component={BlockThreeScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="LevelThreeScreen"
-              component={LevelThreeScreen}
-              options={{ headerShown: false }}
-            />
+              {/* ─── МИР ─── */}
+              <Stack.Screen
+                name="World"
+                component={WorldScreen}
+                options={{ headerShown: false }}
+              />
 
-            <Stack.Screen
-              name="Home"
-              component={HomeScreen}
-              options={{
-                headerShown: false,
-                animation: 'slide_from_right',
-              }}
-            />
+              {/* ─── ЗАДАНИЯ ─── */}
+              <Stack.Screen
+                name="Tasks"
+                component={TasksScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="BlockOneScreen"
+                component={BlockOneScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="LevelOneScreen"
+                component={LevelOneScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="MyNewGameScreen"
+                component={MyNewGameScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="MyNewGameScreen2"
+                component={MyNewGameScreen2}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="BlockTwoScreen"
+                component={BlockTwoScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="LevelTwoScreen"
+                component={LevelTwoScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="BlockThreeScreen"
+                component={BlockThreeScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="LevelThreeScreen"
+                component={LevelThreeScreen}
+                options={{ headerShown: false }}
+              />
 
-            <Stack.Screen
-              name="Tasks"
-              component={TasksScreen}
-              options={{ headerShown: false }}
-            />
+              {/* ─── КИТАЙ ─── */}
+              <Stack.Screen
+                name="ChinaScreen"
+                component={ChinaScreen}
+                options={{ headerShown: false }}
+              />
 
-            <Stack.Screen
-              name="EgyptScreen"
-              component={EgyptScreen}
-              options={{ headerShown: false }}
-            />
+              {/* ─── ЕГИПЕТ ─── */}
+              <Stack.Screen
+                name="EgyptScreen"
+                component={EgyptScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="EgyptMarketScreen"
+                component={EgyptMarketScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="EgyptBankScreen"
+                component={EgyptBankScreen}
+                options={{ headerShown: false }}
+              />
 
-            <Stack.Screen
-              name="FoodShop"
-              component={FoodShopScreen}
-              options={{ headerShown: false }}
-            />
-
-            <Stack.Screen
-              name="ChinaScreen"
-              component={ChinaScreen}
-              options={{ headerShown: false }}
-            />
-
-            <Stack.Screen
-              name="WorldScreen"
-              component={WorldScreen}
-              options={{ headerShown: false }}
-            />
-
-            <Stack.Screen
-              name="Kitchen"
-              component={KitchenScreen}
-              options={{
-                headerShown: false,
-                animation: 'slide_from_left',
-              }}
-            />
-
-            {/* ЭКРАН БАНКА */}
-            <Stack.Screen
-              name="Bank"
-              component={BankScreen}
-              options={{ title: '🏦 Банк' }}
-            />
-          </Stack.Navigator>
-        </NavigationContainer>
-      </SafeAreaProvider>
+              {/* ─── АРКТИКА ─── */}
+              <Stack.Screen
+                name="ArcticScreen"
+                component={ArcticScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="ArcticBankScreen"
+                component={ArcticBankScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="ArcticMarketScreen"
+                component={ArcticMarketScreen}
+                options={{ headerShown: false }}
+              />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </SafeAreaProvider>
       </PetProvider>
     </BankProvider>
   );
 }
 
 const styles = StyleSheet.create({
-  splashContainer: { flex: 1, backgroundColor: '#fff', justifyContent: 'center', alignItems: 'center' },
-  splashContent: { width: '100%', height: '100%', position: 'relative', alignItems: 'center', justifyContent: 'center' },
-  appTitle: { fontSize: 38, fontWeight: 'bold', color: '#000', top: 90, position: 'absolute' },
-  piggyBankContainer: { position: 'absolute', top: '33%', width: 220, height: 250, alignItems: 'center', justifyContent: 'center' },
-  cssCoinLoading: { position: 'absolute', width: 36, height: 36, borderRadius: 18, backgroundColor: '#e69500', borderWidth: 3, borderColor: '#ffd700', alignItems: 'center', justifyContent: 'center', zIndex: 10 },
-  coinInner: { justifyContent: 'center', alignItems: 'center' },
-  coinText: { fontSize: 16, fontWeight: '900', color: 'black' },
-  pig: { width: 380, height: 250, resizeMode: 'contain' },
-  loadingSection: { alignItems: 'center', bottom: 80, position: 'absolute' },
-  loaderText: { fontSize: 18, fontWeight: 'bold', color: '#000', marginBottom: 10 },
-  loadingLineContainer: { width: 260, height: 36, backgroundColor: '#fff', borderWidth: 2, borderColor: '#000', borderRadius: 20, position: 'relative', overflow: 'hidden', justifyContent: 'center', alignItems: 'center' },
-  loadingLine: { height: '100%', backgroundColor: '#ffb6c1', position: 'absolute', left: 0, top: 0 },
-  loadingText: { color: '#000', fontSize: 19, fontWeight: 'bold', zIndex: 2 },
+  splashContainer: {
+    flex: 1,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  splashContent: {
+    width: '100%',
+    height: '100%',
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  appTitle: {
+    fontSize: 38,
+    fontWeight: 'bold',
+    color: '#000',
+    top: 90,
+    position: 'absolute',
+  },
+  piggyBankContainer: {
+    position: 'absolute',
+    top: '33%',
+    width: 220,
+    height: 250,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cssCoinLoading: {
+    position: 'absolute',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#e69500',
+    borderWidth: 3,
+    borderColor: '#ffd700',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10,
+  },
+  coinInner: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  coinText: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: 'black',
+  },
+  pig: {
+    width: 380,
+    height: 250,
+    resizeMode: 'contain',
+  },
+  loadingSection: {
+    alignItems: 'center',
+    bottom: 80,
+    position: 'absolute',
+  },
+  loaderText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#000',
+    marginBottom: 10,
+  },
+  loadingLineContainer: {
+    width: 260,
+    height: 36,
+    backgroundColor: '#fff',
+    borderWidth: 2,
+    borderColor: '#000',
+    borderRadius: 20,
+    position: 'relative',
+    overflow: 'hidden',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingLine: {
+    height: '100%',
+    backgroundColor: '#ffb6c1',
+    position: 'absolute',
+    left: 0,
+    top: 0,
+  },
+  loadingText: {
+    color: '#000',
+    fontSize: 19,
+    fontWeight: 'bold',
+    zIndex: 2,
+  },
 });

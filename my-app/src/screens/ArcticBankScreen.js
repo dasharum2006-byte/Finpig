@@ -1,30 +1,37 @@
 import React, { useState } from 'react';
-import { 
-  StyleSheet, 
-  Text, 
-  View, 
-  ImageBackground, 
-  Image, 
-  TouchableOpacity, 
-  SafeAreaView, 
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  TouchableOpacity,
+  SafeAreaView,
   Dimensions,
-  Alert
+  Alert,
 } from 'react-native';
+import { usePet } from '../context/PetContext';
+import { getEggImage, getPetImage } from '../petsConfig';
 
 const { width } = Dimensions.get('window');
 
 export default function ArcticBankScreen({ navigation }) {
-  // Баланс игрока (Монеты и Ледяные Кристаллы)
-  const [coins, setCoins] = useState(400);       
-  const [iceCrystals, setIceCrystals] = useState(8); 
+  const petCtx = usePet();
+  const currentStage = petCtx.pet?.stage ?? 0;
 
-  // Функция: Обменять 1 Ледяной Кристалл на 60 Монет (в Арктике курс повыше!)
+  const petImage = petCtx.pet
+    ? (currentStage === 0
+        ? getEggImage(petCtx.pet.speciesId)
+        : getPetImage(petCtx.pet.speciesId, petCtx.pet.variationId, currentStage - 1))
+    : require('../../assets/Animals/Pinguin/Black/pinguin1_m.png');
+
+  const [coins, setCoins] = useState(400);
+  const [iceCrystals, setIceCrystals] = useState(8);
+
   const handleExchangeCrystal = () => {
     if (iceCrystals < 1) {
       Alert.alert('Упс!', 'У тебя закончились ледяные кристаллы для обмена! 🧊');
       return;
     }
-
     setIceCrystals(iceCrystals - 1);
     setCoins(coins + 60);
     Alert.alert('Обмен завершен! ❄️', 'Вы успешно обменяли 1 Ледяной Кристалл на 60 золотых монет.');
@@ -32,27 +39,18 @@ export default function ArcticBankScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
-      {/* Твой сгенерированный фон банка (arctic_bank.jpg) */}
-      <ImageBackground
-        // source={require('../../assets/arctic_bank.jpg')}
-        style={styles.bg}
-        resizeMode="cover"
-      >
-        {/* Кнопка "Назад в город" */}
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('Arctic')}>
+      <View style={[styles.bg, { backgroundColor: '#e0f7fa' }]}>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('ArcticScreen')}>
           <Text style={styles.backButtonText}>⬅ В город</Text>
         </TouchableOpacity>
 
-        {/* Кошелек в верхнем правом углу */}
         <View style={styles.walletContainer}>
           <Text style={styles.walletText}>🪙 {coins}</Text>
           <Text style={styles.walletText}>💎 {iceCrystals}</Text>
         </View>
 
-        {/* Заголовок */}
         <Text style={styles.title}>Ледяной Обменник</Text>
 
-        {/* ТЕКСТ ПОВЕРХ ПРОЗРАЧНОГО БЛОКА ЛЬДА НА СТЕНЕ */}
         <View style={styles.iceBoardContainer}>
           <Text style={styles.boardTitle}>❄️ Полярный Курс ❄️</Text>
           <Text style={styles.boardText}>
@@ -61,20 +59,14 @@ export default function ArcticBankScreen({ navigation }) {
           <Text style={styles.rateText}>1 Кристалл 💎 = 60 Монет 🪙</Text>
         </View>
 
-        {/* Кнопка обмена внизу экрана */}
         <View style={styles.buttonsContainer}>
           <TouchableOpacity style={styles.exchangeButton} onPress={handleExchangeCrystal}>
             <Text style={styles.buttonText}>Обменять 1 💎 на 60 🪙</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Пингвин-банкир, стоящий СЛЕВА */}
-        <Image
-          source={require('../../assets/Animals/pinguin/black/pinguin1.png')} 
-          style={styles.bankerImage}
-        />
-
-      </ImageBackground>
+        <Image source={petImage} style={styles.bankerImage} />
+      </View>
     </SafeAreaView>
   );
 }
@@ -114,21 +106,14 @@ const styles = StyleSheet.create({
     textShadowColor: '#fff',
     textShadowRadius: 4,
   },
-  
-  // ПОЗИЦИОНИРОВАНИЕ ТЕКСТА СТРОГО НА ЛЕДЯНОЙ БЛОК (на стене)
   iceBoardContainer: {
     position: 'absolute',
-    top: '26%', // Подкрути этот процент, чтобы текст сел ровно на нарисованный блок льда
-    width: width * 0.72, 
+    top: '26%',
+    width: width * 0.72,
     alignItems: 'center',
     paddingHorizontal: 15,
   },
-  boardTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#004d40',
-    marginBottom: 6,
-  },
+  boardTitle: { fontSize: 16, fontWeight: 'bold', color: '#004d40', marginBottom: 6 },
   boardText: {
     fontSize: 12,
     fontWeight: '600',
@@ -148,11 +133,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(0, 131, 143, 0.2)',
   },
-
-  // Блок кнопки обмена внизу экрана
   buttonsContainer: {
     position: 'absolute',
-    bottom: 180, 
+    bottom: 180,
     width: '100%',
     paddingHorizontal: 40,
   },
@@ -171,12 +154,10 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
   },
   buttonText: { fontSize: 16, fontWeight: 'bold', color: '#006064' },
-
-  // Банкир СЛЕВА внизу
   bankerImage: {
     position: 'absolute',
     bottom: 30,
-    left: 20, 
+    left: 20,
     width: 130,
     height: 130,
     resizeMode: 'contain',

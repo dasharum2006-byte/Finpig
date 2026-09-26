@@ -1,23 +1,32 @@
 import React, { useState } from 'react';
-import { 
-  StyleSheet, 
-  Text, 
-  View, 
-  ImageBackground, 
-  Image, 
-  TouchableOpacity, 
-  SafeAreaView, 
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  TouchableOpacity,
+  SafeAreaView,
   Dimensions,
-  Alert
+  Alert,
+  ImageBackground,
 } from 'react-native';
+import { usePet } from '../context/PetContext';
+import { getEggImage, getPetImage } from '../petsConfig';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 export default function EgyptMarketScreen({ navigation }) {
-  // Симулируем баланс монет игрока (в реальной игре это будет идти из контекста или БД)
+  const petCtx = usePet();
+  const currentStage = petCtx.pet?.stage ?? 0;
+
+  const petImage = petCtx.pet
+    ? (currentStage === 0
+        ? getEggImage(petCtx.pet.speciesId)
+        : getPetImage(petCtx.pet.speciesId, petCtx.pet.variationId, currentStage - 1))
+    : require('../../assets/Animals/Pinguin/Black/pinguin1_m.png');
+
   const [coins, setCoins] = useState(350);
 
-  // Список товаров для двух полок
   const [shelf1Items, setShelf1Items] = useState([
     { id: 'apple', name: 'Сочное яблоко', price: 20, emoji: '🍏', count: 5 },
     { id: 'date', name: 'Сладкий финик', price: 10, emoji: '🌴', count: 12 },
@@ -28,7 +37,6 @@ export default function EgyptMarketScreen({ navigation }) {
     { id: 'papyrus', name: 'Папирус', price: 40, emoji: '📜', count: 4 },
   ]);
 
-  // Функция покупки товара
   const handleBuyItem = (item, setShelf, shelfItems) => {
     if (coins < item.price) {
       Alert.alert('Упс', 'Недостаточно золотых монет для покупки.');
@@ -39,11 +47,9 @@ export default function EgyptMarketScreen({ navigation }) {
       return;
     }
 
-    // Списываем монеты
     setCoins(coins - item.price);
 
-    // Уменьшаем количество товара на полке
-    const updatedItems = shelfItems.map(i => {
+    const updatedItems = shelfItems.map((i) => {
       if (i.id === item.id) return { ...i, count: i.count - 1 };
       return i;
     });
@@ -54,32 +60,31 @@ export default function EgyptMarketScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
-      {/* Твой сгенерированный крупный план лавки (egypt_shop.jpg) */}
       <ImageBackground
         source={require('../../assets/egyptshop.png')}
         style={styles.bg}
         resizeMode="cover"
       >
-        {/* Кнопка "Назад в город" */}
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('EgyptScreen')}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.navigate('EgyptScreen')}
+        >
           <Text style={styles.backButtonText}>⬅ В город</Text>
         </TouchableOpacity>
 
-        {/* Счётчик монет игрока в верхнем правом углу */}
         <View style={styles.coinsContainer}>
           <Text style={styles.coinsText}>🪙 {coins}</Text>
         </View>
 
-        {/* Вывеска магазина */}
         <View style={styles.headerContainer}>
           <Text style={styles.title}>Восточная Лавка</Text>
         </View>
 
-        {/* ПОЛКА 1 (Верхняя) */}
+        {/* ПОЛКА 1 */}
         <View style={[styles.shelfContainer, styles.shelf1Position]}>
-          {shelf1Items.map(item => (
-            <TouchableOpacity 
-              key={item.id} 
+          {shelf1Items.map((item) => (
+            <TouchableOpacity
+              key={item.id}
               style={styles.itemCard}
               onPress={() => handleBuyItem(item, setShelf1Items, shelf1Items)}
             >
@@ -93,11 +98,11 @@ export default function EgyptMarketScreen({ navigation }) {
           ))}
         </View>
 
-        {/* ПОЛКА 2 (Нижняя) */}
+        {/* ПОЛКА 2 */}
         <View style={[styles.shelfContainer, styles.shelf2Position]}>
-          {shelf2Items.map(item => (
-            <TouchableOpacity 
-              key={item.id} 
+          {shelf2Items.map((item) => (
+            <TouchableOpacity
+              key={item.id}
               style={styles.itemCard}
               onPress={() => handleBuyItem(item, setShelf2Items, shelf2Items)}
             >
@@ -111,24 +116,20 @@ export default function EgyptMarketScreen({ navigation }) {
           ))}
         </View>
 
-        {/* Персонаж (тигрёнок), который стоит по центру снизу, как покупатель */}
-        <Image
-          source={require('../../assets/Animals/pinguin/black/pinguin1.png')}
-          style={styles.petImage}
-        />
-
+        {/* ПИТОМЕЦ */}
+        <Image source={petImage} style={styles.petImage} />
       </ImageBackground>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    backgroundColor: '#b8860b' 
+  container: {
+    flex: 1,
+    backgroundColor: '#b8860b',
   },
-  bg: { 
-    flex: 1 
+  bg: {
+    flex: 1,
   },
   backButton: {
     position: 'absolute',
@@ -140,10 +141,10 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     zIndex: 10,
   },
-  backButtonText: { 
-    color: '#fff', 
-    fontWeight: 'bold', 
-    fontSize: 14 
+  backButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 14,
   },
   coinsContainer: {
     position: 'absolute',
@@ -157,10 +158,10 @@ const styles = StyleSheet.create({
     borderColor: '#3d2510',
     zIndex: 10,
   },
-  coinsText: { 
-    color: '#3d2510', 
-    fontWeight: 'bold', 
-    fontSize: 16 
+  coinsText: {
+    color: '#3d2510',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
   headerContainer: {
     width: '100%',
@@ -177,7 +178,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     overflow: 'hidden',
   },
-  // Контейнер полок
   shelfContainer: {
     position: 'absolute',
     flexDirection: 'row',
@@ -185,12 +185,11 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingHorizontal: 30,
   },
-  // НАСТРОЙКА ВЫСОТЫ ПОЛОК ПОД ТВОЮ КАРТИНКУ
   shelf1Position: {
-    top: '28%', // Высота первой полки (подкрути проценты, чтобы карточки встали ровно на нарисованную полку)
+    top: '28%',
   },
   shelf2Position: {
-    top: '52%', // Высота второй полки (подкрути проценты под вторую нарисованную полку)
+    top: '52%',
   },
   itemCard: {
     width: width * 0.36,
@@ -205,15 +204,15 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 3,
   },
-  itemEmoji: { 
-    fontSize: 32, 
-    marginBottom: 2 
+  itemEmoji: {
+    fontSize: 32,
+    marginBottom: 2,
   },
-  itemName: { 
-    fontSize: 12, 
-    fontWeight: 'bold', 
-    color: '#3d2510', 
-    textAlign: 'center' 
+  itemName: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#3d2510',
+    textAlign: 'center',
   },
   priceTag: {
     backgroundColor: '#fff3cd',
@@ -224,15 +223,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ffeeba',
   },
-  priceText: { 
-    fontSize: 11, 
-    fontWeight: 'bold', 
-    color: '#856404' 
+  priceText: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: '#856404',
   },
-  countText: { 
-    fontSize: 10, 
-    color: '#777', 
-    marginTop: 4 
+  countText: {
+    fontSize: 10,
+    color: '#777',
+    marginTop: 4,
   },
   petImage: {
     position: 'absolute',

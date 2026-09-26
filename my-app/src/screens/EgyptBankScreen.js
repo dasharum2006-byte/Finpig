@@ -70,7 +70,7 @@ export default function EgyptBankScreen({ navigation }) {
 
         {/* Персонаж-банкир, стоящий СЛЕВА */}
         <Image
-          source={require('../../assets/Animals/pinguin/black/pinguin1.png')} 
+          source={require('../../assets/Animals/Pinguin/Black/pinguin1_m.png')} 
           style={styles.bankerImage}
         />
 

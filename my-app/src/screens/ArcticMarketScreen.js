@@ -1,35 +1,41 @@
 import React, { useState } from 'react';
-import { 
-  StyleSheet, 
-  Text, 
-  View, 
-  ImageBackground, 
-  Image, 
-  TouchableOpacity, 
-  SafeAreaView, 
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  TouchableOpacity,
+  SafeAreaView,
   Dimensions,
-  Alert
+  Alert,
 } from 'react-native';
+import { usePet } from '../context/PetContext';
+import { getEggImage, getPetImage } from '../petsConfig';
 
 const { width } = Dimensions.get('window');
 
 export default function ArcticMarketScreen({ navigation }) {
-  // Баланс монет игрока в Арктике
+  const petCtx = usePet();
+  const currentStage = petCtx.pet?.stage ?? 0;
+
+  const petImage = petCtx.pet
+    ? (currentStage === 0
+        ? getEggImage(petCtx.pet.speciesId)
+        : getPetImage(petCtx.pet.speciesId, petCtx.pet.variationId, currentStage - 1))
+    : require('../../assets/Animals/Pinguin/Black/pinguin1_m.png');
+
   const [coins, setCoins] = useState(400);
 
-  // Товары для Первой (Верхней) ледяной полки
   const [shelf1Items, setShelf1Items] = useState([
     { id: 'fish', name: 'Свежая рыбка', price: 15, emoji: '🐟', count: 8 },
     { id: 'icecream', name: 'Полярный лед', price: 5, emoji: '🍧', count: 20 },
   ]);
 
-  // Товары для Второй (Нижней) ледяной полки
   const [shelf2Items, setShelf2Items] = useState([
     { id: 'hat', name: 'Теплая ушанка', price: 80, emoji: '🪶', count: 3 },
     { id: 'coat', name: 'Зимняя шубка', price: 150, emoji: '🧥', count: 1 },
   ]);
 
-  // Универсальная функция покупки товаров на рынке
   const handleBuyItem = (item, setShelf, shelfItems) => {
     if (coins < item.price) {
       Alert.alert('Ой-ой!', 'Не хватает золотых монеток. Загляни в Ледяной Обменник! ❄️');
@@ -42,7 +48,7 @@ export default function ArcticMarketScreen({ navigation }) {
 
     setCoins(coins - item.price);
 
-    const updatedItems = shelfItems.map(i => {
+    const updatedItems = shelfItems.map((i) => {
       if (i.id === item.id) return { ...i, count: i.count - 1 };
       return i;
     });
@@ -53,32 +59,28 @@ export default function ArcticMarketScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
-      {/* Твой сгенерированный фон магазина-иглу (arctic_shop.jpg) */}
-      <ImageBackground
-        // source={require('../../assets/arctic_shop.jpg')}
-        style={styles.bg}
-        resizeMode="cover"
-      >
-        {/* Кнопка возврата в город Арктики */}
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('Arctic')}>
+      <View style={styles.bg}>
+
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.navigate('ArcticScreen')}
+        >
           <Text style={styles.backButtonText}>⬅ В город</Text>
         </TouchableOpacity>
 
-        {/* Кошелек игрока */}
         <View style={styles.coinsContainer}>
           <Text style={styles.coinsText}>🪙 {coins}</Text>
         </View>
 
-        {/* Вывеска лавки */}
         <View style={styles.headerContainer}>
           <Text style={styles.title}>Ледяной Рынок</Text>
         </View>
 
-        {/* ВЕРХНЯЯ ПОЛКА */}
+        {/* ПОЛКА 1 */}
         <View style={[styles.shelfContainer, styles.shelf1Position]}>
-          {shelf1Items.map(item => (
-            <TouchableOpacity 
-              key={item.id} 
+          {shelf1Items.map((item) => (
+            <TouchableOpacity
+              key={item.id}
               style={styles.itemCard}
               onPress={() => handleBuyItem(item, setShelf1Items, shelf1Items)}
             >
@@ -92,11 +94,11 @@ export default function ArcticMarketScreen({ navigation }) {
           ))}
         </View>
 
-        {/* НИЖНЯЯ ПОЛКА */}
+        {/* ПОЛКА 2 */}
         <View style={[styles.shelfContainer, styles.shelf2Position]}>
-          {shelf2Items.map(item => (
-            <TouchableOpacity 
-              key={item.id} 
+          {shelf2Items.map((item) => (
+            <TouchableOpacity
+              key={item.id}
               style={styles.itemCard}
               onPress={() => handleBuyItem(item, setShelf2Items, shelf2Items)}
             >
@@ -110,24 +112,22 @@ export default function ArcticMarketScreen({ navigation }) {
           ))}
         </View>
 
-        {/* Твой любимый пингвин, гуляющий по заснеженному полу лавки */}
-        <Image
-          source={require('../../assets/Animals/pinguin/black/pinguin1.png')}
-          style={styles.petImage}
-        />
+        {/* ПИТОМЕЦ */}
+        <Image source={petImage} style={styles.petImage} />
 
-      </ImageBackground>
+      </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    backgroundColor: '#e0f7fa' 
+  container: {
+    flex: 1,
+    backgroundColor: '#e0f7fa',
   },
-  bg: { 
-    flex: 1 
+  bg: {
+    flex: 1,
+    backgroundColor: '#e0f7fa',
   },
   backButton: {
     position: 'absolute',
@@ -139,10 +139,10 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     zIndex: 10,
   },
-  backButtonText: { 
-    color: '#fff', 
-    fontWeight: 'bold', 
-    fontSize: 14 
+  backButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 14,
   },
   coinsContainer: {
     position: 'absolute',
@@ -156,10 +156,10 @@ const styles = StyleSheet.create({
     borderColor: '#006064',
     zIndex: 10,
   },
-  coinsText: { 
-    color: '#006064', 
-    fontWeight: 'bold', 
-    fontSize: 16 
+  coinsText: {
+    color: '#006064',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
   headerContainer: {
     width: '100%',
@@ -183,12 +183,11 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingHorizontal: 30,
   },
-  // ПОДГОНКА ВЫСОТЫ ПОД ЛЕДЯНЫЕ ПОЛКИ ТВОЕГО ФОНА
   shelf1Position: {
-    top: '28%', // Изменяй этот процент, чтобы карточки встали точно на верхнюю ледяную полку
+    top: '28%',
   },
   shelf2Position: {
-    top: '52%', // Изменяй этот процент, чтобы карточки легли ровно на нижнюю полку
+    top: '52%',
   },
   itemCard: {
     width: width * 0.36,
@@ -203,15 +202,15 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 2,
   },
-  itemEmoji: { 
-    fontSize: 32, 
-    marginBottom: 2 
+  itemEmoji: {
+    fontSize: 32,
+    marginBottom: 2,
   },
-  itemName: { 
-    fontSize: 12, 
-    fontWeight: 'bold', 
-    color: '#006064', 
-    textAlign: 'center' 
+  itemName: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#006064',
+    textAlign: 'center',
   },
   priceTag: {
     backgroundColor: '#e0f7fa',
@@ -222,15 +221,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#b2ebf2',
   },
-  priceText: { 
-    fontSize: 11, 
-    fontWeight: 'bold', 
-    color: '#006064' 
+  priceText: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: '#006064',
   },
-  countText: { 
-    fontSize: 10, 
-    color: '#666', 
-    marginTop: 4 
+  countText: {
+    fontSize: 10,
+    color: '#666',
+    marginTop: 4,
   },
   petImage: {
     position: 'absolute',
