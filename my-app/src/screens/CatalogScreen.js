@@ -10,15 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../theme';
-
-const IMAGES = [
-  { id: '1', source: require('../../assets/eggs/bird.png') },
-  { id: '2', source: require('../../assets/eggs/fox.png') },
-  { id: '3', source: require('../../assets/eggs/image3.png') },
-  { id: '4', source: require('../../assets/eggs/monster.png') },
-  { id: '5', source: require('../../assets/eggs/pinguin.png') },
-  { id: '6', source: require('../../assets/eggs/tiger.png') },
-];
+import { SPECIES_LIST } from '../petsConfig';
 
 const { width } = Dimensions.get('window');
 const GAP = 12;
@@ -29,8 +21,8 @@ export default function CatalogScreen({ navigation }) {
   const [selectedId, setSelectedId] = useState(null);
 
   const handleConfirm = () => {
-    const selected = IMAGES.find((img) => img.id === selectedId);
-    navigation.navigate('PetName', { item: selected });
+    const selected = SPECIES_LIST.find((s) => s.id === selectedId);
+    navigation.navigate('PetName', { speciesId: selected.id, speciesName: selected.species });
   };
 
   const renderItem = ({ item }) => {
@@ -45,7 +37,8 @@ export default function CatalogScreen({ navigation }) {
           isSelected && styles.cardSelected,
         ]}
       >
-        <Image source={item.source} style={styles.image} />
+        <Image source={item.egg} style={styles.image} resizeMode="contain" />
+        <Text style={styles.cardLabel}>{item.species}</Text>
         {isSelected && (
           <View style={styles.checkBadge}>
             <Text style={styles.checkText}>✓</Text>
@@ -60,12 +53,12 @@ export default function CatalogScreen({ navigation }) {
       <View style={styles.header}>
         <Text style={styles.title}>Каталог</Text>
         <Text style={styles.subtitle}>
-          {selectedId ? 'Выбрано: 1' : 'Выберите изображение'}
+          {selectedId ? 'Выбрано: 1' : 'Выберите яйцо'}
         </Text>
       </View>
 
       <FlatList
-        data={IMAGES}
+        data={SPECIES_LIST}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         numColumns={2}
@@ -90,33 +83,12 @@ export default function CatalogScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  header: {
-    paddingHorizontal: PADDING,
-    paddingTop: 12,
-    paddingBottom: 8,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: colors.text,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    marginTop: 4,
-  },
-  listContent: {
-    paddingHorizontal: PADDING,
-    paddingBottom: 16,
-  },
-  row: {
-    justifyContent: 'space-between',
-    marginBottom: GAP,
-  },
+  container: { flex: 1, backgroundColor: colors.background },
+  header: { paddingHorizontal: PADDING, paddingTop: 12, paddingBottom: 8 },
+  title: { fontSize: 28, fontWeight: 'bold', color: colors.text },
+  subtitle: { fontSize: 14, color: colors.textSecondary, marginTop: 4 },
+  listContent: { paddingHorizontal: PADDING, paddingBottom: 16 },
+  row: { justifyContent: 'space-between', marginBottom: GAP },
   card: {
     aspectRatio: 1,
     borderRadius: 14,
@@ -124,13 +96,18 @@ const styles = StyleSheet.create({
     backgroundColor: colors.cardBg,
     borderWidth: 3,
     borderColor: 'transparent',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 12,
   },
-  cardSelected: {
-    borderColor: colors.accent,
-  },
-  image: {
-    width: '100%',
-    height: '100%',
+  cardSelected: { borderColor: colors.accent },
+  image: { width: '85%', height: '85%' },
+  cardLabel: {
+    position: 'absolute',
+    bottom: 6,
+    fontSize: 12,
+    fontWeight: '700',
+    color: colors.text,
   },
   checkBadge: {
     position: 'absolute',
@@ -143,11 +120,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  checkText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
+  checkText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
   footer: {
     paddingHorizontal: PADDING,
     paddingTop: 12,
@@ -156,21 +129,8 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: colors.border,
   },
-  button: {
-    backgroundColor: colors.accent,
-    paddingVertical: 16,
-    borderRadius: 14,
-    alignItems: 'center',
-  },
-  buttonDisabled: {
-    backgroundColor: colors.disabled,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 17,
-    fontWeight: '600',
-  },
-  buttonTextDisabled: {
-    color: colors.disabledText,
-  },
+  button: { backgroundColor: colors.accent, paddingVertical: 16, borderRadius: 14, alignItems: 'center' },
+  buttonDisabled: { backgroundColor: colors.disabled },
+  buttonText: { color: '#fff', fontSize: 17, fontWeight: '600' },
+  buttonTextDisabled: { color: colors.disabledText },
 });

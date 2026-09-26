@@ -3,34 +3,42 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const PetContext = createContext(null);
 
-const STORAGE_KEY = '@pet_state_v1';
+const STORAGE_KEY = '@pet_state_v2';
 const DAY_MS = 24 * 60 * 60 * 1000;
 const HUNGER_DROP_PER_DAY = 25;
 const HUNGER_MAX = 100;
 
 export function PetProvider({ children }) {
   const [isLoaded, setIsLoaded] = useState(false);
+
+  // ─── Питомец ───
+  // { speciesId, variationId, name, stage, hatched }
+  const [pet, setPet] = useState(null);
+
+  // ─── Голод ───
   const [hunger, setHunger] = useState(HUNGER_MAX);
   const [lastFed, setLastFed] = useState(null);
 
-  // ─── Загрузка с пересчётом по времени ───
+  // ─── Загрузка ───
   useEffect(() => {
     (async () => {
       try {
         const raw = await AsyncStorage.getItem(STORAGE_KEY);
         if (raw) {
           const s = JSON.parse(raw);
-          const savedHunger = s.hunger ?? HUNGER_MAX;
-          const savedLastFed = s.lastFed ?? Date.now();
+          setPet(s.pet ?? null);
+          setHunger(s.hunger ?? HUNGER_MAX);
+          setLastFed(s.lastFed ?? Date.now());
 
+          // Пересчёт голода по времени
+          const savedLastFed = s.lastFed ?? Date.now();
           const elapsed = Date.now() - savedLastFed;
           const daysPassed = Math.floor(elapsed / DAY_MS);
-          const newHunger = Math.max(0, savedHunger - daysPassed * HUNGER_DROP_PER_DAY);
-
-          setHunger(newHunger);
-          setLastFed(savedLastFed + daysPassed * DAY_MS);
+          if (daysPassed >= 1) {
+            setHunger(Math.max(0, (s.hunger ?? HUNGER_MAX) - daysPassed * HUNGER_DROP_PER_DAY));
+            setLastFed(savedLastFed + daysPassed * DAY_MS);
+          }
         } else {
-          setHunger(HUNGER_MAX);
           setLastFed(Date.now());
         }
       } catch (e) {
@@ -46,17 +54,16 @@ export function PetProvider({ children }) {
     if (!isLoaded) return;
     AsyncStorage.setItem(
       STORAGE_KEY,
-      JSON.stringify({ hunger, lastFed })
+      JSON.stringify({ pet, hunger, lastFed })
     ).catch((e) => console.error('Pet save error:', e));
-  }, [isLoaded, hunger, lastFed]);
+  }, [isLoaded, pet, hunger, lastFed]);
 
-  // ─── Тикер: раз в минуту проверяем прошедшие дни ───
+  // ─── Тикер голода ───
   useEffect(() => {
     if (!isLoaded) return;
     const interval = setInterval(() => {
       if (!lastFed) return;
-      const elapsed = Date.now() - lastFed;
-      const daysPassed = Math.floor(elapsed / DAY_MS);
+      const daysPassed = Math.floor((Date.now() - lastFed) / DAY_MS);
       if (daysPassed >= 1) {
         setHunger((h) => Math.max(0, h - daysPassed * HUNGER_DROP_PER_DAY));
         setLastFed((lf) => lf + daysPassed * DAY_MS);
@@ -65,6 +72,32 @@ export function PetProvider({ children }) {
     return () => clearInterval(interval);
   }, [isLoaded, lastFed]);
 
+  // ─── Установить питомца (после выбора + имени) ───
+  const setNewPet = useCallback(({ speciesId, variationId, name }) => {
+    setPet({
+      speciesId,
+      variationId,
+      name,
+      stage: 0,       // 0 = яйцо/только что вылупился
+      hatched: false, // вылупился ли
+    });
+  }, []);
+
+  // ─── Вылупить ───
+  const hatchPet = useCallback(() => {
+    setPet((p) => (p ? { ...p, hatched: true, stage: 1 } : p));
+  }, []);
+
+  // ─── Повысить стадию (0 → 1 → 2) ───
+  const evolvePet = useCallback(() => {
+    setPet((p) => {
+      if (!p) return p;
+      const nextStage = Math.min(2, (p.stage ?? 0) + 1);
+      return { ...p, stage: nextStage, hatched: true };
+    });
+  }, []);
+
+  // ─── Покормить ───
   const feedPet = useCallback(() => {
     setHunger(HUNGER_MAX);
     setLastFed(Date.now());
@@ -74,14 +107,26 @@ export function PetProvider({ children }) {
     setHunger((h) => Math.max(0, h - amount));
   }, []);
 
+  // ─── Сбросить питомца ───
+  const clearPet = useCallback(() => {
+    setPet(null);
+    setHunger(HUNGER_MAX);
+    setLastFed(Date.now());
+  }, []);
+
   return (
     <PetContext.Provider
       value={{
         isLoaded,
+        pet,
         hunger,
         lastFed,
+        setNewPet,
+        hatchPet,
+        evolvePet,
         feedPet,
         decreaseHunger,
+        clearPet,
         HUNGER_MAX,
       }}
     >

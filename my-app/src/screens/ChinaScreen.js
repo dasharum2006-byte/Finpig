@@ -1,65 +1,83 @@
-import React, {useState} from 'react';
-import {View,Text,StyleSheet,ImageBackground,Image,TouchableOpacity,Dimensions} from 'react-native';
-
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ImageBackground,
+  Image,
+  TouchableOpacity,
+  Dimensions,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-const {width} = Dimensions.get('window');
+import { usePet } from '../context/PetContext';
+import { getEggImage, getPetImage } from '../petsConfig';
 
-export default function ChinaScreen({route, navigation}) {
-    //Получаем параметр из навигации.Если зашли не через карту, по умолчанию false
-    const { isFirstVisit } = route.params || {};
-    const [showCookie, setShowCookie] = useState(isFirstVisit);
-    const [fortuneText, setFortuneText] = useState('Нажми на печеньку,чтобы узнать предсказание');
-    const [isBroken, setIsBroken] = useState(false);
+const { width } = Dimensions.get('window');
 
-    const fortunes = [
+export default function ChinaScreen({ route, navigation }) {
+  const { isFirstVisit } = route.params || {};
+  const petCtx = usePet();
+
+  const [showCookie, setShowCookie] = useState(isFirstVisit);
+  const [fortuneText, setFortuneText] = useState('Нажми на печеньку, чтобы узнать предсказание');
+  const [isBroken, setIsBroken] = useState(false);
+
+  // Реальный питомец из контекста
+  const petImage = petCtx.pet
+    ? (petCtx.pet.hatched
+        ? getPetImage(petCtx.pet.speciesId, petCtx.pet.variationId, petCtx.pet.stage)
+        : getEggImage(petCtx.pet.speciesId))
+    : require('../../assets/Animals/Pinguin/Black/pinguin1_m.png');
+
+  const fortunes = [
     '🎯 Тебя ждёт большое приключение',
     '🐼 Сегодня отличный день, чтобы съесть тортик',
     '✨ Твой питомец станет ещё сильнее и умнее',
     '🧧 Удача уже летит к тебе на крыльях дракона',
     '🌟 Маленькие шаги ведут к большим вершинам',
-    ];
-    //случайное предсказание
-    const breakCookie = () => {
-        if (isBroken) return; // Если уже сломали, второй раз нажать нельзя
-        const randomIndex = Math.floor(Math.random()*fortunes.length);
-        setFortuneText(fortunes[randomIndex]);
-     setIsBroken(true);
-    //Спустя 4 секунды после прочтения предсказания, печенье плавно исчезнет навсегда для этого захода
+  ];
+
+  const breakCookie = () => {
+    if (isBroken) return;
+    const randomIndex = Math.floor(Math.random() * fortunes.length);
+    setFortuneText(fortunes[randomIndex]);
+    setIsBroken(true);
     setTimeout(() => {
       setShowCookie(false);
-      //Сбрасываем параметр в навигации, чтобы при повторном открытии экрана печенье больше не рендерилось
       navigation.setParams({ isFirstVisit: false });
-        }, 4000);
-    };
+    }, 4000);
+  };
 
-    return (
-        <SafeAreaView style={styles.container} edges={(['bottom'])}>
-            <ImageBackground source={require('../../assets/China.jpg')} style={styles.bg} resizeMode='cover'>
+  return (
+    <SafeAreaView style={styles.container} edges={['bottom']}>
+      <ImageBackground
+        source={require('../../assets/China.jpg')}
+        style={styles.bg}
+        resizeMode="cover"
+      >
         <Text style={styles.title}>Китай</Text>
-        <Image source={require('../../assets/Animals/pinguin/black/pinguin1.png')} style={styles.petImage}/>
 
+        <Image source={petImage} style={styles.petImage} />
 
-        {/* Кнопка "Назад на карту" в левом верхнем углу */}
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Text style={styles.backButtonText}>◀ Карта</Text>
         </TouchableOpacity>
 
-        {/* китайское печенье с предсказанием */}
         {showCookie ? (
-        <View style={styles.interactiveCard}>
-          <Text style={styles.fortuneTitle}>Печенье с предсказанием</Text>
-          <Text style={styles.fortuneText}>{fortuneText}</Text>
+          <View style={styles.interactiveCard}>
+            <Text style={styles.fortuneTitle}>Печенье с предсказанием</Text>
+            <Text style={styles.fortuneText}>{fortuneText}</Text>
 
-        {!isBroken && (
-          <TouchableOpacity style={styles.actionButton} onPress={breakCookie}>
-            <Text style={styles.actionButtonText}>Открыть печеньку</Text>
-          </TouchableOpacity>
-        )}
-        </View>
-         ) : null}
-        </ImageBackground>
+            {!isBroken && (
+              <TouchableOpacity style={styles.actionButton} onPress={breakCookie}>
+                <Text style={styles.actionButtonText}>Открыть печеньку</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        ) : null}
+      </ImageBackground>
     </SafeAreaView>
-    ); 
+  );
 }
 
 const styles = StyleSheet.create({
@@ -87,7 +105,6 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   backButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
-
   petImage: {
     position: 'absolute',
     width: 210,
@@ -103,7 +120,7 @@ const styles = StyleSheet.create({
     padding: 3,
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#ff4d4d', // Красная китайская рамка
+    borderColor: '#ff4d4d',
     marginBottom: 50,
     shadowColor: '#000',
     shadowOpacity: 0.2,

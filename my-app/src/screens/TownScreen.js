@@ -1,10 +1,28 @@
 import React from 'react';
-import { View, Text, StyleSheet, ImageBackground, Image, TouchableOpacity, Dimensions } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ImageBackground,
+  Image,
+  TouchableOpacity,
+  Dimensions,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { usePet } from '../context/PetContext';
+import { getEggImage, getPetImage } from '../petsConfig';
 
 const { width } = Dimensions.get('window');
 
 export default function TownScreen({ navigation }) {
+  const petCtx = usePet();
+
+  const petImage = petCtx.pet
+    ? (petCtx.pet.hatched
+        ? getPetImage(petCtx.pet.speciesId, petCtx.pet.variationId, petCtx.pet.stage)
+        : getEggImage(petCtx.pet.speciesId))
+    : require('../../assets/Animals/Pinguin/Black/pinguin1_m.png');
+
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
       <ImageBackground
@@ -14,15 +32,17 @@ export default function TownScreen({ navigation }) {
       >
         <View style={styles.overlay}>
 
-          <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('Home')}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation.navigate('Home')}
+          >
             <Text style={styles.backButtonText}>Назад</Text>
           </TouchableOpacity>
 
           <Text style={styles.title}>Город</Text>
 
           <View style={styles.buildingsContainer}>
-
-            {/* Ряд 1: Продуктовый + Магазин одежды */}
+            {/* Ряд 1: Продуктовый + Магазин */}
             <View style={styles.buildingsRow}>
               <TouchableOpacity
                 style={styles.buildingCard}
@@ -67,13 +87,10 @@ export default function TownScreen({ navigation }) {
                 <Text style={styles.buildingText}>Мир</Text>
               </TouchableOpacity>
             </View>
-
           </View>
 
-          <Image
-            source={require('../../assets/Animals/pinguin/black/pinguin1.png')}
-            style={styles.petImage}
-          />
+          {/* Питомец внизу — реальный из контекста */}
+          <Image source={petImage} style={styles.petImage} />
 
         </View>
       </ImageBackground>

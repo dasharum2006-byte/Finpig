@@ -15,10 +15,10 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { colors } from '../theme';
 import { useBank } from '../context/BankContext';
 import { usePet } from '../context/PetContext';
+import { getEggImage, getPetImage, PETS_BY_EGG } from '../petsConfig';
 
 const { width } = Dimensions.get('window');
 const PET_SIZE = width * 0.7;
@@ -37,19 +37,22 @@ const ROOMS = [
 
 export default function HomeScreen({ route, navigation }) {
   const bank = useBank();
-  const pet = usePet();
+  const petCtx = usePet();
 
-  const navItem = route?.params?.item;
-  const navPetName = route?.params?.petName;
+  // Питомец приходит либо из навигации (только что создан), либо из контекста
+  const incomingPet = route?.params?.pet;
 
-  const [localPet, setLocalPet] = useState(null);
-  const [localPetName, setLocalPetName] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
+  useEffect(() => {
+    if (incomingPet) {
+      petCtx.setNewPet(incomingPet);
+    }
+  }, [incomingPet]);
+
+  const myPet = petCtx.pet;
 
   const [openMenu, setOpenMenu] = useState(null);
   const [roomIndex, setRoomIndex] = useState(0);
   const [progress, setProgress] = useState(0);
-  const [evolved, setEvolved] = useState(false);
   const [evolving, setEvolving] = useState(false);
   const [flash, setFlash] = useState(false);
   const [hearts] = useState(3);
@@ -58,55 +61,25 @@ export default function HomeScreen({ route, navigation }) {
   const decayTimer = useRef(null);
   const scale = useRef(new Animated.Value(1)).current;
 
-  const activePet = navItem || localPet;
-  const activePetName = navPetName || localPetName;
+  // ─── Текущая картинка питомца ───
+  // Если ещё не вылупился — показываем яйцо
+  // Если вылупился — картинку стадии
+  const petImage = myPet
+    ? (myPet.hatched
+      ? getPetImage(myPet.speciesId, myPet.variationId, myPet.stage)
+      : getEggImage(myPet.speciesId))
+    : null;
 
-  const PET_BASE = activePet?.source;
-  const PET_EVOLVED = require('../../assets/Animals/pinguin/black/pinguin1.png');
+  const petName = myPet?.name ?? 'Питомец';
 
-  useEffect(() => {
-    loadSavedPet();
-  }, []);
-
-  const loadSavedPet = async () => {
-    try {
-      const savedPet = await AsyncStorage.getItem('currentPet');
-      const savedName = await AsyncStorage.getItem('currentPetName');
-      if (savedPet && savedName) {
-        setLocalPet(JSON.parse(savedPet));
-        setLocalPetName(savedName);
-      }
-    } catch (error) {
-      console.error('Ошибка загрузки питомца:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (navItem && navPetName) {
-      savePetToStorage(navItem, navPetName);
-    }
-  }, [navItem, navPetName]);
-
-  const savePetToStorage = async (petData, name) => {
-    try {
-      await AsyncStorage.setItem('currentPet', JSON.stringify(petData));
-      await AsyncStorage.setItem('currentPetName', name);
-      setLocalPet(petData);
-      setLocalPetName(name);
-    } catch (error) {
-      console.error('Ошибка сохранения питомца:', error);
-    }
-  };
-
+  // ─── Свайп влево → кухня ───
   const panResponder = useRef(
     PanResponder.create({
       onMoveShouldSetPanResponder: (_, g) =>
         Math.abs(g.dx) > 15 && Math.abs(g.dx) > Math.abs(g.dy),
       onPanResponderRelease: (_, g) => {
         if (g.dx < -SWIPE_THRESHOLD) {
-          navigation.navigate('Kitchen', { item: activePet, petName: activePetName });
+          navigation.navigate('Kitchen');
         }
       },
     })
@@ -118,14 +91,14 @@ export default function HomeScreen({ route, navigation }) {
 
   useEffect(() => {
     decayTimer.current = setInterval(() => {
-      if (evolving || evolved) return;
+      if (evolving) return;
       if (progressRef.current > 0) {
         const next = Math.max(0, progressRef.current - DECAY_STEP);
         setProgress(next);
       }
     }, DECAY_INTERVAL);
     return () => clearInterval(decayTimer.current);
-  }, [evolving, evolved]);
+  }, [evolving]);
 
   const pulse = () => {
     Animated.sequence([
@@ -135,33 +108,47 @@ export default function HomeScreen({ route, navigation }) {
   };
 
   const handlePetClick = () => {
-    if (evolving || evolved) return;
+    if (evolving) return;
+
+    // Если ещё яйцо — клик не растит шкалу
+    if (!myPet?.hatched) return;
+
     pulse();
     const next = Math.min(1, progressRef.current + CLICK_STEP);
     setProgress(next);
     if (next >= 1) triggerEvolution();
   };
 
+  // Спец-обработчик клика по ЯЙЦУ — вылупление
+  const handleEggClick = () => {
+    if (evolving || myPet?.hatched) return;
+    pulse();
+    setEvolving(true);
+    setTimeout(() => {
+      petCtx.hatchPet();
+      setEvolving(false);
+    }, 900);
+  };
+
   const triggerEvolution = async () => {
     setEvolving(true);
-    await wait(EVO_FRAME_DURATION);
     await wait(EVO_FRAME_DURATION);
     setFlash(true);
     await wait(FLASH_DURATION);
     setFlash(false);
-    setEvolved(true);
+    await wait(EVO_FRAME_DURATION);
+    petCtx.evolvePet();
+    setProgress(0);
     setEvolving(false);
   };
 
   const wait = (ms) => new Promise((res) => setTimeout(res, ms));
 
-  const petSource = evolved ? PET_EVOLVED : PET_BASE;
-
   const menus = {
     room: { title: '🏠 Комната', isRoomPicker: true },
   };
 
-  if (isLoading) {
+  if (!petCtx.isLoaded) {
     return (
       <SafeAreaView style={styles.container} edges={['bottom']}>
         <View style={styles.emptyState}>
@@ -172,17 +159,17 @@ export default function HomeScreen({ route, navigation }) {
     );
   }
 
-  if (!activePet) {
+  if (!myPet) {
     return (
       <SafeAreaView style={styles.container} edges={['bottom']}>
         <View style={styles.emptyState}>
           <Text style={styles.emptyText}>Питомец не выбран</Text>
-          <Text style={styles.emptySubText}>Давай выберем или создадим нового!</Text>
+          <Text style={styles.emptySubText}>Давай выберем яйцо!</Text>
           <TouchableOpacity
             style={styles.emptyButton}
             onPress={() => navigation.navigate('Catalog')}
           >
-            <Text style={styles.emptyButtonText}>Выбрать питомца</Text>
+            <Text style={styles.emptyButtonText}>В каталог</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -199,7 +186,7 @@ export default function HomeScreen({ route, navigation }) {
         >
           <View style={styles.topBar}>
             <View style={styles.namePlate}>
-              <Text style={styles.petName}>{activePetName}</Text>
+              <Text style={styles.petName}>{petName}</Text>
             </View>
 
             <View style={styles.rightColumn}>
@@ -207,34 +194,29 @@ export default function HomeScreen({ route, navigation }) {
                 <View style={styles.levelBadge}>
                   <Text style={styles.levelBadgeText}>Lv.{bank.level}</Text>
                 </View>
-
                 <View style={styles.heartsRow}>
                   {[0, 1, 2].map((i) => (
-                    <Text
-                      key={i}
-                      style={[styles.heart, i >= hearts && styles.heartEmpty]}
-                    >
+                    <Text key={i} style={[styles.heart, i >= hearts && styles.heartEmpty]}>
                       {i < hearts ? '❤️' : '🤍'}
                     </Text>
                   ))}
                 </View>
               </View>
 
-              {/* ─── Плашка голода ─── */}
               <View
                 style={[
                   styles.hungerBadge,
-                  pet.hunger <= 25 && styles.hungerBadgeDanger,
+                  petCtx.hunger <= 25 && styles.hungerBadgeDanger,
                 ]}
               >
                 <Text style={styles.hungerEmoji}>🍽️</Text>
                 <Text
                   style={[
                     styles.hungerText,
-                    pet.hunger <= 25 && styles.hungerTextDanger,
+                    petCtx.hunger <= 25 && styles.hungerTextDanger,
                   ]}
                 >
-                  {pet.hunger}%
+                  {petCtx.hunger}%
                 </Text>
               </View>
 
@@ -251,15 +233,19 @@ export default function HomeScreen({ route, navigation }) {
           </View>
 
           <View style={styles.petWrapper}>
-            <TouchableOpacity activeOpacity={0.9} onPress={handlePetClick}>
+            <TouchableOpacity
+              activeOpacity={0.9}
+              onPress={myPet.hatched ? handlePetClick : handleEggClick}
+            >
               <Animated.Image
-                source={petSource}
+                source={petImage}
                 style={[styles.petImage, { transform: [{ scale }] }]}
                 resizeMode="contain"
               />
             </TouchableOpacity>
 
-            {!evolved && (
+            {/* Шкала только когда питомец вылупился */}
+            {myPet.hatched && (
               <View style={styles.progressTrack}>
                 <View
                   style={[styles.progressFill, { width: `${progress * 100}%` }]}
@@ -268,32 +254,22 @@ export default function HomeScreen({ route, navigation }) {
             )}
 
             <Text style={styles.swipeHint}>
-              ← свайпни влево, чтобы пойти на кухню
+              {myPet.hatched
+                ? '← свайпни влево, чтобы пойти на кухню'
+                : '← тапни по яйцу, чтобы вылупить'}
             </Text>
           </View>
 
-          {/* ─── Нижняя панель: 3 кнопки (убрали Мир) ─── */}
           <View style={styles.bottomBar}>
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => navigation.navigate('Tasks')}
-            >
+            <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('Tasks')}>
               <Text style={styles.actionEmoji}>📋</Text>
               <Text style={styles.actionText}>Задания</Text>
             </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => navigation.navigate('Town')}
-            >
+            <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('Town')}>
               <Text style={styles.actionEmoji}>🏙️</Text>
               <Text style={styles.actionText}>Город</Text>
             </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => setOpenMenu('room')}
-            >
+            <TouchableOpacity style={styles.actionButton} onPress={() => setOpenMenu('room')}>
               <Text style={styles.actionEmoji}>🏠</Text>
               <Text style={styles.actionText}>Комната</Text>
             </TouchableOpacity>
@@ -309,55 +285,25 @@ export default function HomeScreen({ route, navigation }) {
         animationType="slide"
         onRequestClose={() => setOpenMenu(null)}
       >
-        <Pressable
-          style={styles.modalBackdrop}
-          onPress={() => setOpenMenu(null)}
-        >
-          <Pressable
-            style={styles.modalSheet}
-            onPress={(e) => e.stopPropagation()}
-          >
+        <Pressable style={styles.modalBackdrop} onPress={() => setOpenMenu(null)}>
+          <Pressable style={styles.modalSheet} onPress={(e) => e.stopPropagation()}>
             {openMenu && (
               <>
                 <View style={styles.modalHandle} />
                 <Text style={styles.modalTitle}>{menus[openMenu].title}</Text>
-
-                {menus[openMenu].isRoomPicker ? (
-                  <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={styles.roomScroll}
-                  >
-                    {ROOMS.map((r, idx) => (
-                      <TouchableOpacity
-                        key={r.id}
-                        style={[
-                          styles.roomOption,
-                          idx === roomIndex && styles.roomOptionActive,
-                        ]}
-                        onPress={() => {
-                          setRoomIndex(idx);
-                          setOpenMenu(null);
-                        }}
-                      >
-                        <Image source={r.source} style={styles.roomThumb} />
-                        <Text style={styles.roomLabel}>{r.label}</Text>
-                        {idx === roomIndex && (
-                          <View style={styles.roomCheck}>
-                            <Text style={styles.roomCheckText}>✓</Text>
-                          </View>
-                        )}
-                      </TouchableOpacity>
-                    ))}
-                  </ScrollView>
-                ) : (
-                  <Text style={styles.modalText}>{menus[openMenu].text}</Text>
-                )}
-
-                <TouchableOpacity
-                  style={styles.modalButton}
-                  onPress={() => setOpenMenu(null)}
-                >
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.roomScroll}>
+                  {ROOMS.map((r, idx) => (
+                    <TouchableOpacity
+                      key={r.id}
+                      style={[styles.roomOption, idx === roomIndex && styles.roomOptionActive]}
+                      onPress={() => { setRoomIndex(idx); setOpenMenu(null); }}
+                    >
+                      <Image source={r.source} style={styles.roomThumb} />
+                      <Text style={styles.roomLabel}>{r.label}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+                <TouchableOpacity style={styles.modalButton} onPress={() => setOpenMenu(null)}>
                   <Text style={styles.modalButtonText}>Закрыть</Text>
                 </TouchableOpacity>
               </>
@@ -391,11 +337,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 24,
-    shadowColor: '#000',
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 3,
   },
   petName: { color: '#fff', fontSize: 18, fontWeight: '700' },
 
@@ -407,11 +348,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 20,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
   },
   levelBadgeText: { fontSize: 16, fontWeight: '700', color: '#333' },
 
@@ -421,16 +357,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 24,
-    shadowColor: '#000',
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 3,
   },
   heart: { fontSize: 26, marginHorizontal: 2 },
   heartEmpty: { opacity: 0.5 },
 
-  // Плашка голода
   hungerBadge: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -439,11 +369,6 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 20,
     gap: 6,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
   },
   hungerBadgeDanger: { backgroundColor: '#ff4d4d' },
   hungerEmoji: { fontSize: 18 },
@@ -455,13 +380,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.1)',
-    shadowColor: '#000',
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 3,
   },
   balanceBadgeText: { fontSize: 18, fontWeight: '700', color: '#fff' },
 
@@ -487,7 +405,6 @@ const styles = StyleSheet.create({
 
   swipeHint: { marginTop: 10, fontSize: 12, color: colors.textSecondary, fontStyle: 'italic' },
 
-  // Нижняя панель — 3 кнопки
   bottomBar: {
     flexDirection: 'row',
     justifyContent: 'space-around',
@@ -500,13 +417,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: colors.border,
   },
-  actionButton: {
-    alignItems: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 16,
-    minWidth: 100,
-  },
+  actionButton: { alignItems: 'center', paddingVertical: 8, paddingHorizontal: 16, minWidth: 100 },
   actionEmoji: { fontSize: 26, marginBottom: 4 },
   actionText: { fontSize: 13, color: colors.text, fontWeight: '600' },
 
@@ -524,10 +435,8 @@ const styles = StyleSheet.create({
   },
   modalHandle: { alignSelf: 'center', width: 44, height: 5, borderRadius: 3, backgroundColor: colors.border, marginBottom: 16 },
   modalTitle: { fontSize: 22, fontWeight: '700', color: colors.text, marginBottom: 12 },
-  modalText: { fontSize: 16, color: colors.textSecondary, lineHeight: 22, marginBottom: 24 },
   modalButton: { backgroundColor: colors.accent, paddingVertical: 14, borderRadius: 14, alignItems: 'center', marginTop: 16 },
   modalButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
-
   roomScroll: { paddingVertical: 4, paddingRight: 8 },
   roomOption: {
     width: 110,
@@ -541,16 +450,4 @@ const styles = StyleSheet.create({
   roomOptionActive: { borderColor: colors.accent },
   roomThumb: { width: '100%', height: 110 },
   roomLabel: { fontSize: 12, textAlign: 'center', paddingVertical: 6, color: colors.text, fontWeight: '600' },
-  roomCheck: {
-    position: 'absolute',
-    top: 6,
-    right: 6,
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: colors.accent,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  roomCheckText: { color: '#fff', fontSize: 13, fontWeight: '700' },
 });
