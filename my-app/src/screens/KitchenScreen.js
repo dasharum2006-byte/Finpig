@@ -44,11 +44,13 @@ export default function KitchenScreen({ navigation }) {
   const FlatListRef = useRef(null);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Реальный питомец из контекста
+  // ─── Картинка питомца из контекста ───
+  const currentStage = petCtx.pet?.stage ?? 0;
+
   const petImage = petCtx.pet
-    ? (petCtx.pet.hatched
-        ? getPetImage(petCtx.pet.speciesId, petCtx.pet.variationId, petCtx.pet.stage - 1)
-        : getEggImage(petCtx.pet.speciesId))
+    ? (currentStage === 0
+        ? getEggImage(petCtx.pet.speciesId)
+        : getPetImage(petCtx.pet.speciesId, petCtx.pet.variationId, currentStage - 1))
     : require('../../assets/Animals/Pinguin/Black/pinguin1_m.png');
 
   // ─── Свайп ВПРАВО → обратно на Home ───
@@ -109,6 +111,7 @@ export default function KitchenScreen({ navigation }) {
           style={styles.bg}
           resizeMode="cover"
         >
+          {/* Питомец — увеличен */}
           <Image source={petImage} style={styles.petImage} />
 
           <ImageBackground
@@ -170,8 +173,8 @@ const styles = StyleSheet.create({
   petImage: {
     position: 'absolute',
     bottom: 220,
-    width: 210,
-    height: 210,
+    width: 260,       // было 210
+    height: 260,      // было 210
     resizeMode: 'contain',
     zIndex: 1,
   },

@@ -17,10 +17,13 @@ const { width } = Dimensions.get('window');
 export default function TownScreen({ navigation }) {
   const petCtx = usePet();
 
+  // ─── Картинка питомца из контекста ───
+  const currentStage = petCtx.pet?.stage ?? 0;
+
   const petImage = petCtx.pet
-    ? (petCtx.pet.hatched
-        ? getPetImage(petCtx.pet.speciesId, petCtx.pet.variationId, petCtx.pet.stage - 1)
-        : getEggImage(petCtx.pet.speciesId))
+    ? (currentStage === 0
+        ? getEggImage(petCtx.pet.speciesId)
+        : getPetImage(petCtx.pet.speciesId, petCtx.pet.variationId, currentStage - 1))
     : require('../../assets/Animals/Pinguin/Black/pinguin1_m.png');
 
   return (
@@ -31,7 +34,6 @@ export default function TownScreen({ navigation }) {
         resizeMode="cover"
       >
         <View style={styles.overlay}>
-
           <TouchableOpacity
             style={styles.backButton}
             onPress={() => navigation.navigate('Home')}
@@ -42,7 +44,7 @@ export default function TownScreen({ navigation }) {
           <Text style={styles.title}>Город</Text>
 
           <View style={styles.buildingsContainer}>
-            {/* Ряд 1: Продуктовый + Магазин */}
+            {/* Ряд 1 */}
             <View style={styles.buildingsRow}>
               <TouchableOpacity
                 style={styles.buildingCard}
@@ -65,7 +67,7 @@ export default function TownScreen({ navigation }) {
               </TouchableOpacity>
             </View>
 
-            {/* Ряд 2: Банк + Мир */}
+            {/* Ряд 2 */}
             <View style={styles.buildingsRow}>
               <TouchableOpacity
                 style={styles.buildingCard}
@@ -89,9 +91,8 @@ export default function TownScreen({ navigation }) {
             </View>
           </View>
 
-          {/* Питомец внизу — реальный из контекста */}
+          {/* Питомец — увеличен */}
           <Image source={petImage} style={styles.petImage} />
-
         </View>
       </ImageBackground>
     </SafeAreaView>
@@ -173,11 +174,12 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     textAlign: 'center',
   },
+
   petImage: {
     position: 'absolute',
-    bottom: 30,
-    width: 160,
-    height: 160,
+    bottom: 20,       // было 30
+    width: 220,       // было 160
+    height: 220,      // было 160
     resizeMode: 'contain',
   },
 });
