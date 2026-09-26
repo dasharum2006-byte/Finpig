@@ -90,9 +90,13 @@ export default function WorldScreen({navigation}) {
 
             {/* Меню: только кнопка "Комната" */}
             <View style={styles.bottomBar}>
-                <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('Home')}>
-                  <Text style={styles.actionEmoji}>🏠</Text>
-                  <Text style={styles.actionText}>Комната</Text>
+                <TouchableOpacity style={styles.actionButton} onPress={() => setOpenMenu('TaskScreen')}>
+                  <Text style={styles.actionEmoji}>📋</Text>
+                  <Text style={styles.actionText}>Задания</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('Home')}>
+                          <Text style={styles.actionEmoji}>🏠</Text>
+                          <Text style={styles.actionText}>Комната</Text>
                 </TouchableOpacity>
             </View>
         </ImageBackground>

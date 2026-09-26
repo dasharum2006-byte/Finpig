@@ -31,8 +31,13 @@ import BlockThreeScreen from './src/screens/BlockThreeScreen';
 import LevelThreeScreen from './src/screens/LevelThreeScreen';
 import MyNewGameScreen2 from './src/screens/MyNewGameScreen2';
 import BankScreen from './src/screens/BankScreen';
-
+import EgyptScreen from './src/screens/EgyptScreen';
+import EgyptMarketScreen from './src/screens/EgyptMarketScreen';
+import EgyptBankScreen from './src/screens/EgyptBankScreen';
+import ArcticScreen from './src/screens/ArcticScreen';
 import { colors } from './src/theme';
+import ArcticBankScreen from './src/screens/ArcticBankScreen';
+import ArcticMarketScreen from './src/screens/ ArcticMarketScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -136,9 +141,131 @@ export default function App() {
               <Stack.Screen name="World" component={WorldScreen} options={{ headerShown: false }} />
               <Stack.Screen name="Kitchen" component={KitchenScreen} options={{ headerShown: false, animation: 'slide_from_left' }} />
               <Stack.Screen name="Bank" component={BankScreen} options={{ title: '🏦 Банк' }} />
-            </Stack.Navigator>
-          </NavigationContainer>
-        </SafeAreaProvider>
+
+
+            <Stack.Screen
+              name="BlockOneScreen"
+              component={BlockOneScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="EgyptMarketScreen"
+              component={EgyptMarketScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="ArcticMarketScreen"
+              component={ArcticMarketScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="ArcticBankScreen"
+              component={ArcticBankScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="EgyptBankScreen"
+              component={EgyptBankScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="ArcticScreen"
+              component={ArcticScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="LevelOneScreen"
+              component={LevelOneScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="MyNewGameScreen"
+              component={MyNewGameScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="MyNewGameScreen2"
+              component={MyNewGameScreen2}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="BlockTwoScreen"
+              component={BlockTwoScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="LevelTwoScreen"
+              component={LevelTwoScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="BlockThreeScreen"
+              component={BlockThreeScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="LevelThreeScreen"
+              component={LevelThreeScreen}
+              options={{ headerShown: false }}
+            />
+
+            <Stack.Screen
+              name="Home"
+              component={HomeScreen}
+              options={{
+                headerShown: false,
+                animation: 'slide_from_right',
+              }}
+            />
+
+            <Stack.Screen
+              name="Tasks"
+              component={TasksScreen}
+              options={{ headerShown: false }}
+            />
+
+            <Stack.Screen
+              name="EgyptScreen"
+              component={EgyptScreen}
+              options={{ headerShown: false }}
+            />
+
+            <Stack.Screen
+              name="FoodShop"
+              component={FoodShopScreen}
+              options={{ headerShown: false }}
+            />
+
+            <Stack.Screen
+              name="ChinaScreen"
+              component={ChinaScreen}
+              options={{ headerShown: false }}
+            />
+
+            <Stack.Screen
+              name="WorldScreen"
+              component={WorldScreen}
+              options={{ headerShown: false }}
+            />
+
+            <Stack.Screen
+              name="Kitchen"
+              component={KitchenScreen}
+              options={{
+                headerShown: false,
+                animation: 'slide_from_left',
+              }}
+            />
+
+            {/* ЭКРАН БАНКА */}
+            <Stack.Screen
+              name="Bank"
+              component={BankScreen}
+              options={{ title: '🏦 Банк' }}
+            />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </SafeAreaProvider>
       </PetProvider>
     </BankProvider>
   );
