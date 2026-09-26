@@ -16,25 +16,50 @@ import { usePet } from '../context/PetContext';
 import { getEggImage, getPetImage } from '../petsConfig';
 
 const { width } = Dimensions.get('window');
-const SWIPE_THRESHOLD = 80;
 
+// ─── Свайп: лёгкий ───
+const SWIPE_ACTIVATE = 8;
+const SWIPE_THRESHOLD = 40;
+
+// Размеры по стадиям
+const PET_SIZE_BASE = width * 0.6;
+const PET_SIZES = {
+  0: PET_SIZE_BASE * 0.7,
+  1: PET_SIZE_BASE * 1.0,
+  2: PET_SIZE_BASE * 1.35,
+  3: PET_SIZE_BASE * 1.75,
+};
+
+// Отступ снизу для каждой стадии.
+// Чем крупнее питомец — тем ниже его нужно опустить.
+const PET_BOTTOM = {
+  0: 220,
+  1: 220,
+  2: 200,
+  3: 160,
+};
+
+// feedValue: сколько % голода прибавляет
 const PRODUCTS = [
-  { id: '1', name: 'Борщ', image: require('../../assets/Food/borsh.png') },
-  { id: '2', name: 'Яблоко', image: require('../../assets/Food/apple.png') },
-  { id: '3', name: 'Бутерброд', image: require('../../assets/Food/buterbrod.png') },
-  { id: '4', name: 'Морс и малина', image: require('../../assets/Food/mors.png') },
-  { id: '5', name: 'Спагетти', image: require('../../assets/Food/pasta.png') },
-  { id: '6', name: 'Печеньки', image: require('../../assets/Food/cookies.png') },
-  { id: '7', name: 'Круасан', image: require('../../assets/Food/croissant.png') },
-  { id: '8', name: 'Блинчики', image: require('../../assets/Food/pancake.png') },
-  { id: '9', name: 'Салат', image: require('../../assets/Food/salade.png') },
-  { id: '10', name: 'Сок', image: require('../../assets/Food/applejuice.png') },
-  { id: '11', name: 'Бургер', image: require('../../assets/Food/burger.png') },
-  { id: '12', name: 'Торт', image: require('../../assets/Food/cake.png') },
-  { id: '13', name: 'Газировка', image: require('../../assets/Food/cola.png') },
-  { id: '14', name: 'Каша', image: require('../../assets/Food/porrige.png') },
-  { id: '15', name: 'Вареники', image: require('../../assets/Food/varenniki.png') },
-  { id: '16', name: 'Йогурт', image: require('../../assets/Food/yogurt.png') },
+  // Полезное: +22%
+  { id: '1',  name: 'Борщ',          image: require('../../assets/Food/borsh.png'),        feedValue: 22 },
+  { id: '2',  name: 'Яблоко',        image: require('../../assets/Food/apple.png'),        feedValue: 22 },
+  { id: '3',  name: 'Бутерброд',     image: require('../../assets/Food/buterbrod.png'),    feedValue: 22 },
+  { id: '5',  name: 'Спагетти',      image: require('../../assets/Food/pasta.png'),        feedValue: 22 },
+  { id: '8',  name: 'Блинчики',      image: require('../../assets/Food/pancake.png'),      feedValue: 22 },
+  { id: '9',  name: 'Салат',         image: require('../../assets/Food/salade.png'),       feedValue: 22 },
+  { id: '14', name: 'Каша',          image: require('../../assets/Food/porrige.png'),      feedValue: 22 },
+  { id: '15', name: 'Вареники',      image: require('../../assets/Food/varenniki.png'),    feedValue: 22 },
+  { id: '16', name: 'Йогурт',        image: require('../../assets/Food/yogurt.png'),       feedValue: 22 },
+
+  // Вкусняшки: +10%
+  { id: '4',  name: 'Морс и малина', image: require('../../assets/Food/mors.png'),         feedValue: 10 },
+  { id: '6',  name: 'Печеньки',      image: require('../../assets/Food/cookies.png'),      feedValue: 10 },
+  { id: '7',  name: 'Круасан',       image: require('../../assets/Food/croissant.png'),    feedValue: 10 },
+  { id: '10', name: 'Сок',           image: require('../../assets/Food/applejuice.png'),   feedValue: 10 },
+  { id: '11', name: 'Бургер',        image: require('../../assets/Food/burger.png'),       feedValue: 10 },
+  { id: '12', name: 'Торт',          image: require('../../assets/Food/cake.png'),         feedValue: 10 },
+  { id: '13', name: 'Газировка',     image: require('../../assets/Food/cola.png'),         feedValue: 10 },
 ];
 
 export default function KitchenScreen({ navigation }) {
@@ -44,8 +69,9 @@ export default function KitchenScreen({ navigation }) {
   const FlatListRef = useRef(null);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // ─── Картинка питомца из контекста ───
   const currentStage = petCtx.pet?.stage ?? 0;
+  const petSize = PET_SIZES[currentStage] ?? PET_SIZES[0];
+  const petBottom = PET_BOTTOM[currentStage] ?? PET_BOTTOM[0];
 
   const petImage = petCtx.pet
     ? (currentStage === 0
@@ -53,13 +79,14 @@ export default function KitchenScreen({ navigation }) {
         : getPetImage(petCtx.pet.speciesId, petCtx.pet.variationId, currentStage - 1))
     : require('../../assets/Animals/Pinguin/Black/pinguin1_m.png');
 
-  // ─── Свайп ВПРАВО → обратно на Home ───
+  // ─── Свайп ВЛЕВО → назад на Home ───
   const panResponder = useRef(
     PanResponder.create({
       onMoveShouldSetPanResponder: (_, g) =>
-        Math.abs(g.dx) > 15 && Math.abs(g.dx) > Math.abs(g.dy),
+        Math.abs(g.dx) > SWIPE_ACTIVATE &&
+        Math.abs(g.dx) > Math.abs(g.dy) * 1.5,
       onPanResponderRelease: (_, g) => {
-        if (g.dx > SWIPE_THRESHOLD) {
+        if (g.dx < -SWIPE_THRESHOLD) {
           navigation.goBack();
         }
       },
@@ -86,9 +113,14 @@ export default function KitchenScreen({ navigation }) {
     setEaten((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  const handleFeed = (name) => {
-    petCtx.feedPet();
-    alert(`Ты покормил питомца: ${name} 🍽️\nСытость восстановлена!`);
+  const handleFeed = (item) => {
+    petCtx.feedPet(item.feedValue);
+
+    const bonus = item.feedValue >= 20 ? '🍲 Сытная еда!' : '🍬 Вкусняшка!';
+    alert(
+      `Ты покормил питомца: ${item.name}\n` +
+      `${bonus} Сытость +${item.feedValue}%`
+    );
   };
 
   const renderFoodItem = ({ item }) => {
@@ -96,7 +128,7 @@ export default function KitchenScreen({ navigation }) {
       <TouchableOpacity
         style={styles.foodCard}
         activeOpacity={0.8}
-        onPress={() => handleFeed(item.name)}
+        onPress={() => handleFeed(item)}
       >
         <Image source={item.image} style={styles.foodImage} />
       </TouchableOpacity>
@@ -111,8 +143,14 @@ export default function KitchenScreen({ navigation }) {
           style={styles.bg}
           resizeMode="cover"
         >
-          {/* Питомец — увеличен */}
-          <Image source={petImage} style={styles.petImage} />
+          {/* Питомец — размер и позиция зависят от стадии */}
+          <Image
+            source={petImage}
+            style={[
+              styles.petImage,
+              { width: petSize, height: petSize, bottom: petBottom },
+            ]}
+          />
 
           <ImageBackground
             source={require('../../assets/table.png')}
@@ -159,7 +197,7 @@ export default function KitchenScreen({ navigation }) {
             </View>
           </ImageBackground>
 
-          <Text style={styles.swipeHint}>свайпни вправо, чтобы вернуться →</Text>
+          <Text style={styles.swipeHint}>← свайпни влево, чтобы вернуться</Text>
         </ImageBackground>
       </View>
     </SafeAreaView>
@@ -172,11 +210,9 @@ const styles = StyleSheet.create({
 
   petImage: {
     position: 'absolute',
-    bottom: 220,
-    width: 260,       // было 210
-    height: 260,      // было 210
     resizeMode: 'contain',
     zIndex: 1,
+    // bottom задаётся inline в зависимости от стадии
   },
 
   tableBackground: {

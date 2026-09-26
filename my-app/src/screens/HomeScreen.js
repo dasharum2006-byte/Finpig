@@ -21,14 +21,26 @@ import { usePet } from '../context/PetContext';
 import { getEggImage, getPetImage } from '../petsConfig';
 
 const { width } = Dimensions.get('window');
-const PET_SIZE = width * 0.7;
+
+// Размеры по стадиям: 0=яйцо, 1=мелкий, 2=подросток, 3=взрослый
+const PET_SIZE_BASE = width * 0.6;
+const PET_SIZES = {
+  0: PET_SIZE_BASE * 0.7,
+  1: PET_SIZE_BASE * 1.0,
+  2: PET_SIZE_BASE * 1.35,
+  3: PET_SIZE_BASE * 1.75,
+};
+
 const DECAY_INTERVAL = 300;
 const DECAY_STEP = 0.008;
 const CLICK_STEP = 0.04;
 const FLASH_DURATION = 180;
 const EVO_FRAME_DURATION = 350;
-const SWIPE_THRESHOLD = 80;
-const MAX_STAGE = 3; // 0=яйцо, 1=мелкий, 2=подросток, 3=взрослый
+const MAX_STAGE = 3;
+
+// ─── Свайп: лёгкий, в любом месте экрана ───
+const SWIPE_ACTIVATE = 8;    // px — минимальное движение для активации
+const SWIPE_THRESHOLD = 40;  // px — минимальная длина для срабатывания
 
 const ROOMS = [
   { id: 'room1', source: require('../../assets/Rooms/room.png'), label: 'Комната 1' },
@@ -61,12 +73,10 @@ export default function HomeScreen({ route, navigation }) {
   const decayTimer = useRef(null);
   const scale = useRef(new Animated.Value(1)).current;
 
-  // ─── Стадия ───
-  // stage 0 = яйцо, 1..3 = стадии питомца
   const currentStage = myPet?.stage ?? 0;
   const isMaxStage = currentStage >= MAX_STAGE;
+  const petSize = PET_SIZES[currentStage] ?? PET_SIZES[0];
 
-  // ─── Картинка ───
   const petImage = myPet
     ? (currentStage === 0
         ? getEggImage(myPet.speciesId)
@@ -75,13 +85,14 @@ export default function HomeScreen({ route, navigation }) {
 
   const petName = myPet?.name ?? 'Питомец';
 
-  // ─── Свайп влево → кухня ───
+  // ─── Свайп ВПРАВО → на кухню (лёгкий, в любом месте) ───
   const panResponder = useRef(
     PanResponder.create({
       onMoveShouldSetPanResponder: (_, g) =>
-        Math.abs(g.dx) > 15 && Math.abs(g.dx) > Math.abs(g.dy),
+        Math.abs(g.dx) > SWIPE_ACTIVATE &&
+        Math.abs(g.dx) > Math.abs(g.dy) * 1.5,
       onPanResponderRelease: (_, g) => {
-        if (g.dx < -SWIPE_THRESHOLD) {
+        if (g.dx > SWIPE_THRESHOLD) {
           navigation.navigate('Kitchen');
         }
       },
@@ -92,7 +103,6 @@ export default function HomeScreen({ route, navigation }) {
     progressRef.current = progress;
   }, [progress]);
 
-  // Падение шкалы, если не кликают
   useEffect(() => {
     decayTimer.current = setInterval(() => {
       if (evolving || isMaxStage) return;
@@ -111,10 +121,9 @@ export default function HomeScreen({ route, navigation }) {
     ]).start();
   };
 
-  // ─── Клик по питомцу/яйцу ───
   const handlePetClick = () => {
     if (evolving) return;
-    if (isMaxStage) return; // финал — больше не растёт
+    if (isMaxStage) return;
 
     pulse();
     const next = Math.min(1, progressRef.current + CLICK_STEP);
@@ -122,7 +131,6 @@ export default function HomeScreen({ route, navigation }) {
     if (next >= 1) triggerEvolution();
   };
 
-  // ─── Эволюция: 0 → 1 → 2 → 3 ───
   const triggerEvolution = async () => {
     setEvolving(true);
     await wait(EVO_FRAME_DURATION);
@@ -132,11 +140,9 @@ export default function HomeScreen({ route, navigation }) {
     await wait(EVO_FRAME_DURATION);
 
     if (currentStage === 0) {
-      // Яйцо → мелкий
-      petCtx.hatchPet();       // hatched: true, stage: 1
+      petCtx.hatchPet();
     } else {
-      // Мелкий → подросток → взрослый
-      petCtx.evolvePet();      // stage + 1
+      petCtx.evolvePet();
     }
 
     setProgress(0);
@@ -177,7 +183,6 @@ export default function HomeScreen({ route, navigation }) {
     );
   }
 
-  // Подсказка под питомцем
   const stageHint =
     currentStage === 0
       ? '← тапай по яйцу, чтобы вылупить'
@@ -185,9 +190,8 @@ export default function HomeScreen({ route, navigation }) {
         ? '✨ Твой питомец вырос! ✨'
         : '← тапай по питомцу, чтобы растить';
 
-  // Индикатор показывает пройденные стадии (0..3)
-  // Точки: [1, 2, 3] — 3 точки. currentStage 1 → первая точка, 2 → две, 3 → три
-  const showStageDots = currentStage >= 1;
+  const hungerDisplay = Math.round(petCtx.hunger);
+  const isHungry = hungerDisplay <= 25;
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
@@ -219,17 +223,17 @@ export default function HomeScreen({ route, navigation }) {
               <View
                 style={[
                   styles.hungerBadge,
-                  petCtx.hunger <= 25 && styles.hungerBadgeDanger,
+                  isHungry && styles.hungerBadgeDanger,
                 ]}
               >
                 <Text style={styles.hungerEmoji}>🍽️</Text>
                 <Text
                   style={[
                     styles.hungerText,
-                    petCtx.hunger <= 25 && styles.hungerTextDanger,
+                    isHungry && styles.hungerTextDanger,
                   ]}
                 >
-                  {petCtx.hunger}%
+                  {hungerDisplay}%
                 </Text>
               </View>
 
@@ -249,12 +253,15 @@ export default function HomeScreen({ route, navigation }) {
             <TouchableOpacity activeOpacity={0.9} onPress={handlePetClick}>
               <Animated.Image
                 source={petImage}
-                style={[styles.petImage, { transform: [{ scale }] }]}
+                style={[
+                  styles.petImage,
+                  { width: petSize, height: petSize },
+                  { transform: [{ scale }] },
+                ]}
                 resizeMode="contain"
               />
             </TouchableOpacity>
 
-            {/* Шкала — показывается, пока не финал */}
             {!isMaxStage && (
               <View style={styles.progressTrack}>
                 <View
@@ -263,8 +270,7 @@ export default function HomeScreen({ route, navigation }) {
               </View>
             )}
 
-            {/* Индикатор стадий (3 точки) — только после вылупления */}
-            {showStageDots && (
+            {currentStage >= 1 && (
               <View style={styles.stageIndicator}>
                 {[1, 2, 3].map((s) => (
                   <View
@@ -278,7 +284,9 @@ export default function HomeScreen({ route, navigation }) {
               </View>
             )}
 
-            <Text style={styles.swipeHint}>{stageHint}</Text>
+            <Text style={styles.swipeHint}>
+              свайпни вправо, чтобы пойти на кухню →
+            </Text>
           </View>
 
           <View style={styles.bottomBar}>
@@ -415,7 +423,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     paddingTop: 20,
   },
-  petImage: { width: PET_SIZE, height: PET_SIZE },
+  petImage: {},
 
   progressTrack: {
     marginTop: 14,
@@ -447,7 +455,14 @@ const styles = StyleSheet.create({
     borderColor: colors.accent,
   },
 
-  swipeHint: { marginTop: 10, fontSize: 12, color: colors.textSecondary, fontStyle: 'italic' },
+  swipeHint: {
+    marginTop: 10,
+    fontSize: 12,
+    color: colors.textSecondary,
+    fontStyle: 'italic',
+    textAlign: 'center',
+    paddingHorizontal: 20,
+  },
 
   bottomBar: {
     flexDirection: 'row',

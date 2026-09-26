@@ -14,11 +14,20 @@ import { getEggImage, getPetImage } from '../petsConfig';
 
 const { width } = Dimensions.get('window');
 
+// Размеры по стадиям — на экране города чуть меньше, чем на главном
+const PET_SIZE_BASE = width * 0.5;
+const PET_SIZES = {
+  0: PET_SIZE_BASE * 0.7,
+  1: PET_SIZE_BASE * 1.0,
+  2: PET_SIZE_BASE * 1.35,
+  3: PET_SIZE_BASE * 1.75,
+};
+
 export default function TownScreen({ navigation }) {
   const petCtx = usePet();
 
-  // ─── Картинка питомца из контекста ───
   const currentStage = petCtx.pet?.stage ?? 0;
+  const petSize = PET_SIZES[currentStage] ?? PET_SIZES[0];
 
   const petImage = petCtx.pet
     ? (currentStage === 0
@@ -44,7 +53,6 @@ export default function TownScreen({ navigation }) {
           <Text style={styles.title}>Город</Text>
 
           <View style={styles.buildingsContainer}>
-            {/* Ряд 1 */}
             <View style={styles.buildingsRow}>
               <TouchableOpacity
                 style={styles.buildingCard}
@@ -67,7 +75,6 @@ export default function TownScreen({ navigation }) {
               </TouchableOpacity>
             </View>
 
-            {/* Ряд 2 */}
             <View style={styles.buildingsRow}>
               <TouchableOpacity
                 style={styles.buildingCard}
@@ -91,8 +98,10 @@ export default function TownScreen({ navigation }) {
             </View>
           </View>
 
-          {/* Питомец — увеличен */}
-          <Image source={petImage} style={styles.petImage} />
+          <Image
+            source={petImage}
+            style={[styles.petImage, { width: petSize, height: petSize }]}
+          />
         </View>
       </ImageBackground>
     </SafeAreaView>
@@ -130,7 +139,6 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   backButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 14 },
-
   buildingsContainer: {
     width: '100%',
     paddingHorizontal: 20,
@@ -177,9 +185,7 @@ const styles = StyleSheet.create({
 
   petImage: {
     position: 'absolute',
-    bottom: 20,       // было 30
-    width: 220,       // было 160
-    height: 220,      // было 160
+    bottom: 20,
     resizeMode: 'contain',
   },
 });

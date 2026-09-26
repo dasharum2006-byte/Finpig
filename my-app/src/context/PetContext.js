@@ -4,20 +4,26 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const PetContext = createContext(null);
 
 const STORAGE_KEY = '@pet_state_v2';
-const DAY_MS = 24 * 60 * 60 * 1000;
-const HUNGER_DROP_PER_DAY = 25;
+
+// Полный цикл голода: 24 часа
+const HUNGER_CYCLE_MS = 24 * 60 * 60 * 1000;
+const HUNGER_DROP_PER_MS = 100 / HUNGER_CYCLE_MS; // % в миллисекунду
 const HUNGER_MAX = 100;
+
+// Пересчёт: сколько % голода осталось с момента последнего кормления
+function computeHunger(lastFed) {
+  if (!lastFed) return HUNGER_MAX;
+  const elapsed = Date.now() - lastFed;
+  const drop = elapsed * HUNGER_DROP_PER_MS;
+  return Math.max(0, HUNGER_MAX - drop);
+}
 
 export function PetProvider({ children }) {
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // ─── Питомец ───
-  // { speciesId, variationId, name, stage, hatched }
   const [pet, setPet] = useState(null);
-
-  // ─── Голод ───
-  const [hunger, setHunger] = useState(HUNGER_MAX);
   const [lastFed, setLastFed] = useState(null);
+  const [hunger, setHunger] = useState(HUNGER_MAX);
 
   // ─── Загрузка ───
   useEffect(() => {
@@ -27,19 +33,12 @@ export function PetProvider({ children }) {
         if (raw) {
           const s = JSON.parse(raw);
           setPet(s.pet ?? null);
-          setHunger(s.hunger ?? HUNGER_MAX);
-          setLastFed(s.lastFed ?? Date.now());
-
-          // Пересчёт голода по времени
           const savedLastFed = s.lastFed ?? Date.now();
-          const elapsed = Date.now() - savedLastFed;
-          const daysPassed = Math.floor(elapsed / DAY_MS);
-          if (daysPassed >= 1) {
-            setHunger(Math.max(0, (s.hunger ?? HUNGER_MAX) - daysPassed * HUNGER_DROP_PER_DAY));
-            setLastFed(savedLastFed + daysPassed * DAY_MS);
-          }
+          setLastFed(savedLastFed);
+          setHunger(computeHunger(savedLastFed));
         } else {
           setLastFed(Date.now());
+          setHunger(HUNGER_MAX);
         }
       } catch (e) {
         console.error('Pet load error:', e);
@@ -54,41 +53,37 @@ export function PetProvider({ children }) {
     if (!isLoaded) return;
     AsyncStorage.setItem(
       STORAGE_KEY,
-      JSON.stringify({ pet, hunger, lastFed })
+      JSON.stringify({ pet, lastFed })
     ).catch((e) => console.error('Pet save error:', e));
-  }, [isLoaded, pet, hunger, lastFed]);
+  }, [isLoaded, pet, lastFed]);
 
-  // ─── Тикер голода ───
+  // ─── Тикер: обновляем голод каждые 30 секунд ───
   useEffect(() => {
     if (!isLoaded) return;
     const interval = setInterval(() => {
-      if (!lastFed) return;
-      const daysPassed = Math.floor((Date.now() - lastFed) / DAY_MS);
-      if (daysPassed >= 1) {
-        setHunger((h) => Math.max(0, h - daysPassed * HUNGER_DROP_PER_DAY));
-        setLastFed((lf) => lf + daysPassed * DAY_MS);
-      }
-    }, 60 * 1000);
+      setHunger(computeHunger(lastFed));
+    }, 30 * 1000);
     return () => clearInterval(interval);
   }, [isLoaded, lastFed]);
 
-  // ─── Установить питомца (после выбора + имени) ───
+  // ─── Создать нового питомца ───
   const setNewPet = useCallback(({ speciesId, variationId, name }) => {
     setPet({
       speciesId,
       variationId,
       name,
-      stage: 0,       // 0 = яйцо/только что вылупился
-      hatched: false, // вылупился ли
+      stage: 0,
+      hatched: false,
     });
+    const now = Date.now();
+    setLastFed(now);
+    setHunger(HUNGER_MAX);
   }, []);
 
-  // ─── Вылупить ───
   const hatchPet = useCallback(() => {
     setPet((p) => (p ? { ...p, hatched: true, stage: 1 } : p));
   }, []);
 
-  // ─── Повысить стадию (0 → 1 → 2) ───
   const evolvePet = useCallback(() => {
     setPet((p) => {
       if (!p) return p;
@@ -97,21 +92,33 @@ export function PetProvider({ children }) {
     });
   }, []);
 
-  // ─── Покормить ───
-  const feedPet = useCallback(() => {
-    setHunger(HUNGER_MAX);
-    setLastFed(Date.now());
-  }, []);
+  // ─── Покормить — прирост по "весу" еды ───
+  // amount: сколько % добавить (20 для вредного, 45 для полезного)
+  const feedPet = useCallback((amount = 100) => {
+    const now = Date.now();
 
-  const decreaseHunger = useCallback((amount = HUNGER_DROP_PER_DAY) => {
-    setHunger((h) => Math.max(0, h - amount));
-  }, []);
+    // Считаем текущий голод на этот момент
+    const currentHunger = computeHunger(lastFed);
 
-  // ─── Сбросить питомца ───
+    // Новая сытость = текущая + прирост, но не выше 100
+    const newHunger = Math.min(HUNGER_MAX, currentHunger + amount);
+
+    // Переводим "новую сытость" обратно в lastFed:
+    // newHunger = 100 - (now - lastFed') / cycle * 100
+    // → now - lastFed' = (100 - newHunger) / 100 * cycle
+    // → lastFed' = now - (100 - newHunger) / 100 * cycle
+    const remainingDrop = ((HUNGER_MAX - newHunger) / 100) * HUNGER_CYCLE_MS;
+    const newLastFed = now - remainingDrop;
+
+    setLastFed(newLastFed);
+    setHunger(newHunger);
+  }, [lastFed]);
+
   const clearPet = useCallback(() => {
     setPet(null);
+    const now = Date.now();
+    setLastFed(now);
     setHunger(HUNGER_MAX);
-    setLastFed(Date.now());
   }, []);
 
   return (
@@ -125,7 +132,6 @@ export function PetProvider({ children }) {
         hatchPet,
         evolvePet,
         feedPet,
-        decreaseHunger,
         clearPet,
         HUNGER_MAX,
       }}
