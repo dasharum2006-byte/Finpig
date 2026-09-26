@@ -47,7 +47,7 @@ export default function KitchenScreen({ navigation }) {
   // Реальный питомец из контекста
   const petImage = petCtx.pet
     ? (petCtx.pet.hatched
-        ? getPetImage(petCtx.pet.speciesId, petCtx.pet.variationId, petCtx.pet.stage)
+        ? getPetImage(petCtx.pet.speciesId, petCtx.pet.variationId, petCtx.pet.stage - 1)
         : getEggImage(petCtx.pet.speciesId))
     : require('../../assets/Animals/Pinguin/Black/pinguin1_m.png');
 

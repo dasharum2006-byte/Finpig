@@ -18,7 +18,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../theme';
 import { useBank } from '../context/BankContext';
 import { usePet } from '../context/PetContext';
-import { getEggImage, getPetImage, PETS_BY_EGG } from '../petsConfig';
+import { getEggImage, getPetImage } from '../petsConfig';
 
 const { width } = Dimensions.get('window');
 const PET_SIZE = width * 0.7;
@@ -28,6 +28,7 @@ const CLICK_STEP = 0.04;
 const FLASH_DURATION = 180;
 const EVO_FRAME_DURATION = 350;
 const SWIPE_THRESHOLD = 80;
+const MAX_STAGE = 3; // 0=яйцо, 1=мелкий, 2=подросток, 3=взрослый
 
 const ROOMS = [
   { id: 'room1', source: require('../../assets/Rooms/room.png'), label: 'Комната 1' },
@@ -39,7 +40,6 @@ export default function HomeScreen({ route, navigation }) {
   const bank = useBank();
   const petCtx = usePet();
 
-  // Питомец приходит либо из навигации (только что создан), либо из контекста
   const incomingPet = route?.params?.pet;
 
   useEffect(() => {
@@ -61,13 +61,16 @@ export default function HomeScreen({ route, navigation }) {
   const decayTimer = useRef(null);
   const scale = useRef(new Animated.Value(1)).current;
 
-  // ─── Текущая картинка питомца ───
-  // Если ещё не вылупился — показываем яйцо
-  // Если вылупился — картинку стадии
+  // ─── Стадия ───
+  // stage 0 = яйцо, 1..3 = стадии питомца
+  const currentStage = myPet?.stage ?? 0;
+  const isMaxStage = currentStage >= MAX_STAGE;
+
+  // ─── Картинка ───
   const petImage = myPet
-    ? (myPet.hatched
-      ? getPetImage(myPet.speciesId, myPet.variationId, myPet.stage)
-      : getEggImage(myPet.speciesId))
+    ? (currentStage === 0
+        ? getEggImage(myPet.speciesId)
+        : getPetImage(myPet.speciesId, myPet.variationId, currentStage - 1))
     : null;
 
   const petName = myPet?.name ?? 'Питомец';
@@ -89,16 +92,17 @@ export default function HomeScreen({ route, navigation }) {
     progressRef.current = progress;
   }, [progress]);
 
+  // Падение шкалы, если не кликают
   useEffect(() => {
     decayTimer.current = setInterval(() => {
-      if (evolving) return;
+      if (evolving || isMaxStage) return;
       if (progressRef.current > 0) {
         const next = Math.max(0, progressRef.current - DECAY_STEP);
         setProgress(next);
       }
     }, DECAY_INTERVAL);
     return () => clearInterval(decayTimer.current);
-  }, [evolving]);
+  }, [evolving, isMaxStage]);
 
   const pulse = () => {
     Animated.sequence([
@@ -107,11 +111,10 @@ export default function HomeScreen({ route, navigation }) {
     ]).start();
   };
 
+  // ─── Клик по питомцу/яйцу ───
   const handlePetClick = () => {
     if (evolving) return;
-
-    // Если ещё яйцо — клик не растит шкалу
-    if (!myPet?.hatched) return;
+    if (isMaxStage) return; // финал — больше не растёт
 
     pulse();
     const next = Math.min(1, progressRef.current + CLICK_STEP);
@@ -119,17 +122,7 @@ export default function HomeScreen({ route, navigation }) {
     if (next >= 1) triggerEvolution();
   };
 
-  // Спец-обработчик клика по ЯЙЦУ — вылупление
-  const handleEggClick = () => {
-    if (evolving || myPet?.hatched) return;
-    pulse();
-    setEvolving(true);
-    setTimeout(() => {
-      petCtx.hatchPet();
-      setEvolving(false);
-    }, 900);
-  };
-
+  // ─── Эволюция: 0 → 1 → 2 → 3 ───
   const triggerEvolution = async () => {
     setEvolving(true);
     await wait(EVO_FRAME_DURATION);
@@ -137,7 +130,15 @@ export default function HomeScreen({ route, navigation }) {
     await wait(FLASH_DURATION);
     setFlash(false);
     await wait(EVO_FRAME_DURATION);
-    petCtx.evolvePet();
+
+    if (currentStage === 0) {
+      // Яйцо → мелкий
+      petCtx.hatchPet();       // hatched: true, stage: 1
+    } else {
+      // Мелкий → подросток → взрослый
+      petCtx.evolvePet();      // stage + 1
+    }
+
     setProgress(0);
     setEvolving(false);
   };
@@ -175,6 +176,18 @@ export default function HomeScreen({ route, navigation }) {
       </SafeAreaView>
     );
   }
+
+  // Подсказка под питомцем
+  const stageHint =
+    currentStage === 0
+      ? '← тапай по яйцу, чтобы вылупить'
+      : isMaxStage
+        ? '✨ Твой питомец вырос! ✨'
+        : '← тапай по питомцу, чтобы растить';
+
+  // Индикатор показывает пройденные стадии (0..3)
+  // Точки: [1, 2, 3] — 3 точки. currentStage 1 → первая точка, 2 → две, 3 → три
+  const showStageDots = currentStage >= 1;
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
@@ -233,10 +246,7 @@ export default function HomeScreen({ route, navigation }) {
           </View>
 
           <View style={styles.petWrapper}>
-            <TouchableOpacity
-              activeOpacity={0.9}
-              onPress={myPet.hatched ? handlePetClick : handleEggClick}
-            >
+            <TouchableOpacity activeOpacity={0.9} onPress={handlePetClick}>
               <Animated.Image
                 source={petImage}
                 style={[styles.petImage, { transform: [{ scale }] }]}
@@ -244,8 +254,8 @@ export default function HomeScreen({ route, navigation }) {
               />
             </TouchableOpacity>
 
-            {/* Шкала только когда питомец вылупился */}
-            {myPet.hatched && (
+            {/* Шкала — показывается, пока не финал */}
+            {!isMaxStage && (
               <View style={styles.progressTrack}>
                 <View
                   style={[styles.progressFill, { width: `${progress * 100}%` }]}
@@ -253,11 +263,22 @@ export default function HomeScreen({ route, navigation }) {
               </View>
             )}
 
-            <Text style={styles.swipeHint}>
-              {myPet.hatched
-                ? '← свайпни влево, чтобы пойти на кухню'
-                : '← тапни по яйцу, чтобы вылупить'}
-            </Text>
+            {/* Индикатор стадий (3 точки) — только после вылупления */}
+            {showStageDots && (
+              <View style={styles.stageIndicator}>
+                {[1, 2, 3].map((s) => (
+                  <View
+                    key={s}
+                    style={[
+                      styles.stageDot,
+                      s <= currentStage && styles.stageDotFilled,
+                    ]}
+                  />
+                ))}
+              </View>
+            )}
+
+            <Text style={styles.swipeHint}>{stageHint}</Text>
           </View>
 
           <View style={styles.bottomBar}>
@@ -300,6 +321,11 @@ export default function HomeScreen({ route, navigation }) {
                     >
                       <Image source={r.source} style={styles.roomThumb} />
                       <Text style={styles.roomLabel}>{r.label}</Text>
+                      {idx === roomIndex && (
+                        <View style={styles.roomCheck}>
+                          <Text style={styles.roomCheckText}>✓</Text>
+                        </View>
+                      )}
                     </TouchableOpacity>
                   ))}
                 </ScrollView>
@@ -403,6 +429,24 @@ const styles = StyleSheet.create({
   },
   progressFill: { height: '100%', backgroundColor: colors.accent, borderRadius: 9 },
 
+  stageIndicator: {
+    flexDirection: 'row',
+    marginTop: 10,
+    gap: 8,
+  },
+  stageDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: 'rgba(255,255,255,0.6)',
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  stageDotFilled: {
+    backgroundColor: colors.accent,
+    borderColor: colors.accent,
+  },
+
   swipeHint: { marginTop: 10, fontSize: 12, color: colors.textSecondary, fontStyle: 'italic' },
 
   bottomBar: {
@@ -450,4 +494,16 @@ const styles = StyleSheet.create({
   roomOptionActive: { borderColor: colors.accent },
   roomThumb: { width: '100%', height: 110 },
   roomLabel: { fontSize: 12, textAlign: 'center', paddingVertical: 6, color: colors.text, fontWeight: '600' },
+  roomCheck: {
+    position: 'absolute',
+    top: 6,
+    right: 6,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: colors.accent,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  roomCheckText: { color: '#fff', fontSize: 13, fontWeight: '700' },
 });

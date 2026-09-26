@@ -92,7 +92,7 @@ export function PetProvider({ children }) {
   const evolvePet = useCallback(() => {
     setPet((p) => {
       if (!p) return p;
-      const nextStage = Math.min(2, (p.stage ?? 0) + 1);
+      const nextStage = Math.min(3, (p.stage ?? 0) + 1);
       return { ...p, stage: nextStage, hatched: true };
     });
   }, []);

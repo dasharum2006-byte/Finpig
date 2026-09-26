@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from '@react-navigation/native';
 import { colors } from '../theme';
 import { SPECIES_LIST } from '../petsConfig';
 
@@ -20,9 +21,20 @@ const ITEM_WIDTH = (width - PADDING * 2 - GAP) / 2;
 export default function CatalogScreen({ navigation }) {
   const [selectedId, setSelectedId] = useState(null);
 
+  // Каждый раз при заходе на экран — сбрасываем выбор
+  useFocusEffect(
+    useCallback(() => {
+      setSelectedId(null);
+    }, [])
+  );
+
   const handleConfirm = () => {
     const selected = SPECIES_LIST.find((s) => s.id === selectedId);
-    navigation.navigate('PetName', { speciesId: selected.id, speciesName: selected.species });
+    if (!selected) return;
+    navigation.navigate('PetName', {
+      speciesId: selected.id,
+      speciesName: selected.species,
+    });
   };
 
   const renderItem = ({ item }) => {
@@ -129,7 +141,12 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: colors.border,
   },
-  button: { backgroundColor: colors.accent, paddingVertical: 16, borderRadius: 14, alignItems: 'center' },
+  button: {
+    backgroundColor: colors.accent,
+    paddingVertical: 16,
+    borderRadius: 14,
+    alignItems: 'center',
+  },
   buttonDisabled: { backgroundColor: colors.disabled },
   buttonText: { color: '#fff', fontSize: 17, fontWeight: '600' },
   buttonTextDisabled: { color: colors.disabledText },
