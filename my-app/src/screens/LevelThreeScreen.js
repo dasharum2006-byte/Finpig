@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Dimensions, ScrollView, Image, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
+import { useBank } from '../context/BankContext';
 const { width } = Dimensions.get('window');
 
 const LEVEL_THREE_STEPS = [
@@ -82,7 +83,7 @@ const LEVEL_THREE_STEPS = [
 
 export default function LevelThreeScreen({ navigation, route }) {
   const startIndex = route.params?.startIndex ?? 0;
-  
+  const bank = useBank(); 
   const [currentStepIndex, setCurrentStepIndex] = useState(startIndex);
   const [selectedOption, setSelectedOption] = useState(null);
   const [isAnswered, setIsAnswered] = useState(false);
@@ -148,11 +149,17 @@ export default function LevelThreeScreen({ navigation, route }) {
 
   const handleOptionPress = (option, optIndex) => {
     if (isAnswered) return;
+    if (savedAnswers[currentStepIndex] !== undefined) {
+      console.log("На этот вопрос уже отвечали");
+      return; 
+    }
     setSelectedOption(option);
     setIsAnswered(true);
     saveAnswer(currentStepIndex, optIndex);
     if (option.isCorrect) {
       setScore(prev => prev + 1);
+      bank.addCoins(20);
+            Alert.alert("+20 монет уже на твоём счёте");
     }
   };
 
@@ -175,6 +182,10 @@ export default function LevelThreeScreen({ navigation, route }) {
   };
 
   const checkSortOrder = () => {
+    if (savedSortOrders[currentStepIndex] !== undefined) {
+      console.log("Эта сортировка уже выполнена");
+      return;
+    }
     const userOrder = sortItems.map(item => item.id);
     const isCorrect = JSON.stringify(userOrder) === JSON.stringify(step.correctOrder);
     
@@ -183,6 +194,8 @@ export default function LevelThreeScreen({ navigation, route }) {
     if (isCorrect) {
       setIsSortCorrect(true);
       setScore(prev => prev + 1);
+      bank.addCoins(20); 
+            Alert.alert("+20 монет за правильный порядок");
     } else {
       setIsSortCorrect(false);
       setTimeout(() => {
@@ -230,17 +243,7 @@ export default function LevelThreeScreen({ navigation, route }) {
       setShowCorrectHint(false);
     } else {
       saveProgress(LEVEL_THREE_STEPS.length + 1);
-      
-      Alert.alert(
-        'Блок 3 пройден', 
-        `Ты настоящий Мастер Бюджета, Результат: ${score + (isSortCorrect ? 1 : 0)} из ${LEVEL_THREE_STEPS.length}.`,
-        [{ 
-          text: 'Круто!', 
-          onPress: () => {
-            navigation.goBack(); 
-          } 
-        }]
-      );
+      navigation.goBack();
     }
   };
 
@@ -256,7 +259,7 @@ export default function LevelThreeScreen({ navigation, route }) {
           <Text style={styles.backText}>Выйти</Text>
         </TouchableOpacity>
         <Text style={styles.mainTitle}>Блок 3: Шаг {currentStepIndex + 1} из {LEVEL_THREE_STEPS.length}</Text>
-        <Text style={styles.scoreText}>🪙 {score * 10}</Text>
+        <Text style={styles.scoreText}>🪙 {Math.floor(bank.balance)}</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
