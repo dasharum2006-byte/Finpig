@@ -42,6 +42,7 @@ import LevelFourScreen from './src/screens/LevelFourScreen';
 import BlockFourScreen from './src/screens/BlockFourScreen';
 import LevelFiveScreen from './src/screens/LevelFiveScreen';
 import BlockFiveScreen from './src/screens/BlockFiveScreen';
+import LivingRoomScreen from './src/screens/LivingRoomScreen'; 
 import { colors } from './src/theme';
 
 const Stack = createNativeStackNavigator();
@@ -149,6 +150,9 @@ export default function App() {
                 component={KitchenScreen}
                 options={{ headerShown: false, animation: 'slide_from_left' }}
               />
+              <Stack.Screen name="LivingRoomScreen" 
+              component={LivingRoomScreen} 
+              options={{ headerShown: false }} />
 
               {/* ─── ГОРОД ─── */}
               <Stack.Screen

@@ -187,7 +187,7 @@ export default function HomeScreen({ route, navigation }) {
     currentStage === 0
       ? '← тапай по яйцу, чтобы вылупить'
       : isMaxStage
-        ? '✨ Твой питомец вырос! ✨'
+        ? 'Твой питомец вырос'
         : '← тапай по питомцу, чтобы растить';
 
   const hungerDisplay = Math.round(petCtx.hunger);
@@ -295,12 +295,10 @@ export default function HomeScreen({ route, navigation }) {
               <Text style={styles.actionText}>Задания</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => navigation.navigate('WorldScreen')}
-            >
-              <Text style={styles.actionEmoji}>🌍</Text>
-              <Text style={styles.actionText}>Мир</Text>
+            
+            <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('LivingRoomScreen')}>
+              <Text style={styles.actionEmoji}>🛋️</Text>
+              <Text style={styles.actionText}>Гостинная</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
