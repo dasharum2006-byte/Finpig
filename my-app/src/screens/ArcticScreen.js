@@ -5,7 +5,7 @@ import {
   View,
   Image,
   TouchableOpacity,
-  SafeAreaView,
+  ImageBackground,
   Dimensions,
 } from 'react-native';
 import { usePet } from '../context/PetContext';
@@ -24,14 +24,17 @@ export default function ArcticScreen({ navigation }) {
     : require('../../assets/Animals/Pinguin/Black/pinguin1_m.png');
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom']}>
-      <View style={[styles.bg, { backgroundColor: '#e0f7fa' }]}>
+    <View style={styles.container} edges={['bottom']}>
+      <ImageBackground
+        source={require('../../assets/mainarctica.jpg')} 
+        style={styles.bg}
+        resizeMode="cover">
         <View style={styles.overlay}>
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('World')}>
             <Text style={styles.backButtonText}>🗺️ На карту</Text>
           </TouchableOpacity>
 
-          <Text style={styles.title}>Снежная Арктика</Text>
+          <Text style={styles.title}>Арктика</Text>
 
           <View style={styles.buildingsContainer}>
             <TouchableOpacity
@@ -41,7 +44,7 @@ export default function ArcticScreen({ navigation }) {
               <View style={styles.emojiCircle}>
                 <Text style={styles.buildingEmoji}>🐟</Text>
               </View>
-              <Text style={styles.buildingText}>Ледяной Рынок</Text>
+              <Text style={styles.buildingText}>Зимний магазин</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -51,14 +54,15 @@ export default function ArcticScreen({ navigation }) {
               <View style={styles.emojiCircle}>
                 <Text style={styles.buildingEmoji}>🧊</Text>
               </View>
-              <Text style={styles.buildingText}>Снежный Банк</Text>
+              <Text style={styles.buildingText}>Ледяной Банк</Text>
             </TouchableOpacity>
           </View>
 
           <Image source={petImage} style={styles.petImage} />
+          </View>
+          </ImageBackground>
         </View>
-      </View>
-    </SafeAreaView>
+     
   );
 }
 
@@ -78,14 +82,14 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(255, 255, 255, 0.9)',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 6,
-    marginTop: 70,
+    marginTop: 50,
     marginBottom: 30,
   },
   backButton: {
     position: 'absolute',
     top: 50,
     left: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backgroundColor: 'rgba(255, 255, 255, 0.81)',
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 20,
@@ -95,22 +99,25 @@ const styles = StyleSheet.create({
   },
   backButtonText: { color: '#006064', fontWeight: 'bold', fontSize: 14 },
   buildingsContainer: {
-    flexDirection: 'column',
+    flexDirection: 'row',
+    justifyContent: 'center',
     width: '100%',
-    paddingHorizontal: 25,
+    marginTop: 550,
     alignItems: 'center',
+    gap: 10,
   },
   buildingCard: {
     flexDirection: 'row',
-    width: width * 0.85,
-    height: 65,
+    width: width * 0.42,
+    height: 70,
     backgroundColor: 'rgba(255, 255, 255, 0.92)',
+
     borderRadius: 18,
-    paddingHorizontal: 20,
+    paddingHorizontal: 5,
     alignItems: 'center',
     borderWidth: 1.5,
     borderColor: '#006064',
-    marginBottom: 16,
+    marginBottom: 0,
     shadowColor: '#000',
     shadowOpacity: 0.08,
     shadowRadius: 5,
@@ -124,7 +131,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 96, 100, 0.08)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 15,
+    marginRight: 5,
   },
   buildingEmoji: { fontSize: 22 },
   buildingText: {
@@ -135,7 +142,8 @@ const styles = StyleSheet.create({
   },
   petImage: {
     position: 'absolute',
-    bottom: 60,
+    bottom: 190,
+    marginLeft: -100,
     width: 150,
     height: 150,
     resizeMode: 'contain',
