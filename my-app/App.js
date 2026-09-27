@@ -38,7 +38,10 @@ import EgyptBankScreen from './src/screens/EgyptBankScreen';
 import ArcticScreen from './src/screens/ArcticScreen';
 import ArcticBankScreen from './src/screens/ArcticBankScreen';
 import ArcticMarketScreen from './src/screens/ArcticMarketScreen';
-
+import LevelFourScreen from './src/screens/LevelFourScreen';
+import BlockFourScreen from './src/screens/BlockFourScreen';
+import LevelFiveScreen from './src/screens/LevelFiveScreen';
+import BlockFiveScreen from './src/screens/BlockFiveScreen';
 import { colors } from './src/theme';
 
 const Stack = createNativeStackNavigator();
@@ -215,6 +218,26 @@ export default function App() {
               <Stack.Screen
                 name="LevelThreeScreen"
                 component={LevelThreeScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="BlockFourScreen"
+                component={BlockFourScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="LevelFourScreen"
+                component={LevelFourScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="BlockFiveScreen"
+                component={BlockFiveScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="LevelFiveScreen"
+                component={LevelFiveScreen}
                 options={{ headerShown: false }}
               />
 

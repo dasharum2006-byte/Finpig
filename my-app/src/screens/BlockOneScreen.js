@@ -1,6 +1,7 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState,useEffect, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native'; 
 import { StyleSheet, Text, View, TouchableOpacity, Dimensions, ScrollView, Alert } from 'react-native';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const { width } = Dimensions.get('window');
 
 // Теперь у нас полноценный список: 6 вопросов и 3 мини-игры по цепочке!
@@ -15,22 +16,51 @@ const BLOCK_ONE_ROUTINE = [
   // А вот твои будущие 3 мини-игры, которые откроются после вопросов!
   { id: 7, type: 'game', screen: 'MyNewGameScreen', title: '🎮 Финансовый щит', subtitle: 'Развиваем ловкость' },
   { id: 8, type: 'game', screen: 'MyNewGameScreen2', title: '🎮 Сортируй расходы', subtitle: 'Полочки «Важное» и «Хотелки»' },
-  { id: 9, type: 'game', screen: 'GameSafeBank', title: '🎮 Игра 3: Защити банкомат', subtitle: 'Финал Блока 1 🏆' },
+  // { id: 9, type: 'game', screen: 'GameSafeBank', title: '🎮 Игра 3: Защити банкомат', subtitle: 'Финал Блока 1 🏆' },
 ];
+
+const STORAGE_KEY = '@block_one_progress_v1';
 
 export default function BlockOneScreen({ navigation, route }) {
   const [unlockedStep, setUnlockedStep] = useState(1);
+
+    //ЗАГРУЗКА ПРОГРЕССА ПРИ ОТКРЫТИИ ЭКРАНА
+  useFocusEffect(
+    useCallback(() => {
+      const loadProgress = async () => {
+        try {
+          const savedStep = await AsyncStorage.getItem(STORAGE_KEY);
+          if (savedStep) {
+            setUnlockedStep(parseInt(savedStep, 10));
+          }
+        } catch (e) {
+          console.error('Ошибка загрузки прогресса:', e);
+        }
+      };
+      loadProgress();
+    }, [])
+  );
 
   // Слушаем возвращение с экрана вопросов, чтобы обновить прогресс
   useEffect(() => {
     if (route.params?.highestCompletedStep) {
       const nextStep = route.params.highestCompletedStep + 1;
-      if (nextStep > unlockedStep && nextStep <= BLOCK_ONE_ROUTINE.length) {
-        setUnlockedStep(nextStep);
-      }
+      setUnlockedStep(prev => Math.max(prev, nextStep));
+      
       navigation.setParams({ highestCompletedStep: undefined });
     }
-  }, [route.params?.highestCompletedStep, navigation, unlockedStep]);
+  }, [route.params?.highestCompletedStep, navigation]);
+
+   useEffect(() => {
+    const saveProgress = async () => {
+      try {
+        await AsyncStorage.setItem(STORAGE_KEY, unlockedStep.toString());
+      } catch (e) {
+        console.error('Ошибка сохранения прогресса Блока 1:', e);
+      }
+    };
+    saveProgress();
+  }, [unlockedStep]);
 
   const handlePressItem = (item) => {
     // Если ID элемента больше, чем unlockedStep — значит он заблокирован!

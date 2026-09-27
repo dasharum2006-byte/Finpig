@@ -1,24 +1,24 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useFocusEffect } from '@react-navigation/native'; 
-import { StyleSheet, Text, View, TouchableOpacity, Dimensions, ScrollView, Alert } from 'react-native';
+import React, { useState, useCallback, useEffect } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const BLOCK_THREE_ROUTINE = [
-  { id: 1, type: 'quiz', title: 'Вопрос 1: Откуда деньги?', subtitle: 'Труд и зарплата' },
-  { id: 2, type: 'quiz', title: 'Вопрос 2: Нужды и Хотелки', subtitle: 'Учимся выбирать' },
-  { id: 3, type: 'quiz', title: 'Вопрос 3: Подушка безопасности', subtitle: 'На черный день' },
-  { id: 4, type: 'sort', title: 'Задание 4: План действий', subtitle: 'Копим на подарок' },
-  { id: 5, type: 'quiz', title: 'Вопрос 5: Ловушка скидок', subtitle: 'Не ведись на маркетинг' },
-  { id: 6, type: 'quiz', title: 'Вопрос 6: Что такое бюджет?', subtitle: 'Финальный экзамен' },
-  
+const BLOCK_FOUR_ROUTINE = [
+  { id: 1, type: 'quiz', title: 'Вопрос 1: Первые заработки', subtitle: 'Как заработать карманные деньги' },
+  { id: 2, type: 'quiz', title: 'Вопрос 2: Правило 4-х копилок', subtitle: 'Траты, Накопления, Инвестиции, Добро' },
+  { id: 3, type: 'quiz', title: 'Вопрос 3: Осторожно, мошенники!', subtitle: 'Как защитить свои деньги' },
+  { id: 4, type: 'sort', title: 'Задание 4: Распредели бюджет', subtitle: 'Разложи деньги по копилкам' },
+  { id: 5, type: 'quiz', title: 'Вопрос 5: Что такое инфляция?', subtitle: 'Почему деньги обесцениваются' },
+  { id: 6, type: 'quiz', title: 'Вопрос 6: Мой финансовый план', subtitle: 'Финальный экзамен блока' },
 ];
 
-const STORAGE_KEY = '@block_three_progress_v1';
+const STORAGE_KEY = '@block_four_progress_v1';
 
-export default function BlockThreeScreen({ navigation, route }) {
+export default function BlockFourScreen({ navigation, route }) {
   const [unlockedStep, setUnlockedStep] = useState(1);
 
-    useFocusEffect(
+  // Читаем прогресс при каждом открытии экрана
+  useFocusEffect(
     useCallback(() => {
       const loadProgress = async () => {
         try {
@@ -27,26 +27,26 @@ export default function BlockThreeScreen({ navigation, route }) {
             setUnlockedStep(parseInt(savedStep, 10));
           }
         } catch (e) {
-          console.error('Ошибка загрузки прогресса Блока 3:', e);
+          console.error('Ошибка загрузки прогресса Блока 4:', e);
         }
       };
       loadProgress();
     }, [])
   );
 
-    // 5. ОСТАВЛЯЕМ обычный useEffect только для СОХРАНЕНИЯ прогресса
+  // Сохраняем прогресс при его изменении
   useEffect(() => {
     const saveProgress = async () => {
       try {
         await AsyncStorage.setItem(STORAGE_KEY, unlockedStep.toString());
       } catch (e) {
-        console.error('Ошибка сохранения прогресса Блока 3:', e);
+        console.error('Ошибка сохранения прогресса Блока 4:', e);
       }
     };
     saveProgress();
   }, [unlockedStep]);
 
-  //6. ДОБАВЛЯЕМ обработку, если LevelThreeScreen всё-таки передаст параметр
+  // На случай, если экран уровня всё-таки передаст параметр
   useEffect(() => {
     if (route.params?.highestCompletedStep) {
       const nextStep = route.params.highestCompletedStep + 1;
@@ -55,7 +55,6 @@ export default function BlockThreeScreen({ navigation, route }) {
     }
   }, [route.params?.highestCompletedStep, navigation]);
 
-
   const handlePressItem = (item) => {
     if (item.id > unlockedStep) {
       Alert.alert('Заблокировано 🔒', 'Этот шаг пока закрыт. Пройди предыдущие задания');
@@ -63,7 +62,7 @@ export default function BlockThreeScreen({ navigation, route }) {
     }
 
     if (item.type === 'quiz' || item.type === 'sort') {
-      navigation.navigate('LevelThreeScreen', { startIndex: item.id - 1 });
+      navigation.navigate('LevelFourScreen', { startIndex: item.id - 1 });
     } else if (item.type === 'game') {
       navigation.navigate(item.screen, { stepId: item.id });
     }
@@ -75,12 +74,12 @@ export default function BlockThreeScreen({ navigation, route }) {
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Text style={styles.backButtonText}>Назад</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Блок 3</Text>
+        <Text style={styles.headerTitle}>Блок 4</Text>
         <View style={{ width: 70 }} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {BLOCK_THREE_ROUTINE.map((item) => {
+        {BLOCK_FOUR_ROUTINE.map((item) => {
           const isLocked = item.id > unlockedStep;
 
           return (

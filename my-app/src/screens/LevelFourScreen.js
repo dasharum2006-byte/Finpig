@@ -1,106 +1,100 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Dimensions, ScrollView, Image, Alert } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage'; 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 const { width } = Dimensions.get('window');
 
-const LEVEL_THREE_STEPS = [
+const LEVEL_FOUR_STEPS = [
   {
     id: 1,
-    subTitle: 'Деньги не растут на деревьях ',
-    text: 'Деньги не появляются в кошельке сами по себе. Родители ходят на работу, выполняют свои обязанности и получают за это зарплату. Твой главный ресурс сейчас — это время и силы, а главная "работа" — учеба и помощь дома.',
-    // image: require('../../assets/pictirequestion/twopeoplepig.png'), 
-    question: 'Откуда у родителей берутся деньги?',
+    subTitle: 'Первые заработки',
+    text: 'Деньги можно не только получать от родителей, но и зарабатывать самому. Помочь соседке с выгулом собаки, продать старые игрушки или сделать поделки на продажу. Главное — делать это честно и с пользой.',
+    question: 'Какой способ заработать карманные деньги самый честный и полезный?',
     options: [
-      { text: 'Их приносит аист вместе с зарплатой', isCorrect: false },
-      { text: 'Они получают их за свой труд и работу', isCorrect: true },
-      { text: 'Они находят их на улице каждый день', isCorrect: false }
+      { text: 'Попросить деньги у незнакомцев на улице', isCorrect: false },
+      { text: 'Выполнять дополнительную работу по дому', isCorrect: true },
+      { text: 'Найти кошелек и оставить его себе', isCorrect: false }
     ]
   },
   {
     id: 2,
-    subTitle: 'Нужды и Хотелки ',
-    text: 'Все траты делятся на две группы. «Нужды» — это то, без чего нельзя прожить: еда, одежда, жилье, лекарства. «Хотелки» — это то, что приятно иметь, но можно и без этого обойтись: десятая машинка, сладкая газировка или новая игра.',
-    // image: require('../../assets/pictirequestion/shark.png'),
-    question: 'Что из этого относится к «Нуждам»?',
+    subTitle: 'Правило 4-х копилок',
+    text: 'Умные люди делят любые полученные деньги на 4 части: 1) Траты (на мелкие радости), 2) Накопления (на большую цель), 3) Инвестиции (чтобы деньги работали), 4) Благотворительность (помощь другим).',
+    question: 'Зачем нужна копилка "Благотворительность"?',
     options: [
-      { text: 'Новый чехол для телефона с блестками', isCorrect: false },
-      { text: 'Зимняя куртка, потому что старая мала', isCorrect: true },
-      { text: 'Большой набор мармеладных мишек', isCorrect: false }
-      ]
+      { text: 'Чтобы хвастаться, что ты добрый', isCorrect: false },
+      { text: 'Чтобы помогать тем, кому это действительно нужно, и делать мир лучше', isCorrect: true },
+      { text: 'Чтобы копить на новые игры', isCorrect: false }
+    ]
   },
   {
     id: 3,
-    subTitle: 'Подушка безопасности',
-    text: 'Иногда случаются неожиданные вещи: сломался телефон, заболел кот или порвались кроссовки. Чтобы не паниковать, умные люди откладывают немного денег в «подушку безопасности». Это заначка на черный день, которую лучше не трогать без реальной причины.',
-    // image: require('../../assets/pictirequestion/velosiped.png'),
-    question: 'Для чего нужна «подушка безопасности»?',
+    subTitle: 'Осторожно, мошенники!',
+    text: 'В интернете и даже на улице есть хитрые люди, которые хотят обманом забрать твои деньги или данные карты. Они могут писать: "Вы выиграли миллион, нажми сюда!" или просить код из СМС. Никогда и никому не сообщай свои данные',
+    question: 'Что делать, если в игре пишут: "Введи номер карты мамы, чтобы получить бесплатные алмазы"?',
     options: [
-      { text: 'Чтобы спать на ней было мягче', isCorrect: false },
-      { text: 'Для непредвиденных и срочных расходов', isCorrect: true },
-      { text: 'Чтобы хвастаться перед друзьями', isCorrect: false }
+      { text: 'Быстро ввести данные, пока предложение действует', isCorrect: false },
+      { text: 'Сразу закрыть игру и рассказать родителям о мошенниках', isCorrect: true },
+      { text: 'Ввести данные своей старой карты', isCorrect: false }
     ]
   },
   {
     id: 4,
     type: 'sort',
-    subTitle: 'Задание 4: План «Подарок маме» ',
-    text: 'Ты хочешь сделать маме классный подарок на день рождения, но у тебя пока нет денег. Составь правильный план действий, чтобы заработать и купить подарок',
-    question: 'Расположи шаги от начала до конца (сверху вниз):',
+    subTitle: 'Задание 4: Распредели бюджет',
+    text: 'Ты получил 100 монет в подарок. Распредели их по правильным категориям от самой важной для будущего до наименее важной.',
+    question: 'Расположи категории от самой важной до наименее важной (сверху вниз):',
     initialItems: [
-      { id: 'step3', text: '3. Выполнять дела и откладывать деньги в копилку' },
-      { id: 'step1', text: '1. Придумать подарок и узнать его точную цену' },
-      { id: 'step4', text: '4. Купить подарок, красиво упаковать и вручить' },
-      { id: 'step2', text: '2. Договориться с родителями о помощи по дому за вознаграждение' },
+      { id: 'cat3', text: '3. Инвестиции (пусть деньги растут)' },
+      { id: 'cat1', text: '1. Накопления на важную цель (велосипед)' },
+      { id: 'cat4', text: '4. Мелкие траты на сладости прямо сейчас' },
+      { id: 'cat2', text: '2. Благотворительность (помощь приюту для животных)' },
     ],
-    correctOrder: ['step1', 'step2', 'step3', 'step4']
+    correctOrder: ['cat1', 'cat2', 'cat3', 'cat4']
   },
   {
     id: 5,
-    subTitle: 'Ловушка «Супер-Скидки»',
-    text: 'Магазины очень хитрые. Они пишут огромными буквами «СКИДКА 50%!» или «3 по цене 2!». Но если тебе не нужен этот товар, то даже со скидкой ты просто теряешь деньги. Покупай только то, что планировал.',
-    // image: require('../../assets/pictirequestion/hotun.jpg'),
-    question: 'Как правильно реагировать на яркую скидку?',
+    subTitle: 'Что такое инфляция?',
+    text: 'Инфляция — это когда цены в магазинах медленно растут, а деньги обесцениваются. Сегодня мороженое стоит 50 монет, а через год может стоить 60. Поэтому деньги нельзя просто хранить под матрасом — их нужно грамотно распределять или класть в банк под процент.',
+    question: 'Как инфляция влияет на наши деньги?',
     options: [
-      { text: 'Сразу бежать и покупать, пока не разобрали!', isCorrect: false },
-      { text: 'Спросить себя: "А мне это правда нужно?"', isCorrect: true },
-      { text: 'Купить три штуки, потому что это выгодно', isCorrect: false },
+      { text: 'Деньги становятся тяжелее', isCorrect: false },
+      { text: 'Цены растут, и на ту же сумму денег можно купить меньше товаров', isCorrect: true },
+      { text: 'Деньги начинают размножаться сами по себе', isCorrect: false }
     ]
   },
   {
     id: 6,
-    subTitle: 'Финал: Что такое Бюджет? ',
-    text: 'Поздравляю, ты дошел до конца! Бюджет — это простой план: сколько денег ты получаешь (доходы) и на что ты их тратишь (расходы). Если доходы больше расходов — ты молодец, можно откладывать на мечту',
-    // image: require('../../assets/pictirequestion/phone.jpg'),
-    question: 'Что такое семейный бюджет?',
+    subTitle: 'Финал: Мой финансовый план',
+    text: 'Поздравляю! Ты прошел все вопросы. Настоящий финансовый агент всегда знает: откуда приходят деньги, куда они уходят, и как защитить их от Хотюна и мошенников. Составь свой план и следуй ему.',
+    question: 'Что самое главное в управлении личными финансами?',
     options: [
-      { text: 'План доходов и расходов семьи', isCorrect: true },
-      { text: 'Название дорогого телефона', isCorrect: false },
-      { text: 'Список всех подарков на Новый год', isCorrect: false }
+      { text: 'Тратить всё сразу, чтобы не украли', isCorrect: false },
+      { text: 'Планировать доходы и расходы, копить на цели и быть осторожным', isCorrect: true },
+      { text: 'Никому не говорить о деньгах и прятать их в лесу', isCorrect: false }
     ]
   }
 ];
 
-export default function LevelThreeScreen({ navigation, route }) {
+export default function LevelFourScreen({ navigation, route }) {
   const startIndex = route.params?.startIndex ?? 0;
-  
   const [currentStepIndex, setCurrentStepIndex] = useState(startIndex);
   const [selectedOption, setSelectedOption] = useState(null);
   const [isAnswered, setIsAnswered] = useState(false);
   const [score, setScore] = useState(0);
   const [savedAnswers, setSavedAnswers] = useState({});
   const [savedSortOrders, setSavedSortOrders] = useState({});
-
   const [sortItems, setSortItems] = useState([]);
   const [isSortCorrect, setIsSortCorrect] = useState(false);
   const [showCorrectHint, setShowCorrectHint] = useState(false);
   
-  const step = LEVEL_THREE_STEPS[currentStepIndex];
+  const step = LEVEL_FOUR_STEPS[currentStepIndex];
 
-      useEffect(() => {
+  useEffect(() => {
     const loadSaved = async () => {
       try {
-        const ans = await AsyncStorage.getItem('@block_three_answers_v1');
-        const sorts = await AsyncStorage.getItem('@block_three_sorts_v1');
+        const ans = await AsyncStorage.getItem('@block_four_answers_v1');
+        const sorts = await AsyncStorage.getItem('@block_four_sorts_v1');
         if (ans) setSavedAnswers(JSON.parse(ans));
         if (sorts) setSavedSortOrders(JSON.parse(sorts));
       } catch (e) { console.error('Ошибка загрузки:', e); }
@@ -108,10 +102,8 @@ export default function LevelThreeScreen({ navigation, route }) {
     loadSaved();
   }, []);
 
-
     useEffect(() => {
     if (!step) return;
-    
     if (step.type === 'sort') {
       const savedOrder = savedSortOrders[currentStepIndex];
       if (savedOrder) {
@@ -129,22 +121,21 @@ export default function LevelThreeScreen({ navigation, route }) {
       const savedAns = savedAnswers[currentStepIndex];
       if (savedAns !== undefined) {
         setSelectedOption(step.options[savedAns]);
-        setIsAnswered(true);
+        setIsAnswered(true); 
       } else {
         setSelectedOption(null);
         setIsAnswered(false);
       }
     }
-  }, [currentStepIndex, step, savedAnswers, savedSortOrders]);
+  },[currentStepIndex, step, savedAnswers, savedSortOrders]);
 
-
-  // const saveProgress = async (stepId) => {
-  //   try {
-  //     await AsyncStorage.setItem('@block_three_progress_v1', stepId.toString());
-  //   } catch (e) {
-  //     console.error('Ошибка сохранения прогресса Блока 3:', e);
-  //   }
-  // };
+//   const saveProgress = async (stepId) => {
+//     try {
+//       await AsyncStorage.setItem('@block_four_progress_v1', stepId.toString());
+//     } catch (e) {
+//       console.error('Ошибка сохранения прогресса Блока 4:', e);
+//     }
+//   };
 
   const handleOptionPress = (option, optIndex) => {
     if (isAnswered) return;
@@ -177,7 +168,6 @@ export default function LevelThreeScreen({ navigation, route }) {
   const checkSortOrder = () => {
     const userOrder = sortItems.map(item => item.id);
     const isCorrect = JSON.stringify(userOrder) === JSON.stringify(step.correctOrder);
-    
     setIsAnswered(true);
     saveSortOrder(currentStepIndex, userOrder);
     if (isCorrect) {
@@ -196,44 +186,44 @@ export default function LevelThreeScreen({ navigation, route }) {
     }
   };
 
-  const saveProgress = async (stepId) => {
-    try {
-      const savedStep = await AsyncStorage.getItem('@block_three_progress_v1'); 
-      const currentSaved = savedStep ? parseInt(savedStep, 10) : 1;
-      if (stepId > currentSaved) {
-        await AsyncStorage.setItem('@block_three_progress_v1', stepId.toString());
-      }
-    } catch (e) {
-      console.error('Ошибка сохранения прогресса Блока 3:', e);
-    }
-  };
-    const saveAnswer = async (qIndex, optIndex) => {
+  const saveAnswer = async (qIndex, optIndex) => {
     const updated = { ...savedAnswers, [qIndex]: optIndex };
     setSavedAnswers(updated);
-    await AsyncStorage.setItem('@block_three_answers_v1', JSON.stringify(updated));
+    await AsyncStorage.setItem('@block_four_answers_v1', JSON.stringify(updated));
   };
 
-    const saveSortOrder = async (qIndex, order) => {
+  const saveSortOrder = async (qIndex, order) => {
     const updated = { ...savedSortOrders, [qIndex]: order };
     setSavedSortOrders(updated);
-    await AsyncStorage.setItem('@block_three_sorts_v1', JSON.stringify(updated));
+    await AsyncStorage.setItem('@block_four_sorts_v1', JSON.stringify(updated));
   };
+
+  const saveProgress = async (stepId) => {
+    try {
+      const savedStep = await AsyncStorage.getItem('@block_four_progress_v1'); 
+      const currentSaved = savedStep ? parseInt(savedStep, 10) : 1;
+      if (stepId > currentSaved) {
+        await AsyncStorage.setItem('@block_four_progress_v1', stepId.toString());
+      }
+    } catch (e) {
+      console.error('Ошибка сохранения прогресса:', e);
+    }
+  };
+
 
   const handleNextStep = () => {
     const stepToUnlock = currentStepIndex + 2;
     saveProgress(stepToUnlock);
-
-    if (currentStepIndex < LEVEL_THREE_STEPS.length - 1) {
+    if (currentStepIndex < LEVEL_FOUR_STEPS.length - 1) {
       setCurrentStepIndex(currentStepIndex + 1);
       setSelectedOption(null);
       setIsAnswered(false);
       setShowCorrectHint(false);
     } else {
-      saveProgress(LEVEL_THREE_STEPS.length + 1);
-      
+      saveProgress(LEVEL_FOUR_STEPS.length + 1);
       Alert.alert(
-        'Блок 3 пройден', 
-        `Ты настоящий Мастер Бюджета, Результат: ${score + (isSortCorrect ? 1 : 0)} из ${LEVEL_THREE_STEPS.length}.`,
+        'Блок 4 пройден', 
+        `Ты настоящий Финансовый Гуру. Результат: ${score + (isSortCorrect ? 1 : 0)} из ${LEVEL_FOUR_STEPS.length}.`,
         [{ 
           text: 'Круто!', 
           onPress: () => {
@@ -255,7 +245,7 @@ export default function LevelThreeScreen({ navigation, route }) {
         <TouchableOpacity style={styles.backButton} onPress={handleExit}>
           <Text style={styles.backText}>Выйти</Text>
         </TouchableOpacity>
-        <Text style={styles.mainTitle}>Блок 3: Шаг {currentStepIndex + 1} из {LEVEL_THREE_STEPS.length}</Text>
+        <Text style={styles.mainTitle}>Блок 4: Шаг {currentStepIndex + 1} из {LEVEL_FOUR_STEPS.length}</Text>
         <Text style={styles.scoreText}>🪙 {score * 10}</Text>
       </View>
 
@@ -272,7 +262,7 @@ export default function LevelThreeScreen({ navigation, route }) {
           {step.type === 'sort' ? (
             <View style={styles.sortContainer}>
               {isAnswered && !isSortCorrect && showCorrectHint && (
-                <Text style={styles.hintText}>Смотри, как надо было:</Text>
+                <Text style={styles.hintText}>✨ Смотри, как надо было:</Text>
               )}
 
               {sortItems.map((item, index) => {
@@ -302,7 +292,7 @@ export default function LevelThreeScreen({ navigation, route }) {
 
               {!isAnswered && (
                 <TouchableOpacity style={styles.checkButton} onPress={checkSortOrder}>
-                  <Text style={styles.checkButtonText}>Проверить план</Text>
+                  <Text style={styles.checkButtonText}>Проверить план 🔍</Text>
                 </TouchableOpacity>
               )}
             </View>
@@ -320,12 +310,12 @@ export default function LevelThreeScreen({ navigation, route }) {
                 <TouchableOpacity
                   key={optIndex}
                   style={buttonStyle}
-                  onPress={() => handleOptionPress(option,optIndex)}
+                  onPress={() => handleOptionPress(option, optIndex)}
                   activeOpacity={0.7}
                   disabled={isAnswered}
                 >
                   <Text style={styles.optionText}>{option.text}</Text>
-                   {isAnswered && savedAnswers[currentStepIndex] === optIndex && (
+                  {isAnswered && savedAnswers[currentStepIndex] === optIndex && (
                     <Text style={styles.savedIndicator}>Твой ответ</Text>
                   )}
                 </TouchableOpacity>
@@ -337,7 +327,7 @@ export default function LevelThreeScreen({ navigation, route }) {
         {isAnswered && (
           <TouchableOpacity style={styles.nextButton} onPress={handleNextStep}>
             <Text style={styles.nextButtonText}>
-              {currentStepIndex === LEVEL_THREE_STEPS.length - 1 ? 'Финиш' : 'Дальше'}
+              {currentStepIndex === LEVEL_FOUR_STEPS.length - 1 ? 'Финиш' : 'Дальше'}
             </Text>
           </TouchableOpacity>
         )}

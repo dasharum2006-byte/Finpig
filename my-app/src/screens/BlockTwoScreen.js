@@ -1,34 +1,55 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native'; 
 import { StyleSheet, Text, View, TouchableOpacity, Dimensions, ScrollView, Alert } from 'react-native';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const BLOCK_TWO_ROUTINE = [
-  { id: 1, type: 'quiz', title: 'Вопрос 1: Откуда деньги?', subtitle: 'Труд и зарплата' },
-  { id: 2, type: 'quiz', title: 'Вопрос 2: Нужды и Хотелки', subtitle: 'Учимся выбирать' },
-  { id: 3, type: 'quiz', title: 'Вопрос 3: Подушка безопасности', subtitle: 'На черный день' },
-  { id: 4, type: 'sort', title: 'Задание 4: План действий', subtitle: 'Копим на подарок' },
-  { id: 5, type: 'quiz', title: 'Вопрос 5: Ловушка скидок', subtitle: 'Не ведись на маркетинг' },
-  { id: 6, type: 'quiz', title: 'Вопрос 6: Что такое бюджет?', subtitle: 'Финальный экзамен' },
-  { id: 7, type: 'quiz', title: 'Вопрос 7: Что такое бюджет?', subtitle: 'Финальный экзамен' },
-   { id: 8, type: 'quiz', title: 'Вопрос 6: Что такое бюджет?', subtitle: 'Финальный экзамен' },
-  { id: 9, type: 'quiz', title: 'Вопрос 7: Что такое бюджет?', subtitle: 'Финальный экзамен' },
+  { id: 1, type: 'quiz', title: 'Шаг 1: Секрет кармана', subtitle: 'Откуда берутся деньги' },
+  { id: 2, type: 'quiz', title: 'Шаг 2: Ловушка Хотюна', subtitle: 'Охота за скидками' },
+  { id: 3, type: 'quiz', title: 'Шаг 3: Монстр Одолжун', subtitle: 'Что такое долг' },
+  { id: 4, type: 'quiz', title: 'Шаг 4: Кредитный капкан', subtitle: 'Ловушка для взрослых' },
+  { id: 5, type: 'quiz', title: 'Шаг 5: Фин-щит агента', subtitle: 'Когда кредит оправдан' },
+  { id: 6, type: 'quiz', title: 'Шаг 6: Суперприём Рассрочка', subtitle: 'Делим платежи на части' },
+  { id: 7, type: 'quiz', title: 'Шаг 7: Коварные риски', subtitle: 'Опасно ли давать в долг' },
+  { id: 8, type: 'sort', title: 'Задание 8: Экзамен Банкира', subtitle: 'Умные и глупые цели' },
+  { id: 9, type: 'quiz', title: 'Шаг 9: Шпионский счёт', subtitle: 'Пересчитываем сдачу' },
+  { id: 10, type: 'quiz', title: 'Шаг 10: Разведка цен', subtitle: 'Маркетплейс против лавки' },
   
-  // Мини-игры второго блока (откроются после 6 шага)
-  { id: 10, type: 'game', screen: 'GameBudgetPlanner', title: '🎮 Игра 1: Собери бюджет', subtitle: 'Распредели доходы и расходы' },
-  { id: 11, type: 'game', screen: 'GameShopSimulator', title: '🎮 Игра 2: Симулятор магазина', subtitle: 'Проверка на прочность' },
+  // Мини-игры второго блока (откроются после прохождения всех 10 шагов)
+  { id: 11, type: 'game', screen: 'GameBudgetPlanner', title: '🎮 Игра 1: Собери бюджет', subtitle: 'Распредели доходы и расходы' },
+  { id: 12, type: 'game', screen: 'GameShopSimulator', title: '🎮 Игра 2: Симулятор магазина', subtitle: 'Проверка на прочность' },
 ];
+
+const STORAGE_KEY = '@block_two_progress_v1';
 
 export default function BlockTwoScreen({ navigation, route }) {
   const [unlockedStep, setUnlockedStep] = useState(1);
 
+  useFocusEffect(
+    useCallback(() => {
+      const loadProgress = async () => {
+        try {
+          const savedStep = await AsyncStorage.getItem(STORAGE_KEY);
+          if (savedStep) {
+            setUnlockedStep(parseInt(savedStep, 10));
+          }
+        } catch (e) {
+          console.error('Ошибка загрузки прогресса Блока 1:', e);
+        }
+      };
+      loadProgress();
+    }, [])
+  );
+
   useEffect(() => {
-    if (route.params?.highestCompletedStep) {
-      const nextStep = route.params.highestCompletedStep + 1;
-      if (nextStep > unlockedStep && nextStep <= BLOCK_TWO_ROUTINE.length) {
-        setUnlockedStep(nextStep);
+    const saveProgress = async () => {
+      try {
+        await AsyncStorage.setItem(STORAGE_KEY, unlockedStep.toString());
+      } catch (e) {
+        console.error('Ошибка сохранения прогресса:', e);
       }
-      navigation.setParams({ highestCompletedStep: undefined });
-    }
-  }, [route.params?.highestCompletedStep, navigation, unlockedStep]);
+    };
+    saveProgress();
+  }, [unlockedStep]);
 
   const handlePressItem = (item) => {
     if (item.id > unlockedStep) {

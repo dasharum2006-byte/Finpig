@@ -3,8 +3,7 @@ import { StyleSheet, Text, View, TouchableOpacity, Dimensions, ScrollView, Image
 import AsyncStorage from '@react-native-async-storage/async-storage';
 const { width } = Dimensions.get('window');
 
-// Ровно 6 вопросов-шагов, и у каждого СВОЯ картинка из папки assets!
-const LEVEL_STEPS = [
+const LEVEL_ONE_STEPS = [
 {
     id: 1,
     subTitle: 'Откуда взялись деньги?',
@@ -19,11 +18,10 @@ const LEVEL_STEPS = [
     ]
   },
 {
-    id: 2, // Поставь нужный порядковый номер в массиве
+    id: 2, 
     subTitle: 'Почему появились деньги',
     text: 'У тебя есть плюшевая акула, которую тебе подарили. Вдруг на площадке ты увидел мальчика с вкусным леденцом-петушком на палочке. Тебе в эту секунду ужасно захотелось сладкого! Мальчик предлагает меняться: твоя акула в обмен на его леденец.',
     image: require('../../assets/pictirequestion/shark.png'),
-    // Картинка с акулой и леденцом
     imageStyle: 'storyImageShark',
     question: 'Как ты думаешь, выгодно ли менять плюшевую акулу на леденец, если тебе захотелось сладкого?',
     options: [
@@ -32,6 +30,7 @@ const LEVEL_STEPS = [
     { text: 'Да, акулу всё равно нельзя съесть', isCorrect: false }
     ]
   },
+
 {
     id: 3,
     subTitle: 'Сбережения',
@@ -72,59 +71,149 @@ const LEVEL_STEPS = [
   },
     {
     id: 6,
-    type: 'sort', // Указываем новый тип задания
-    subTitle: 'Задание 6: План «Копим на компьютер» 🖥️',
+    type: 'sort', 
+    subTitle: 'Задание 6: План «Копим на компьютер» ',
     text: 'Чтобы купить  игровой компьютер, нужен четкий план действий. Расставь шаги в правильном порядке: от самого первого действия до покупки',
     question: 'Расположи шаги плана от начала до конца(сверху вниз):',
-    // Изначально перемешанный список для ребенка
     initialItems: [
-      { id: 'step4', text: '4. Регулярно откладывать деньги в конверт 🪙' },
-      { id: 'step1', text: '1. Узнать точную цену компьютера в магазине 💰' },
-      { id: 'step5', text: '5. Купить компьютер и радоваться покупке! 🎉' },
-      { id: 'step2', text: '2. Посчитать, сколько денег уже есть в копилке 🐷' },
-      { id: 'step3', text: '3. Разделить сумму на недели и понять план 📆' },
+      { id: 'step4', text: '4. Регулярно откладывать деньги в конверт' },
+      { id: 'step1', text: '1. Узнать точную цену компьютера в магазине ' },
+      { id: 'step5', text: '5. Купить компьютер и радоваться покупке' },
+      { id: 'step2', text: '2. Посчитать, сколько денег уже есть в копилке' },
+      { id: 'step3', text: '3. Разделить сумму на недели и понять план ' },
     ],
-    // Правильный порядок ID для проверки
     correctOrder: ['step1', 'step2', 'step3', 'step4', 'step5']
+  },
+   {
+    id: 7,
+    subTitle: 'Импульсивные траты',
+    text: 'Ты шёл в магазин строго за хлебом, но по пути увидел крутой светящийся слайм. Магия Хотюна сработала, и ты купил его! Дома слайм покрылся пылью за полчаса, а деньги из кошелька исчезли. Такие покупки называют "импульсивными" — когда ты тратишь деньги под влиянием сиюминутной эмоции, не подумав.',
+    // image: require('../../assets/pictirequestion/impulse.png'),
+    imageStyle: 'storyImageImpulse',
+    question: 'Что такое "импульсивная трата"?',
+    options: [
+      { text: 'Покупка нужной вещи, которую ты планировал целый месяц', isCorrect: false },
+      { text: 'Покупка под влиянием эмоций, о которой потом часто жалеют', isCorrect: true },
+      { text: 'Обмен старой игрушки на новую у друга на площадке', isCorrect: false }
+    ]
+  },
+  {
+    id: 8,
+    subTitle: 'Личные деньги vs Общие деньги',
+    text: 'У тебя есть карманные деньги, которые тебе подарили, — это твои личные деньги. Ты сам решаешь, копить их или купить вкусняшку. Но в каждой семье есть Семейный Бюджет. Это общие деньги, которые родители зарабатывают на работе, чтобы оплатить квартиру, купить продукты для всех и заправить машину.',
+    // image: require('../../assets/pictirequestion/family_budget.png'),
+    imageStyle: 'storyImageFamily',
+    question: 'Из чего состоит Семейный Бюджет?',
+    options: [
+      { text: 'Из денег, которые заработали родители для общих нужд всей семьи', isCorrect: true },
+      { text: 'Из золотых монет, которые пираты спрятали в Арктике', isCorrect: false },
+      { text: 'Из карманных денег, которые ребёнок прячет в своей копилке', isCorrect: false }
+    ]
+  },
+   {
+    id: 9,
+    subTitle: 'Сбережения в семейном бюджете',
+    text: 'Продвинутые супер-агенты знают: семейные деньги нельзя тратить до копейки! Умные родители всегда направляют часть семейного бюджета в сбережения. Это "подушка безопасности". Если вдруг сломается холодильник или папе понадобится починить машину, семье не придется брать долги в банке — у них будут свои отложенные деньги.',
+    // image: require('../../assets/pictirequestion/podushka.png'),
+    imageStyle: 'storyImagePodushka',
+    question: 'Зачем семье откладывать часть общего бюджета в сбережения?',
+    options: [
+      { text: 'Чтобы покупать только дорогие жвачки у Хотюна', isCorrect: false },
+      { text: 'Чтобы иметь финансовую подушку безопасности на случай непредвиденных трат', isCorrect: true },
+      { text: 'Чтобы в доме просто было много красивых бумажек в шкафу', isCorrect: false }
+    ]
+  },
+  {
+    id: 10,
+    subTitle: 'Умный инвестор: Твои личные сбережения',
+    text: 'Как стать продвинутым в финансах? Правило простое: каждый раз, когда тебе дают личные деньги (карманные или подарок от бабушки), не беги тратить их целиком. Отложи фиксированную часть (например, 20 копеек из каждого рубля) сразу в банк или копилку. Остальное можно тратить на маленькие радости. Так твоя цель приблизится очень быстро!',
+    // image: require('../../assets/pictirequestion/piggy_smart.png'),
+    imageStyle: 'storyImageSmart',
+    question: 'Какое главное правило продвинутого накопления личных средств?',
+    options: [
+      { text: 'Откладывать часть от любых поступивших денег сразу, до того как начнешь их тратить', isCorrect: true },
+      { text: 'Потратить всё в первый же час, а копить начать в следующем году', isCorrect: false },
+      { text: 'Ждать, пока деньги закончатся, и собирать пустые фантики', isCorrect: false }
+    ]
+  },
+  {
+     id: 11,
+    subTitle: 'Семейный виртуальный Конверт',
+    text: 'Современные банки помогают копить не только детям, но и всей семье! В приложении банка родители могут создать общий виртуальный Конверт, например "На летнее путешествие к морю". В этот конверт могут скидывать деньги и мама, и папа, и даже ты со своих карманных денег, чтобы вместе быстрее исполнить большую общую мечту.',
+    // image: require('../../assets/pictirequestion/family_envelope.png'),
+    imageStyle: 'storyImageFamilyEnvelope',
+    question: 'Как работает семейный виртуальный конверт в банке?',
+    options: [
+      { text: 'Вся семья может складывать туда деньги вместе на одну общую большую цель', isCorrect: true },
+      { text: 'Туда можно отправлять только бумажные письма для Деда Мороза', isCorrect: false }
+    ]
   }
-
 ];
 
 
 export default function LevelOneScreen({ navigation, route }) {
-  // Получаем индекс вопроса, на который нажали. Если не передали — стартуем с 0
   const startIndex = route.params?.startIndex ?? 0;
-  
-  // Устанавливаем стартовый индекс в состояние
   const [currentStepIndex, setCurrentStepIndex] = useState(startIndex);
   const [selectedOption, setSelectedOption] = useState(null);
   const [isAnswered, setIsAnswered] = useState(false);
   const [score, setScore] = useState(0);
-
-  // Состояние для интерактивной сортировки 6-го шага
+   const [savedAnswers, setSavedAnswers] = useState({});
+  const [savedSortOrders, setSavedSortOrders] = useState({});
   const [sortItems, setSortItems] = useState([]);
   const [isSortCorrect, setIsSortCorrect] = useState(false);
-  const step = LEVEL_STEPS[currentStepIndex];
+  const step = LEVEL_ONE_STEPS[currentStepIndex];
   const [showCorrectHint, setShowCorrectHint] = useState(false);
 
-  // Инициализируем список для сортировки, если это задание 6
   useEffect(() => {
-    if (step && step.type === 'sort') {
-      setSortItems(step.initialItems);
-      setIsAnswered(false);
+    const loadSaved = async () => {
+      try {
+        const ans = await AsyncStorage.getItem('@block_one_answers_v1');
+        const sorts = await AsyncStorage.getItem('@block_one_sorts_v1');
+        if (ans) setSavedAnswers(JSON.parse(ans));
+        if (sorts) setSavedSortOrders(JSON.parse(sorts));
+      } catch (e) { console.error(e); }
+    };
+    loadSaved();
+  }, []);
+  
+   useEffect(() => {
+    if (!step) return;
+    if (step.type === 'sort') {
+      const savedOrder = savedSortOrders[currentStepIndex];
+      if (savedOrder) {
+        const restored = savedOrder.map(id => step.initialItems.find(i => i.id === id)).filter(Boolean);
+        setSortItems(restored);
+        setIsAnswered(true);
+        setIsSortCorrect(true); 
+        setShowCorrectHint(false);
+      } else {
+        setSortItems(step.initialItems);
+        setIsAnswered(false);
+        setIsSortCorrect(false);
+      }
+    } else {
+      const savedAns = savedAnswers[currentStepIndex];
+      if (savedAns !== undefined) {
+        setSelectedOption(step.options[savedAns]);
+        setIsAnswered(true); 
+      } else {
+        setSelectedOption(null);
+        setIsAnswered(false);
+      }
     }
-  }, [currentStepIndex]);
+  }, [currentStepIndex, step, savedAnswers, savedSortOrders]);
 
-  const handleOptionPress = (option) => {
+  const handleOptionPress = (option, optionIndex) => {
     if (isAnswered) return;
     setSelectedOption(option);
     setIsAnswered(true);
+    saveAnswer(currentStepIndex, optionIndex);
     if (option.isCorrect) {
       setScore(prev => prev + 1);
     }
   };
 
-  // Движение элемента вверх по списку
+
   const moveUp = (index) => {
     if (index === 0 || isAnswered) return;
     const newItems = [...sortItems];
@@ -134,7 +223,7 @@ export default function LevelOneScreen({ navigation, route }) {
     setSortItems(newItems);
   };
 
-  // Движение элемента вниз по списку
+
   const moveDown = (index) => {
     if (index === sortItems.length - 1 || isAnswered) return;
     const newItems = [...sortItems];
@@ -144,31 +233,26 @@ export default function LevelOneScreen({ navigation, route }) {
     setSortItems(newItems);
   };
 
-  // 🌟 ВОЛШЕБНАЯ ФУНКЦИЯ ПРОВЕРКИ С АВТО-ИСПРАВЛЕНИЕМ 🌟
   const checkSortOrder = () => {
     const userOrder = sortItems.map(item => item.id);
     const isCorrect = JSON.stringify(userOrder) === JSON.stringify(step.correctOrder);
-    
-    setIsAnswered(true); // Сразу блокируем кнопки и показываем результат
-
+    setIsAnswered(true); 
+    saveSortOrder(currentStepIndex, userOrder); 
     if (isCorrect) {
       setIsSortCorrect(true);
       setScore(prev => prev + 1);
     } else {
-      setIsSortCorrect(false); // Сначала показываем КРАСНЫЙ цвет (ошибка)
-      
-      // Через 1.2 секунды автоматически перестраиваем в ПРАВИЛЬНЫЙ порядок и делаем ЗЕЛЕНЫМ
+      setIsSortCorrect(false); 
       setTimeout(() => {
         const correctItems = step.correctOrder.map(correctId => 
           step.initialItems.find(item => item.id === correctId)
         );
         setSortItems(correctItems);
-        setIsSortCorrect(true); // Теперь карточки станут зелеными
-        setShowCorrectHint(true); // Показываем надпись "Смотри, как надо было"
+        setIsSortCorrect(true); 
+        setShowCorrectHint(true); 
       }, 1200);
     }
   };
-  // Проверка правильности сортировки плана
   // const checkSortOrder = () => {
   //   const userOrder = sortItems.map(item => item.id);
   //   const isCorrect = JSON.stringify(userOrder) === JSON.stringify(step.correctOrder);
@@ -178,58 +262,91 @@ export default function LevelOneScreen({ navigation, route }) {
   //     setScore(prev => prev + 1);
   //   }
   // };
-    const handleNextStep = () => {
-    if (currentStepIndex < LEVEL_STEPS.length - 1) {
+  // const saveProgress = async (stepId) => {
+  //   try {
+  //     await AsyncStorage.setItem('@block_one_progress_v1', stepId.toString());
+  //   } catch (e) {
+  //     console.error('Ошибка сохранения прогресса:', e);
+  //   }
+  // };
+
+  const saveProgress = async (stepId) => {
+    try {
+      const savedStep = await AsyncStorage.getItem('@block_one_progress_v1'); 
+      const currentSaved = savedStep ? parseInt(savedStep, 10) : 1;
+      if (stepId > currentSaved) {
+        await AsyncStorage.setItem('@block_one_progress_v1', stepId.toString());
+      }
+    } catch (e) {
+      console.error('Ошибка сохранения прогресса Блока 1:', e);
+    }
+  };
+
+    const saveAnswer = async (qIndex, optIndex) => {
+    const updated = { ...savedAnswers, [qIndex]: optIndex };
+    setSavedAnswers(updated);
+    await AsyncStorage.setItem('@block_one_answers_v1', JSON.stringify(updated));
+  };
+
+  const saveSortOrder = async (qIndex, order) => {
+    const updated = { ...savedSortOrders, [qIndex]: order };
+    setSavedSortOrders(updated);
+    await AsyncStorage.setItem('@block_one_sorts_v1', JSON.stringify(updated));
+  };
+  const handleNextStep = () => {
+    const stepToUnlock = (currentStepIndex === LEVEL_ONE_STEPS.length - 1) 
+      ? 8 
+      : currentStepIndex + 2;
+    saveProgress(stepToUnlock);
+    if (currentStepIndex < LEVEL_ONE_STEPS.length - 1) {
       setCurrentStepIndex(currentStepIndex + 1);
       setSelectedOption(null);
       setIsAnswered(false);
       setShowCorrectHint(false);
     } else {
-      // 🌟 СОХРАНЯЕМ ПРОХОЖДЕНИЕ БЛОКА 1 В ПАМЯТЬ
-      AsyncStorage.setItem('blockOneCompleted', 'true');
-            Alert.alert(
-        'Победа! 🏆', 
-        `Уровень пройден! Твой результат: ${score + (isSortCorrect ? 1 : 0)} из ${LEVEL_STEPS.length}. На твой баланс начислено 50 монет!`,
+      Alert.alert(
+        'Блок 1 пройден', 
+        `Ты настоящий новичок-финансист. Результат: ${score + (isSortCorrect ? 1 : 0)} из ${LEVEL_ONE_STEPS.length}.`,
         [{ 
-          text: 'Круто!', 
+          text: 'Круто', 
           onPress: () => {
-            // ЯВНО говорим карте, что мы прошли 6-й шаг и открываем 7-й (первую игру)
-            navigation.navigate('BlockOneScreen', { highestCompletedStep: 6 }); 
+            navigation.goBack(); 
           } 
         }]
       );
     }
   };
 
+  const handleExit = async () => {
+    const stepToUnlock = (currentStepIndex === LEVEL_ONE_STEPS.length - 1 && isAnswered) 
+      ? 8 
+      : currentStepIndex + 1;
+    await saveProgress(stepToUnlock);
+    navigation.goBack();
+  };
+
 return (
     <View style={styles.container}>
-      {/* Шапка */}
       <View style={styles.topBar}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <TouchableOpacity style={styles.backButton} onPress={handleExit}>
           <Text style={styles.backText}>Выйти</Text>
         </TouchableOpacity>
-        <Text style={styles.mainTitle}>Уровень 1: Шаг {currentStepIndex + 1} из 6</Text>
+        <Text style={styles.mainTitle}>Уровень 1: Шаг {currentStepIndex + 1} из {LEVEL_ONE_STEPS.length}</Text>
         <Text style={styles.scoreText}>🪙 +{score * 10}</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* Карточка с историей */}
         <View style={styles.storyCard}>
           <Text style={styles.subTitle}>{step.subTitle}</Text>
           {step.image && <Image source={step.image} style={styles.storyImage} resizeMode="contain" />}
           <Text style={styles.storyText}>{step.text}</Text>
         </View>
-
-        {/* Интерактивный блок */}
         <View style={styles.questionCard}>
           <Text style={styles.questionText}>{step.question}</Text>
-          
-          {/* ЕСЛИ ТИП ЗАДАНИЯ — СОРТИРОВКА ПЛАНА */}
           {step.type === 'sort' ? (
             <View style={styles.sortContainer}>
-              {/* Подсказка, которая появляется, если ребенок ошибся */}
               {isAnswered && !isSortCorrect && showCorrectHint && (
-                <Text style={styles.hintText}>✨ Смотри, как надо было:</Text>
+                <Text style={styles.hintText}>Смотри, как надо было:</Text>
               )}
               {sortItems.map((item, index) => {
                 let cardStyle = styles.sortCard;
@@ -238,11 +355,9 @@ return (
                     ? { ...styles.sortCard, backgroundColor: '#C8E6C9', borderColor: '#4CAF50' }
                     : { ...styles.sortCard, backgroundColor: '#FFCDD2', borderColor: '#F44336' };
                 }
-
                 return (
                   <View key={item.id} style={cardStyle}>
                     <Text style={styles.sortCardText}>{item.text}</Text>
-                    
                     {!isAnswered && (
                       <View style={styles.sortButtons}>
                         <TouchableOpacity style={styles.arrowBtn} onPress={() => moveUp(index)}>
@@ -259,13 +374,12 @@ return (
 
               {!isAnswered && (
                 <TouchableOpacity style={styles.checkButton} onPress={checkSortOrder}>
-                  <Text style={styles.checkButtonText}>Проверить план 🔍</Text>
+                  <Text style={styles.checkButtonText}>Проверить план</Text>
                 </TouchableOpacity>
               )}
             </View>
           ) : (
-            // ОБЫЧНЫЙ ТЕСТ (Варианты ответов для шагов 1-5)
-            step.options.map((option, index) => {
+            step.options.map((option, optionIndex) => {
               let buttonStyle = styles.optionButton;
               if (isAnswered) {
                 if (option.isCorrect) {
@@ -276,24 +390,25 @@ return (
               }
               return (
                 <TouchableOpacity
-                  key={index}
+                  key={optionIndex}
                   style={buttonStyle}
-                  onPress={() => handleOptionPress(option)}
+                  onPress={() => handleOptionPress(option, optionIndex)}
                   activeOpacity={0.7}
-                  isabled={isAnswered}
+                  disabled={isAnswered}
                 >
                   <Text style={styles.optionText}>{option.text}</Text>
+                  {isAnswered && savedAnswers[currentStepIndex] === optionIndex && (
+                    <Text style={styles.savedIndicator}>Твой ответ</Text>
+                  )}
                 </TouchableOpacity>
               );
             })
           )}
         </View>
-
-        {/* Кнопка Далее */}
         {isAnswered && (
           <TouchableOpacity style={styles.nextButton} onPress={handleNextStep}>
             <Text style={styles.nextButtonText}>
-              {currentStepIndex === LEVEL_STEPS.length - 1 ? 'Финиш ' : 'Дальше '}
+              {currentStepIndex === LEVEL_STEPS.length - 1 ? 'Финиш' : 'Дальше'}
             </Text>
           </TouchableOpacity>
         )}
@@ -328,5 +443,12 @@ const styles = StyleSheet.create({
   checkButton: { backgroundColor: '#3b71af', padding: 12, borderRadius: 12, alignItems: 'center', marginTop: 10 },
   checkButtonText: { color: '#FFF', fontSize: 15, fontWeight: 'bold' },
   nextButton: { backgroundColor: '#E65100', padding: 15, borderRadius: 15, alignItems: 'center', marginTop: 10 },
-  nextButtonText: { color: '#FFF', fontSize: 16, fontWeight: 'bold' }
+  nextButtonText: { color: '#FFF', fontSize: 16, fontWeight: 'bold' },
+    savedIndicator: {
+    fontSize: 11,
+    color: '#666',
+    fontStyle: 'italic',
+    marginTop: 4,
+    textAlign: 'center',
+  },
 });

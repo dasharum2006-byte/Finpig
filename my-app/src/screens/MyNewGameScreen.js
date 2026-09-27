@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width, height } = Dimensions.get('window');
 const GAME_DURATION = 30;
-const COIN_SIZE = 56;
+const COIN_SIZE = 80;
 const HUD_HEIGHT = 90; // Высота верхней панели, чтобы монетки не лезли на кнопки
 
 export default function CatchCoinGame({ navigation }) {
@@ -43,7 +43,7 @@ export default function CatchCoinGame({ navigation }) {
       const id = idRef.current++;
       const x = Math.random() * (width - COIN_SIZE - 20) + 10;
       setCoins((prev) => [...prev, { id, x }]);
-    }, 600);
+    }, 800);
     return () => clearInterval(spawn);
   }, [running]);
 
@@ -134,7 +134,7 @@ function FallingCoin({ x, onCatch, onMiss }) {
   const y = useRef(new Animated.Value(startY)).current;
   
   // 🚀 ИЗМЕНЕНИЕ 2: Падают БЫСТРЕЕ (от 1.2 до 1.8 секунды вместо 3.5-5)
-  const duration = 1200 + Math.random() * 600; 
+  const duration = 2500 + Math.random() * 1500; 
 
 
   useEffect(() => {
@@ -150,6 +150,7 @@ function FallingCoin({ x, onCatch, onMiss }) {
   return (
     <Animated.View style={[styles.coin, { left: x, transform: [{ translateY: y }] }]}>
       <TouchableOpacity onPress={onCatch} activeOpacity={0.7} style={styles.coinTouch}>
+         hitSlop={{ top: 25, bottom: 25, left: 25, right: 25 }}
         <Text style={styles.coinEmoji}>🪙</Text>
       </TouchableOpacity>
     </Animated.View>
@@ -202,7 +203,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   coinEmoji: {
-    fontSize: 40,
+    fontSize: 60,
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
