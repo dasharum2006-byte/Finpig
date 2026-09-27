@@ -220,7 +220,7 @@ export default function HomeScreen({ route, navigation }) {
                 </View>
               </View>
 
-              {/* <View
+              <View
                 style={[
                   styles.hungerBadge,
                   isHungry && styles.hungerBadgeDanger,
@@ -235,32 +235,7 @@ export default function HomeScreen({ route, navigation }) {
                 >
                   {hungerDisplay}%
                 </Text>
-              </View> */}
-              <View
-              style={[
-                styles.hungerBadge,
-                isHungry && styles.hungerBadgeDanger,
-              ]}
-            >
-              <View 
-                style={[
-                  styles.hungerProgressFill, 
-                  isHungry && styles.hungerProgressFillDanger,
-                  { height: `${hungerDisplay}%` } 
-                ]} 
-              />
-
-              <Text style={styles.hungerEmoji}>🍽️</Text>
-              <Text
-                style={[
-                  styles.hungerText,
-                  isHungry && styles.hungerTextDanger,
-                ]}
-              >
-                {hungerDisplay}%
-              </Text>
-            </View>
-
+              </View>
 
               <TouchableOpacity
                 style={styles.balanceBadge}
@@ -322,7 +297,7 @@ export default function HomeScreen({ route, navigation }) {
 
             <TouchableOpacity
               style={styles.actionButton}
-              onPress={() => navigation.navigate('World')}
+              onPress={() => navigation.navigate('WorldScreen')}
             >
               <Text style={styles.actionEmoji}>🌍</Text>
               <Text style={styles.actionText}>Мир</Text>
@@ -386,396 +361,176 @@ export default function HomeScreen({ route, navigation }) {
   );
 }
 
-// const styles = StyleSheet.create({
-//   container: { flex: 1, backgroundColor: colors.background },
-//   room: { flex: 1, justifyContent: 'space-between' },
-
-//   emptyState: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
-//   emptyText: { fontSize: 18, color: colors.text, marginBottom: 8, fontWeight: '600' },
-//   emptySubText: { fontSize: 14, color: colors.textSecondary, marginBottom: 16 },
-//   emptyButton: { backgroundColor: colors.accent, paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12 },
-//   emptyButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
-
-//   topBar: {
-//     flexDirection: 'row',
-//     justifyContent: 'space-between',
-//     alignItems: 'flex-start',
-//     paddingHorizontal: 16,
-//     paddingTop: 12,
-//   },
-//   namePlate: {
-//     backgroundColor: colors.accent,
-//     paddingHorizontal: 20,
-//     paddingVertical: 12,
-//     borderRadius: 24,
-//   },
-//   petName: { color: '#fff', fontSize: 18, fontWeight: '700' },
-
-//   rightColumn: { alignItems: 'flex-end', gap: 10 },
-//   rightTopRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-
-//   levelBadge: {
-//     backgroundColor: '#f1c40f',
-//     paddingHorizontal: 14,
-//     paddingVertical: 10,
-//     borderRadius: 20,
-//   },
-//   levelBadgeText: { fontSize: 16, fontWeight: '700', color: '#333' },
-
-//   heartsRow: {
-//     flexDirection: 'row',
-//     backgroundColor: 'rgba(255,255,255,0.85)',
-//     paddingHorizontal: 14,
-//     paddingVertical: 10,
-//     borderRadius: 24,
-//   },
-//   heart: { fontSize: 26, marginHorizontal: 2 },
-//   heartEmpty: { opacity: 0.5 },
-
-//   hungerBadge: {
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//     backgroundColor: '#e0e0e0',
-//     paddingHorizontal: 14,
-//     paddingVertical: 10,
-//     borderRadius: 20,
-//     gap: 6,
-//   },
-//   hungerBadgeDanger: { backgroundColor: '#ff4d4d' },
-//   hungerEmoji: { fontSize: 18 },
-//   hungerText: { fontSize: 16, fontWeight: '700', color: '#333' },
-//   hungerTextDanger: { color: '#fff' },
-
-//   balanceBadge: {
-//     backgroundColor: colors.accent,
-//     paddingHorizontal: 20,
-//     paddingVertical: 12,
-//     borderRadius: 20,
-//   },
-//   balanceBadgeText: { fontSize: 18, fontWeight: '700', color: '#fff' },
-
-//   petWrapper: {
-//     flex: 1,
-//     alignItems: 'center',
-//     justifyContent: 'flex-end',
-//     paddingTop: 20,
-//   },
-//   petImage: {},
-
-//   progressTrack: {
-//     marginTop: 14,
-//     width: width - 32,
-//     height: 18,
-//     borderRadius: 9,
-//     backgroundColor: 'rgba(255,255,255,0.6)',
-//     overflow: 'hidden',
-//     borderWidth: 1,
-//     borderColor: colors.border,
-//   },
-//   progressFill: { height: '100%', backgroundColor: colors.accent, borderRadius: 9 },
-
-//   stageIndicator: {
-//     flexDirection: 'row',
-//     marginTop: 10,
-//     gap: 8,
-//   },
-//   stageDot: {
-//     width: 10,
-//     height: 10,
-//     borderRadius: 5,
-//     backgroundColor: 'rgba(255,255,255,0.6)',
-//     borderWidth: 1,
-//     borderColor: colors.border,
-//   },
-//   stageDotFilled: {
-//     backgroundColor: colors.accent,
-//     borderColor: colors.accent,
-//   },
-
-//   swipeHint: {
-//     marginTop: 10,
-//     fontSize: 12,
-//     color: colors.textSecondary,
-//     fontStyle: 'italic',
-//     textAlign: 'center',
-//     paddingHorizontal: 20,
-//   },
-
-//   bottomBar: {
-//     flexDirection: 'row',
-//     justifyContent: 'space-around',
-//     alignItems: 'center',
-//     paddingHorizontal: 8,
-//     paddingVertical: 14,
-//     backgroundColor: 'rgba(255,255,255,0.92)',
-//     borderTopLeftRadius: 24,
-//     borderTopRightRadius: 24,
-//     borderTopWidth: 1,
-//     borderTopColor: colors.border,
-//   },
-//   actionButton: { alignItems: 'center', paddingVertical: 8, paddingHorizontal: 16, minWidth: 100 },
-//   actionEmoji: { fontSize: 26, marginBottom: 4 },
-//   actionText: { fontSize: 13, color: colors.text, fontWeight: '600' },
-
-//   flash: { ...StyleSheet.absoluteFillObject, backgroundColor: '#fff', opacity: 0.9 },
-
-//   modalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.35)', justifyContent: 'flex-end' },
-//   modalSheet: {
-//     backgroundColor: colors.background,
-//     borderTopLeftRadius: 24,
-//     borderTopRightRadius: 24,
-//     paddingHorizontal: 24,
-//     paddingTop: 12,
-//     paddingBottom: 32,
-//     minHeight: 220,
-//   },
-//   modalHandle: { alignSelf: 'center', width: 44, height: 5, borderRadius: 3, backgroundColor: colors.border, marginBottom: 16 },
-//   modalTitle: { fontSize: 22, fontWeight: '700', color: colors.text, marginBottom: 12 },
-//   modalButton: { backgroundColor: colors.accent, paddingVertical: 14, borderRadius: 14, alignItems: 'center', marginTop: 16 },
-//   modalButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
-//   roomScroll: { paddingVertical: 4, paddingRight: 8 },
-//   roomOption: {
-//     width: 110,
-//     marginRight: 12,
-//     borderRadius: 12,
-//     overflow: 'hidden',
-//     borderWidth: 2,
-//     borderColor: 'transparent',
-//     backgroundColor: colors.cardBg,
-//   },
-//   roomOptionActive: { borderColor: colors.accent },
-//   roomThumb: { width: '100%', height: 110 },
-//   roomLabel: { fontSize: 12, textAlign: 'center', paddingVertical: 6, color: colors.text, fontWeight: '600' },
-//   roomCheck: {
-//     position: 'absolute',
-//     top: 6,
-//     right: 6,
-//     width: 24,
-//     height: 24,
-//     borderRadius: 12,
-//     backgroundColor: colors.accent,
-//     alignItems: 'center',
-//     justifyContent: 'center',
-//   },
-//   roomCheckText: { color: '#fff', fontSize: 13, fontWeight: '700' },
-// });
 const styles = StyleSheet.create({
-
-  container: { flex: 1 },
+  container: { flex: 1, backgroundColor: colors.background },
   room: { flex: 1, justifyContent: 'space-between' },
 
   emptyState: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
-  emptyText: { fontSize: 18, color: '#2C3E50', marginBottom: 8, fontWeight: '600' },
-  emptySubText: { fontSize: 14, color: '#7F8C8D', marginBottom: 16 },
-  emptyButton: { backgroundColor: '#FF6B8B', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12 },
+  emptyText: { fontSize: 18, color: colors.text, marginBottom: 8, fontWeight: '600' },
+  emptySubText: { fontSize: 14, color: colors.textSecondary, marginBottom: 16 },
+  emptyButton: { backgroundColor: colors.accent, paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12 },
   emptyButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
 
   topBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    paddingHorizontal: 20,
-    paddingTop: 50, 
+    paddingHorizontal: 16,
+    paddingTop: 12,
   },
-  
   namePlate: {
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 18,
+    backgroundColor: colors.accent,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 24,
+  },
+  petName: { color: '#fff', fontSize: 18, fontWeight: '700' },
+
+  rightColumn: { alignItems: 'flex-end', gap: 10 },
+  rightTopRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+
+  levelBadge: {
+    backgroundColor: '#f1c40f',
+    paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 20,
-    borderWidth: 2,
-    borderColor: '#E4E7EB',
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
   },
-  petName: { color: '#2C3E50', fontSize: 16, fontWeight: '800' },
-
-  rightColumn: { alignItems: 'flex-end', gap: 12 },
-  rightTopRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-
- 
-  levelBadge: {
-    backgroundColor: '#FFD15C',
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 16,
-    borderWidth: 1.5,
-    borderColor: '#E6B800',
-  },
-  levelBadgeText: { fontSize: 14, fontWeight: '800', color: '#5C4300' },
-
+  levelBadgeText: { fontSize: 16, fontWeight: '700', color: '#333' },
 
   heartsRow: {
     flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 18,
-    borderWidth: 1.5,
-    borderColor: '#E4E7EB',
+    backgroundColor: 'rgba(255,255,255,0.85)',
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 24,
   },
-  heart: { fontSize: 20, marginHorizontal: 1 },
-  heartEmpty: { opacity: 0.25 },
-
+  heart: { fontSize: 26, marginHorizontal: 2 },
+  heartEmpty: { opacity: 0.5 },
 
   hungerBadge: {
-    width: 60,
-    height: 60,
-    borderRadius: 16,
-    backgroundColor: '#FFFFFF', 
-    borderWidth: 3,
-    borderColor: '#2ECC71', 
-    justifyContent: 'center',
-    alignItems: 'center',
-    overflow: 'hidden', 
-    position: 'relative',
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-
-  hungerBadgeDanger: { borderColor: '#E74C3C' },
-  
-
-  hungerProgressFill: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: 'rgba(46, 204, 113, 0.25)', 
-  },
-  hungerProgressFillDanger: {
-    backgroundColor: 'rgba(231, 76, 60, 0.3)', 
-  },
-  hungerEmoji: { fontSize: 24, zIndex: 2 }, 
-  hungerText: { 
-    fontSize: 11, 
-    fontWeight: '800', 
-    color: '#27AE60', 
-    zIndex: 2, 
-    marginTop: -2 
-  },
-  hungerTextDanger: { color: '#C0392B' },
-
-  balanceBadge: {
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 18,
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#e0e0e0',
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 20,
     gap: 6,
-    borderWidth: 2,
-    borderColor: '#F1C40F',
   },
-  balanceBadgeText: { fontSize: 15, fontWeight: '800', color: '#F39C12' },
+  hungerBadgeDanger: { backgroundColor: '#ff4d4d' },
+  hungerEmoji: { fontSize: 18 },
+  hungerText: { fontSize: 16, fontWeight: '700', color: '#333' },
+  hungerTextDanger: { color: '#fff' },
 
+  balanceBadge: {
+    backgroundColor: colors.accent,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 20,
+  },
+  balanceBadgeText: { fontSize: 18, fontWeight: '700', color: '#fff' },
 
   petWrapper: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingBottom: 40,
+    justifyContent: 'flex-end',
+    paddingTop: 20,
   },
-  petImage: {
-  
-  },
+  petImage: {},
 
   progressTrack: {
     marginTop: 14,
-    width: '80%',
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: '#E4E7EB',
+    width: width - 32,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: 'rgba(255,255,255,0.6)',
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: colors.border,
   },
-  progressFill: { height: '100%', backgroundColor: '#3498DB', borderRadius: 6 },
+  progressFill: { height: '100%', backgroundColor: colors.accent, borderRadius: 9 },
 
   stageIndicator: {
     flexDirection: 'row',
-    marginTop: 12,
-    gap: 6,
+    marginTop: 10,
+    gap: 8,
   },
   stageDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#D1D5DB',
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: 'rgba(255,255,255,0.6)',
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   stageDotFilled: {
-    backgroundColor: '#3498DB',
+    backgroundColor: colors.accent,
+    borderColor: colors.accent,
   },
 
   swipeHint: {
     marginTop: 10,
-    fontSize: 13,
-    color: '#9CA3AF',
-    fontWeight: '500',
+    fontSize: 12,
+    color: colors.textSecondary,
+    fontStyle: 'italic',
     textAlign: 'center',
+    paddingHorizontal: 20,
   },
 
   bottomBar: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    marginHorizontal: 16,
-    marginBottom: 20,
-    paddingVertical: 12,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 24,
-    shadowColor: '#000',
-    shadowOpacity: 0.06,
-    shadowRadius: 10,
-    elevation: 5,
-    borderWidth: 1,
-    borderColor: '#E4E7EB',
+    paddingHorizontal: 8,
+    paddingVertical: 14,
+    backgroundColor: 'rgba(255,255,255,0.92)',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
   },
-  actionButton: { alignItems: 'center', justifyContent: 'center', paddingVertical: 4, flex: 1 },
-  actionEmoji: { fontSize: 24, marginBottom: 2 },
-  actionText: { fontSize: 12, color: '#4B5563', fontWeight: '700' },
+  actionButton: { alignItems: 'center', paddingVertical: 8, paddingHorizontal: 16, minWidth: 100 },
+  actionEmoji: { fontSize: 26, marginBottom: 4 },
+  actionText: { fontSize: 13, color: colors.text, fontWeight: '600' },
 
   flash: { ...StyleSheet.absoluteFillObject, backgroundColor: '#fff', opacity: 0.9 },
 
-  modalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
+  modalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.35)', justifyContent: 'flex-end' },
   modalSheet: {
-    backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
+    backgroundColor: colors.background,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
     paddingHorizontal: 24,
     paddingTop: 12,
     paddingBottom: 32,
-    minHeight: 240,
+    minHeight: 220,
   },
-  modalHandle: { alignSelf: 'center', width: 40, height: 5, borderRadius: 2.5, backgroundColor: '#E5E7EB', marginBottom: 16 },
-  modalTitle: { fontSize: 20, fontWeight: '800', color: '#1F2937', marginBottom: 12 },
-  modalButton: { backgroundColor: '#3498DB', paddingVertical: 14, borderRadius: 16, alignItems: 'center', marginTop: 16 },
+  modalHandle: { alignSelf: 'center', width: 44, height: 5, borderRadius: 3, backgroundColor: colors.border, marginBottom: 16 },
+  modalTitle: { fontSize: 22, fontWeight: '700', color: colors.text, marginBottom: 12 },
+  modalButton: { backgroundColor: colors.accent, paddingVertical: 14, borderRadius: 14, alignItems: 'center', marginTop: 16 },
   modalButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
   roomScroll: { paddingVertical: 4, paddingRight: 8 },
   roomOption: {
     width: 110,
     marginRight: 12,
-    borderRadius: 14,
+    borderRadius: 12,
     overflow: 'hidden',
-    backgroundColor: '#F3F4F6',
     borderWidth: 2,
     borderColor: 'transparent',
+    backgroundColor: colors.cardBg,
   },
-  roomOptionActive: { borderColor: '#3498DB' },
+  roomOptionActive: { borderColor: colors.accent },
   roomThumb: { width: '100%', height: 110 },
-  roomLabel: { fontSize: 12, textAlign: 'center', paddingVertical: 6, color: '#1F2937', fontWeight: '700' },
+  roomLabel: { fontSize: 12, textAlign: 'center', paddingVertical: 6, color: colors.text, fontWeight: '600' },
   roomCheck: {
     position: 'absolute',
     top: 6,
     right: 6,
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    backgroundColor: '#3498DB',
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  roomCheckText: { color: '#fff', fontSize: 12, fontWeight: '700' },
+  roomCheckText: { color: '#fff', fontSize: 13, fontWeight: '700' },
 });
