@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Dimensions, ScrollView, Image, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useBank } from '../context/BankContext';
 
 const { width } = Dimensions.get('window');
 
@@ -87,7 +88,7 @@ export default function LevelFourScreen({ navigation, route }) {
   const [sortItems, setSortItems] = useState([]);
   const [isSortCorrect, setIsSortCorrect] = useState(false);
   const [showCorrectHint, setShowCorrectHint] = useState(false);
-  
+  const bank = useBank(); 
   const step = LEVEL_FOUR_STEPS[currentStepIndex];
 
   useEffect(() => {
@@ -139,11 +140,17 @@ export default function LevelFourScreen({ navigation, route }) {
 
   const handleOptionPress = (option, optIndex) => {
     if (isAnswered) return;
+    if (savedAnswers[currentStepIndex] !== undefined) {
+      console.log("На этот вопрос уже отвечали");
+      return; 
+    }
     setSelectedOption(option);
     setIsAnswered(true);
     saveAnswer(currentStepIndex, optIndex);
     if (option.isCorrect) {
       setScore(prev => prev + 1);
+      bank.addCoins(20);
+            Alert.alert("+20 монет уже на твоём счёте");
     }
   };
 
@@ -166,6 +173,10 @@ export default function LevelFourScreen({ navigation, route }) {
   };
 
   const checkSortOrder = () => {
+    if (savedSortOrders[currentStepIndex] !== undefined) {
+      console.log("Эта сортировка уже выполнена");
+      return;
+    }
     const userOrder = sortItems.map(item => item.id);
     const isCorrect = JSON.stringify(userOrder) === JSON.stringify(step.correctOrder);
     setIsAnswered(true);
@@ -173,6 +184,8 @@ export default function LevelFourScreen({ navigation, route }) {
     if (isCorrect) {
       setIsSortCorrect(true);
       setScore(prev => prev + 1);
+      bank.addCoins(20); 
+            Alert.alert("+20 монет за правильный порядок");
     } else {
       setIsSortCorrect(false);
       setTimeout(() => {
@@ -221,16 +234,7 @@ export default function LevelFourScreen({ navigation, route }) {
       setShowCorrectHint(false);
     } else {
       saveProgress(LEVEL_FOUR_STEPS.length + 1);
-      Alert.alert(
-        'Блок 4 пройден', 
-        `Ты настоящий Финансовый Гуру. Результат: ${score + (isSortCorrect ? 1 : 0)} из ${LEVEL_FOUR_STEPS.length}.`,
-        [{ 
-          text: 'Круто!', 
-          onPress: () => {
-            navigation.goBack(); 
-          } 
-        }]
-      );
+      navigation.goBack(); 
     }
   };
 
@@ -246,7 +250,7 @@ export default function LevelFourScreen({ navigation, route }) {
           <Text style={styles.backText}>Выйти</Text>
         </TouchableOpacity>
         <Text style={styles.mainTitle}>Блок 4: Шаг {currentStepIndex + 1} из {LEVEL_FOUR_STEPS.length}</Text>
-        <Text style={styles.scoreText}>🪙 {score * 10}</Text>
+        <Text style={styles.scoreText}>🪙 {Math.floor(bank.balance)}</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -262,7 +266,7 @@ export default function LevelFourScreen({ navigation, route }) {
           {step.type === 'sort' ? (
             <View style={styles.sortContainer}>
               {isAnswered && !isSortCorrect && showCorrectHint && (
-                <Text style={styles.hintText}>✨ Смотри, как надо было:</Text>
+                <Text style={styles.hintText}>Смотри, как надо было:</Text>
               )}
 
               {sortItems.map((item, index) => {
