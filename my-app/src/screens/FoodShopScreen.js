@@ -3,7 +3,8 @@ import { StyleSheet,Text,View,Image,Modal,ScrollView,ImageBackground,TouchableOp
 
 const {width} = Dimensions.get('window');
 import backgroundImage from '../../assets/fonshop.png';
-
+import { usePet } from '../context/PetContext';
+import { useBank } from '../context/BankContext'; 
 
 //БД товаров
 const SHOP_FOOD_DATA = [
@@ -43,6 +44,9 @@ const SHOP_FOOD_DATA = [
 //Добавление ЛОгики для покупок - корзина и чек!!!!!!!!!!1
 export default function FoodShopScreen({navigation}) {
     //индекс текущ активности
+    // 👇 ПОДКЛЮЧАЕМ ГЛОБАЛЬНЫЙ БАНК
+    const bank = useBank();
+    const pet = usePet();
     const [currentCategoryIndex,setCurrentCategoryIndex] = useState(0);
 
     //Монеты  и товары в корзине
@@ -72,7 +76,8 @@ export default function FoodShopScreen({navigation}) {
         //сбрасываем старые ошибки
         setPaymentError('');
         setCart(prevCart => {
-            const existingItemIndex = SVGAnimatedPreserveAspectRatio.findIndex(item => item,id === product.id);
+             const existingItemIndex = prevCart.findIndex(item => item.id === product.id);
+            
             if (existingItemIndex > -1) {
                 const newCart = [...prevCart];
                 newCart[existingItemIndex].quantity += 1;
@@ -106,12 +111,14 @@ export default function FoodShopScreen({navigation}) {
             setPaymentError('Корзина пуста, сначала выбери пожалуйста продукты');
             return;
         }
-        if (coins < totalCost) {
+        if (bank.balance < totalCost) {
             setPaymentError('Не удалось провести оплату.На карте недостаточно денег');
             return;
         }
         //Если денег хватаем, то списываем всю сумму,затем очищаем корзину и закрываем ее
-        setCoins(prev => prev - totalCost);
+        // setCoins(prev => prev - totalCost);
+        bank.setBalance(bank.balance - totalCost);
+        pet.addFoodToInventory(cart); 
         setCart([]);
         setPaymentError('');
         setIsCartVisible(false);
@@ -161,7 +168,7 @@ return (
       <View style={styles.rightInfoColumn}>
         {/* Баланс монет */}
         <View style={styles.coinContainer}>
-          <Text style={styles.coinText}>🪙 150</Text>
+          <Text style={styles.coinText}>🪙 {Math.floor(bank.balance)}</Text>
         </View>
 
         {/* Продуктовая корзина прямо под монетами */}

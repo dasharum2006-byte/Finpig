@@ -10,7 +10,6 @@ import {
 } from 'react-native';
 import { usePet } from '../context/PetContext';
 import { getEggImage, getPetImage } from '../petsConfig';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
@@ -25,14 +24,15 @@ export default function EgyptScreen({ navigation }) {
     : require('../../assets/Animals/Pinguin/Black/pinguin1_m.png');
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom']}>
+    <View style={styles.container}>
       <ImageBackground
         source={require('../../assets/egypt.png')}
         style={styles.bg}
         resizeMode="cover"
       >
         <View style={styles.overlay}>
-          <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('WorldScreen')}>
+          {/* Исправлено имя экрана на 'World' */}
+          <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('World')}>
             <Text style={styles.backButtonText}>🗺️ На карту</Text>
           </TouchableOpacity>
 
@@ -63,13 +63,20 @@ export default function EgyptScreen({ navigation }) {
           <Image source={petImage} style={styles.petImage} />
         </View>
       </ImageBackground>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#e6b800' },
-  bg: { flex: 1 },
+  container: { 
+    flex: 1, 
+    backgroundColor: '#e6b800' 
+  },
+  bg: { 
+    flex: 1,
+    width: '100%',
+    height: '100%',
+  },
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(230, 184, 0, 0.15)',

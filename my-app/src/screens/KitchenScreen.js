@@ -9,6 +9,7 @@ import {
   PanResponder,
   Image,
   Dimensions,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../theme';
@@ -40,27 +41,30 @@ const PET_BOTTOM = {
 };
 
 // feedValue: сколько % голода прибавляет
-const PRODUCTS = [
+const FOOD_INFO = {
   // Полезное: +22%
-  { id: '1',  name: 'Борщ',          image: require('../../assets/Food/borsh.png'),        feedValue: 22 },
-  { id: '2',  name: 'Яблоко',        image: require('../../assets/Food/apple.png'),        feedValue: 22 },
-  { id: '3',  name: 'Бутерброд',     image: require('../../assets/Food/buterbrod.png'),    feedValue: 22 },
-  { id: '5',  name: 'Спагетти',      image: require('../../assets/Food/pasta.png'),        feedValue: 22 },
-  { id: '8',  name: 'Блинчики',      image: require('../../assets/Food/pancake.png'),      feedValue: 22 },
-  { id: '9',  name: 'Салат',         image: require('../../assets/Food/salade.png'),       feedValue: 22 },
-  { id: '14', name: 'Каша',          image: require('../../assets/Food/porrige.png'),      feedValue: 22 },
-  { id: '15', name: 'Вареники',      image: require('../../assets/Food/varenniki.png'),    feedValue: 22 },
-  { id: '16', name: 'Йогурт',        image: require('../../assets/Food/yogurt.png'),       feedValue: 22 },
+  '1':  {name: 'Борщ',          image: require('../../assets/Food/borsh.png'),        feedValue: 22 },
+  '2':  {name: 'Яблоко',        image: require('../../assets/Food/apple.png'),        feedValue: 22 },
+  '3':  {name: 'Бутерброд',     image: require('../../assets/Food/buterbrod.png'),    feedValue: 22 },
+  '5':  {name: 'Спагетти',      image: require('../../assets/Food/pasta.png'),        feedValue: 22 },
+  '8':  {name: 'Блинчики',      image: require('../../assets/Food/pancake.png'),      feedValue: 22 },
+  '9':  {name: 'Салат',         image: require('../../assets/Food/salade.png'),       feedValue: 22 },
+  '14': {name: 'Каша',          image: require('../../assets/Food/porrige.png'),      feedValue: 22 },
+  '15': {name: 'Вареники',      image: require('../../assets/Food/varenniki.png'),    feedValue: 22 },
+  '16': {name: 'Йогурт',        image: require('../../assets/Food/yogurt.png'),       feedValue: 22 },
 
   // Вкусняшки: +10%
-  { id: '4',  name: 'Морс и малина', image: require('../../assets/Food/mors.png'),         feedValue: 10 },
-  { id: '6',  name: 'Печеньки',      image: require('../../assets/Food/cookies.png'),      feedValue: 10 },
-  { id: '7',  name: 'Круасан',       image: require('../../assets/Food/croissant.png'),    feedValue: 10 },
-  { id: '10', name: 'Сок',           image: require('../../assets/Food/applejuice.png'),   feedValue: 10 },
-  { id: '11', name: 'Бургер',        image: require('../../assets/Food/burger.png'),       feedValue: 10 },
-  { id: '12', name: 'Торт',          image: require('../../assets/Food/cake.png'),         feedValue: 10 },
-  { id: '13', name: 'Газировка',     image: require('../../assets/Food/cola.png'),         feedValue: 10 },
-];
+  '4':  {name: 'Морс и малина', image: require('../../assets/Food/mors.png'),         feedValue: 10 },
+  '6':  {name: 'Печеньки',      image: require('../../assets/Food/cookies.png'),      feedValue: 10 },
+  '7':  {name: 'Круасан',       image: require('../../assets/Food/croissant.png'),    feedValue: 10 },
+  '10': {name: 'Сок',           image: require('../../assets/Food/applejuice.png'),   feedValue: 10 },
+  '11': {name: 'Бургер',        image: require('../../assets/Food/burger.png'),       feedValue: 10 },
+  '12': {name: 'Торт',          image: require('../../assets/Food/cake.png'),         feedValue: 10 },
+  '13': {name: 'Газировка',     image: require('../../assets/Food/cola.png'),         feedValue: 10 },
+
+  // Запасной варинат когда картинки нету
+    'fallback': { name: 'Вкусная еда', image: require('../../assets/Food/borsh.png'), feedValue: 15 },
+};
 
 export default function KitchenScreen({ navigation }) {
   const petCtx = usePet();
@@ -102,35 +106,69 @@ export default function KitchenScreen({ navigation }) {
   };
 
   const scrollRight = () => {
-    if (currentIndex < PRODUCTS.length - 1) {
+     const invLength = petCtx.inventory?.length || 0;
+    if (currentIndex < invLength - 1) {
       const nextIndex = currentIndex + 1;
       setCurrentIndex(nextIndex);
       FlatListRef.current?.scrollToIndex({ index: nextIndex, animated: true });
     }
   };
 
+    // ─── ЛОГИКА КОРМЛЕНИЯ ───
+  const handleFeed = (item) => {
+    // 1. Проверяем, есть ли еда в инвентаре
+    const invItem = petCtx.inventory.find((i) => i.id === item.id);
+    if (!invItem || invItem.quantity <= 0) {
+      Alert.alert('Эта еда закончилась. Купи ещё в магазине 🛒');
+      return;
+    }
+
+    // 2. Получаем данные о еде (картинка, сытость)
+    const foodData = FOOD_INFO[item.id] || FOOD_INFO['fallback'];
+
+    // 3. Кормим питомца
+    petCtx.feedPet(foodData.feedValue);
+
+    // 4. УДАЛЯЕМ 1 шт. из инвентаря!
+    petCtx.consumeFood(item.id);
+
+    const bonus = foodData.feedValue >= 20 ? '🍲 Сытная еда!' : '🍬 Вкусняшка!';
+    Alert.alert(
+      'Ням-ням! 🐷',
+      `Ты покормил питомца: ${foodData.name}\n${bonus} Сытость +${foodData.feedValue}%\nОсталось: ${invItem.quantity - 1} шт.`
+    );
+  };
   const toggleEaten = (id) => {
     setEaten((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  const handleFeed = (item) => {
-    petCtx.feedPet(item.feedValue);
+  // const handleFeed = (item) => {
+  //   petCtx.feedPet(item.feedValue);
 
-    const bonus = item.feedValue >= 20 ? '🍲 Сытная еда!' : '🍬 Вкусняшка!';
-    alert(
-      `Ты покормил питомца: ${item.name}\n` +
-      `${bonus} Сытость +${item.feedValue}%`
-    );
-  };
+  //   const bonus = item.feedValue >= 20 ? '🍲 Сытная еда!' : '🍬 Вкусняшка!';
+  //   alert(
+  //     `Ты покормил питомца: ${item.name}\n` +
+  //     `${bonus} Сытость +${item.feedValue}%`
+  //   );
+  // };
 
   const renderFoodItem = ({ item }) => {
+    // Находим визуальные данные для этого предмета инвентаря
+    const foodData = FOOD_INFO[item.id] || FOOD_INFO['fallback'];
+    const isDisabled = item.quantity <= 0;
     return (
       <TouchableOpacity
-        style={styles.foodCard}
+        style={[styles.foodCard, isDisabled && styles.disabledCard]}
         activeOpacity={0.8}
         onPress={() => handleFeed(item)}
+        disabled={isDisabled}
       >
-        <Image source={item.image} style={styles.foodImage} />
+        <Image source={foodData.image} style={styles.foodImage} />
+        {/* Бейдж с количеством */}
+        <View style={styles.quantityBadge}>
+          <Text style={styles.quantityText}>{item.quantity}</Text>
+        </View>
+        <Text style={styles.foodName} numberOfLines={1}>{foodData.name}</Text>
       </TouchableOpacity>
     );
   };
@@ -166,9 +204,16 @@ export default function KitchenScreen({ navigation }) {
                 <Text style={styles.arrowText}>◀</Text>
               </TouchableOpacity>
 
+               {(!petCtx.inventory || petCtx.inventory.length === 0) ? (
+                <View style={styles.emptyFridge}>
+                  <Text style={styles.emptyFridgeText}>🧊 Холодильник пуст!</Text>
+                  <Text style={styles.emptyFridgeSubtext}>Сходи в магазин за едой</Text>
+                </View>
+              ) : (
+
               <FlatList
                 ref={FlatListRef}
-                data={PRODUCTS}
+                data={petCtx.inventory}
                 keyExtractor={(item) => item.id}
                 renderItem={renderFoodItem}
                 horizontal
@@ -183,14 +228,14 @@ export default function KitchenScreen({ navigation }) {
                   setCurrentIndex(index);
                 }}
               />
-
+              )}
               <TouchableOpacity
                 style={[
-                  styles.arrowButton,
-                  currentIndex === PRODUCTS.length - 1 && styles.disabledArrow,
+                   styles.arrowButton,
+                  (!petCtx.inventory || currentIndex >= petCtx.inventory.length - 1) && styles.disabledArrow,
                 ]}
                 onPress={scrollRight}
-                disabled={currentIndex === PRODUCTS.length - 1}
+                disabled={!petCtx.inventory || currentIndex >= petCtx.inventory.length - 1}
               >
                 <Text style={styles.arrowText}>▶</Text>
               </TouchableOpacity>
@@ -273,4 +318,18 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 10,
   },
+  quantityBadge: {
+    position: 'absolute', top: 5, right: 5, backgroundColor: '#FF5722',
+    borderRadius: 12, width: 24, height: 24, justifyContent: 'center',
+    alignItems: 'center', borderWidth: 2, borderColor: '#fff',
+  },
+  quantityText: { color: '#fff', fontSize: 12, fontWeight: 'bold' },
+  foodName: { fontSize: 11, fontWeight: 'bold', color: '#333', textAlign: 'center', marginTop: 4, paddingHorizontal: 4 },
+  emptyFridge: { flex: 1, justifyContent: 'center', alignItems: 'center', width: width * 0.6 },
+  emptyFridgeText: { fontSize: 18, fontWeight: 'bold', color: '#555', textAlign: 'center' },
+  emptyFridgeSubtext: { fontSize: 14, color: '#888', marginTop: 5, textAlign: 'center' },
+  swipeHint: {
+    position: 'absolute', top: 50, textAlign: 'center', fontSize: 12, color: '#666',
+    fontStyle: 'italic', backgroundColor: 'rgba(255,255,255,0.7)',
+    paddingHorizontal: 12, paddingVertical: 4, borderRadius: 10,}
 });

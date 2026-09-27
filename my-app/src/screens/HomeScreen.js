@@ -297,7 +297,7 @@ export default function HomeScreen({ route, navigation }) {
 
             <TouchableOpacity
               style={styles.actionButton}
-              onPress={() => navigation.navigate('WorldScreen')}
+              onPress={() => navigation.navigate('World')}
             >
               <Text style={styles.actionEmoji}>🌍</Text>
               <Text style={styles.actionText}>Мир</Text>

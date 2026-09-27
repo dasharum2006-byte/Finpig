@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, Text, View, Image, Animated, Easing } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import { Asset } from 'expo-asset';
 
 //Навигация
 import { NavigationContainer } from '@react-navigation/native';

@@ -24,6 +24,7 @@ export function PetProvider({ children }) {
   const [pet, setPet] = useState(null);
   const [lastFed, setLastFed] = useState(null);
   const [hunger, setHunger] = useState(HUNGER_MAX);
+  const [inventory, setInventory] = useState([]); 
 
   // ─── Загрузка ───
   useEffect(() => {
@@ -36,6 +37,7 @@ export function PetProvider({ children }) {
           const savedLastFed = s.lastFed ?? Date.now();
           setLastFed(savedLastFed);
           setHunger(computeHunger(savedLastFed));
+          setInventory(s.inventory ?? []);
         } else {
           setLastFed(Date.now());
           setHunger(HUNGER_MAX);
@@ -53,9 +55,9 @@ export function PetProvider({ children }) {
     if (!isLoaded) return;
     AsyncStorage.setItem(
       STORAGE_KEY,
-      JSON.stringify({ pet, lastFed })
-    ).catch((e) => console.error('Pet save error:', e));
-  }, [isLoaded, pet, lastFed]);
+      JSON.stringify({ pet, lastFed, hunger, inventory })
+     ).catch((e) => console.error('Pet save error:', e));
+  }, [isLoaded, pet, lastFed, hunger, inventory]);
 
   // ─── Тикер: обновляем голод каждые 30 секунд ───
   useEffect(() => {
@@ -121,6 +123,36 @@ export function PetProvider({ children }) {
     setHunger(HUNGER_MAX);
   }, []);
 
+// Добавить купленную еду в инвентарь
+  const addFoodToInventory = useCallback((newItems) => {
+    setInventory((prev) => {
+      const updated = [...prev];
+      newItems.forEach((newItem) => {
+        const existingIndex = updated.findIndex((item) => item.id === newItem.id);
+        if (existingIndex > -1) {
+          updated[existingIndex].quantity += newItem.quantity;
+        } else {
+          updated.push({ ...newItem });
+        }
+      });
+      return updated;
+    });
+  }, []);
+
+  // Потратить 1 единицу еды при кормлении
+  const consumeFood = useCallback((itemId) => {
+    setInventory((prev) => {
+      return prev
+        .map((item) => {
+          if (item.id === itemId) {
+            return { ...item, quantity: item.quantity - 1 };
+          }
+          return item;
+        })
+        .filter((item) => item.quantity > 0);
+    });
+  }, []);
+
   return (
     <PetContext.Provider
       value={{
@@ -128,11 +160,14 @@ export function PetProvider({ children }) {
         pet,
         hunger,
         lastFed,
+        inventory,
         setNewPet,
         hatchPet,
         evolvePet,
         feedPet,
         clearPet,
+        addFoodToInventory,     
+        consumeFood, 
         HUNGER_MAX,
       }}
     >
