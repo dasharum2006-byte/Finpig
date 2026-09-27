@@ -65,6 +65,7 @@ export default function ArcticBankScreen({ navigation }) {
           </TouchableOpacity>
         </View>
 
+        {/* 🔧 УВЕЛИЧЕН банкир */}
         <Image source={petImage} style={styles.bankerImage} />
       </View>
     </SafeAreaView>
@@ -154,12 +155,13 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
   },
   buttonText: { fontSize: 16, fontWeight: 'bold', color: '#006064' },
+  // 🔧 УВЕЛИЧЕН банкир (было 130×130, стало 200×200)
   bankerImage: {
     position: 'absolute',
-    bottom: 30,
-    left: 20,
-    width: 130,
-    height: 130,
+    bottom: 20,
+    left: 10,
+    width: 200,
+    height: 200,
     resizeMode: 'contain',
   },
 });

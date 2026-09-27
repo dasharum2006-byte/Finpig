@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Dimensions, ScrollView, Image, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useBank } from '../context/BankContext';
-
 const { width } = Dimensions.get('window');
 
 const LEVEL_FIVE_STEPS = [
@@ -46,17 +45,17 @@ const LEVEL_FIVE_STEPS = [
     text: 'У тебя есть 1000 монет. Расположи варианты вложений от самого надежного (сверху) до самого рискованного (снизу).',
     question: 'Расположи от самого надежного к самому рискованному (сверху вниз):',
     initialItems: [
-      { id: 'inv3', text: '3. Купить акции неизвестной компании-стартапа' },
-      { id: 'inv1', text: '1. Положить в банк под гарантированный процент' },
-      { id: 'inv4', text: '4. Вложить все в одну криптовалюту' },
-      { id: 'inv2', text: '2. Купить облигации крупной компании' },
+      { id: 'inv3', text: 'Купить акции неизвестной компании-стартапа' },
+      { id: 'inv1', text: 'Положить в банк под гарантированный процент' },
+      { id: 'inv4', text: 'Вложить все в одну криптовалюту' },
+      { id: 'inv2', text: 'Купить облигации крупной компании' },
     ],
     correctOrder: ['inv1', 'inv2', 'inv3', 'inv4']
   },
   {
     id: 5,
     subTitle: 'Диверсификация ',
-    text: 'Главное правило инвестора: "Не клади все  в одну корзину" Это называется диверсификация. Если ты вложишь все деньги в одну компанию, и она разорится — ты потеряешь всё. Но если распределишь по разным местам (банк, акции, недвижимость) — даже если одно прогорит, другие спасут.',
+    text: 'Главное правило инвестора: "Не клади все в одну корзину" Это называется диверсификация. Если ты вложишь все деньги в одну компанию, и она разорится — ты потеряешь всё. Но если распределишь по разным местам (банк, акции, недвижимость) — даже если одно прогорит, другие спасут.',
     question: 'Что такое диверсификация?',
     options: [
       { text: 'Вложить все деньги в самый выгодный проект', isCorrect: false },
@@ -77,9 +76,11 @@ const LEVEL_FIVE_STEPS = [
   }
 ];
 
+const STORAGE_KEY = '@block_five_progress_v1';
+
 export default function LevelFiveScreen({ navigation, route }) {
   const startIndex = route.params?.startIndex ?? 0;
-  const bank = useBank(); 
+  const bank = useBank();
   const [currentStepIndex, setCurrentStepIndex] = useState(startIndex);
   const [selectedOption, setSelectedOption] = useState(null);
   const [isAnswered, setIsAnswered] = useState(false);
@@ -91,20 +92,11 @@ export default function LevelFiveScreen({ navigation, route }) {
   const [showCorrectHint, setShowCorrectHint] = useState(false);
   const step = LEVEL_FIVE_STEPS[currentStepIndex];
 
-
-  // const saveProgress = async (stepId) => {
-  //   try {
-  //     await AsyncStorage.setItem('@block_five_progress_v1', stepId.toString());
-  //   } catch (e) {
-  //     console.error('Ошибка сохранения прогресса Блока 5:', e);
-  //   }
-  // };
-
   useEffect(() => {
     const loadSaved = async () => {
       try {
-        const ans = await AsyncStorage.getItem('@block_four_answers_v1');
-        const sorts = await AsyncStorage.getItem('@block_four_sorts_v1');
+        const ans = await AsyncStorage.getItem('@block_five_answers_v1');
+        const sorts = await AsyncStorage.getItem('@block_five_sorts_v1');
         if (ans) setSavedAnswers(JSON.parse(ans));
         if (sorts) setSavedSortOrders(JSON.parse(sorts));
       } catch (e) { console.error('Ошибка загрузки:', e); }
@@ -114,14 +106,14 @@ export default function LevelFiveScreen({ navigation, route }) {
 
   useEffect(() => {
     if (!step) return;
-    
+
     if (step.type === 'sort') {
       const savedOrder = savedSortOrders[currentStepIndex];
       if (savedOrder) {
         const restored = savedOrder.map(id => step.initialItems.find(i => i.id === id)).filter(Boolean);
         setSortItems(restored);
         setIsAnswered(true);
-        setIsSortCorrect(true); 
+        setIsSortCorrect(true);
         setShowCorrectHint(false);
       } else {
         setSortItems(step.initialItems);
@@ -132,7 +124,7 @@ export default function LevelFiveScreen({ navigation, route }) {
       const savedAns = savedAnswers[currentStepIndex];
       if (savedAns !== undefined) {
         setSelectedOption(step.options[savedAns]);
-        setIsAnswered(true); 
+        setIsAnswered(true);
       } else {
         setSelectedOption(null);
         setIsAnswered(false);
@@ -140,20 +132,16 @@ export default function LevelFiveScreen({ navigation, route }) {
     }
   }, [currentStepIndex, step, savedAnswers, savedSortOrders]);
 
-
   const handleOptionPress = (option, optionIndex) => {
     if (isAnswered) return;
-    if (savedAnswers[currentStepIndex] !== undefined) {
-      console.log("На этот вопрос уже отвечали");
-      return; 
-    }
+    if (savedAnswers[currentStepIndex] !== undefined) return;
     setSelectedOption(option);
     setIsAnswered(true);
     saveAnswer(currentStepIndex, optionIndex);
     if (option.isCorrect) {
       setScore(prev => prev + 1);
       bank.addCoins(20);
-            Alert.alert("+20 монет уже на твоём счёте");
+      Alert.alert("+20 монет уже на твоём счёте");
     }
   };
 
@@ -176,23 +164,20 @@ export default function LevelFiveScreen({ navigation, route }) {
   };
 
   const checkSortOrder = () => {
-    if (savedSortOrders[currentStepIndex] !== undefined) {
-      console.log("Эта сортировка уже выполнена");
-      return;
-    }
+    if (savedSortOrders[currentStepIndex] !== undefined) return;
     const userOrder = sortItems.map(item => item.id);
     const isCorrect = JSON.stringify(userOrder) === JSON.stringify(step.correctOrder);
     setIsAnswered(true);
-    saveSortOrder(currentStepIndex, userOrder); 
+    saveSortOrder(currentStepIndex, userOrder);
     if (isCorrect) {
       setIsSortCorrect(true);
       setScore(prev => prev + 1);
-      bank.addCoins(20); 
-            Alert.alert("+20 монет за правильный порядок");
+      bank.addCoins(20);
+      Alert.alert("+20 монет за правильный порядок");
     } else {
       setIsSortCorrect(false);
       setTimeout(() => {
-        const correctItems = step.correctOrder.map(correctId => 
+        const correctItems = step.correctOrder.map(correctId =>
           step.initialItems.find(item => item.id === correctId)
         );
         setSortItems(correctItems);
@@ -204,17 +189,17 @@ export default function LevelFiveScreen({ navigation, route }) {
 
   const saveProgress = async (stepId) => {
     try {
-      const savedStep = await AsyncStorage.getItem('@block_five_progress_v1'); 
+      const savedStep = await AsyncStorage.getItem(STORAGE_KEY);
       const currentSaved = savedStep ? parseInt(savedStep, 10) : 1;
       if (stepId > currentSaved) {
-        await AsyncStorage.setItem('@block_five_progress_v1', stepId.toString());
+        await AsyncStorage.setItem(STORAGE_KEY, stepId.toString());
       }
     } catch (e) {
       console.error('Ошибка сохранения прогресса Блока 5:', e);
     }
   };
 
-    const saveAnswer = async (qIndex, optionIndex) => {
+  const saveAnswer = async (qIndex, optionIndex) => {
     const updated = { ...savedAnswers, [qIndex]: optionIndex };
     setSavedAnswers(updated);
     await AsyncStorage.setItem('@block_five_answers_v1', JSON.stringify(updated));
@@ -226,27 +211,26 @@ export default function LevelFiveScreen({ navigation, route }) {
     await AsyncStorage.setItem('@block_five_sorts_v1', JSON.stringify(updated));
   };
 
-
-  const handleNextStep = () => {
-    const stepToUnlock = currentStepIndex + 2;
-    saveProgress(stepToUnlock);
+  const handleNextStep = async () => {
+    const nextStep = currentStepIndex + 2;
 
     if (currentStepIndex < LEVEL_FIVE_STEPS.length - 1) {
+      await saveProgress(nextStep);
       setCurrentStepIndex(currentStepIndex + 1);
       setSelectedOption(null);
       setIsAnswered(false);
       setShowCorrectHint(false);
     } else {
-      saveProgress(LEVEL_FIVE_STEPS.length + 1);
-      navigation.goBack(); 
+      await saveProgress(7);
+      navigation.navigate('BlockFiveScreen', { highestCompletedStep: 6 });
     }
   };
 
-
   const handleExit = async () => {
     await saveProgress(currentStepIndex + 1);
-    navigation.goBack();
+    navigation.navigate('BlockFiveScreen', { highestCompletedStep: currentStepIndex + 1 });
   };
+
   return (
     <View style={styles.container}>
       <View style={styles.topBar}>
@@ -266,7 +250,7 @@ export default function LevelFiveScreen({ navigation, route }) {
 
         <View style={styles.questionCard}>
           <Text style={styles.questionText}>{step.question}</Text>
-          
+
           {step.type === 'sort' ? (
             <View style={styles.sortContainer}>
               {isAnswered && !isSortCorrect && showCorrectHint && (
@@ -276,7 +260,7 @@ export default function LevelFiveScreen({ navigation, route }) {
               {sortItems.map((item, index) => {
                 let cardStyle = styles.sortCard;
                 if (isAnswered) {
-                  cardStyle = isSortCorrect 
+                  cardStyle = isSortCorrect
                     ? { ...styles.sortCard, backgroundColor: '#C8E6C9', borderColor: '#4CAF50' }
                     : { ...styles.sortCard, backgroundColor: '#FFCDD2', borderColor: '#F44336' };
                 }
@@ -352,17 +336,17 @@ const styles = StyleSheet.create({
   mainTitle: { fontSize: 15, fontWeight: 'bold', color: '#FFF', textAlign: 'center', flex: 1, marginHorizontal: 10 },
   scoreText: { fontSize: 16, fontWeight: 'bold', color: '#FFE082' },
   scrollContent: { paddingHorizontal: 20, paddingBottom: 40 },
-  
+
   storyCard: { backgroundColor: '#FFF', padding: 15, borderRadius: 20, marginBottom: 20, borderWidth: 2, borderColor: '#FFE082' },
   subTitle: { fontSize: 16, fontWeight: 'bold', color: '#E65100', marginBottom: 8 },
   storyImage: { width: '100%', height: 160, borderRadius: 12, marginBottom: 12 },
   storyText: { fontSize: 14, color: '#333', lineHeight: 22 },
-  
+
   questionCard: { backgroundColor: '#FFF8E1', padding: 15, borderRadius: 20, marginBottom: 20 },
   questionText: { fontSize: 15, fontWeight: 'bold', color: '#5D4037', marginBottom: 15 },
   optionButton: { backgroundColor: '#FFF', padding: 12, borderRadius: 12, marginBottom: 10, borderWidth: 2, borderColor: '#E0D4B7' },
   optionText: { fontSize: 14, color: '#333', fontWeight: '500' },
-  
+
   sortContainer: { marginBottom: 10 },
   sortCard: { backgroundColor: '#FFF', padding: 12, borderRadius: 12, marginBottom: 10, borderWidth: 2, borderColor: '#E0D4B7', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   sortCardText: { fontSize: 14, color: '#333', fontWeight: '500', flex: 1, paddingRight: 10 },
@@ -371,7 +355,7 @@ const styles = StyleSheet.create({
   arrowText: { fontSize: 18 },
   checkButton: { backgroundColor: '#3b71af', padding: 12, borderRadius: 12, alignItems: 'center', marginTop: 10 },
   checkButtonText: { color: '#FFF', fontSize: 15, fontWeight: 'bold' },
-  
+
   hintText: { fontSize: 16, fontWeight: 'bold', color: '#2E7D32', textAlign: 'center', marginBottom: 10, fontStyle: 'italic' },
   nextButton: { backgroundColor: '#E65100', padding: 15, borderRadius: 15, alignItems: 'center', marginTop: 10 },
   nextButtonText: { color: '#FFF', fontSize: 16, fontWeight: 'bold' },

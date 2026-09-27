@@ -18,9 +18,8 @@ const { width } = Dimensions.get('window');
 
 export default function BankScreen({ navigation }) {
   const bank = useBank();
-  const [openSection, setOpenSection] = useState(null); // 'envelope' | 'deposit' | 'exchange' | 'loan' | null
+  const [openSection, setOpenSection] = useState(null); // 'envelope' | 'deposit' | 'exchange' | 'loan'
 
-  // При первом заходе — создать карту
   useEffect(() => {
     bank.createCard();
   }, []);
@@ -31,6 +30,9 @@ export default function BankScreen({ navigation }) {
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
       >
+        {/* 🔧 ИЗМЕНЕНО: крупный заголовок */}
+        <Text style={styles.screenTitle}>🏦 Мой Банк</Text>
+
         {/* ─── КАРТА ─── */}
         <View style={styles.card}>
           <View style={styles.cardTopRow}>
@@ -67,54 +69,55 @@ export default function BankScreen({ navigation }) {
           ))}
         </View>
 
-        {/* ─── КРЕДИТ (если есть) ─── */}
+        {/* 🔧 ИЗМЕНЕНО: кредит-баннер кликабельный */}
         {bank.loan && (
-          <View style={styles.loanBanner}>
-            <Text style={styles.loanBannerTitle}>⚠️ Активный кредит</Text>
+          <TouchableOpacity 
+            style={styles.loanBanner} 
+            onPress={() => setOpenSection('loan')}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.loanBannerTitle}>⚠️ У тебя есть кредит</Text>
             <Text style={styles.loanBannerText}>
-              Взято: {bank.loan.amount} ₽ • К возврату: {bank.loan.totalToRepay} ₽
+              Вернуть: {bank.loan.totalToRepay} ₽ • Нажми, чтобы погасить
             </Text>
-          </View>
+          </TouchableOpacity>
         )}
 
-        {/* ─── 4 СЕКЦИИ ─── */}
+        {/* 🔧 ИЗМЕНЕНО: 3 главные секции вместо 4 + убраны заблокированные */}
         <SectionButton
-          emoji="✉️"
-          title="Конверт (цель)"
+          emoji="💰"
+          title="Накопить на мечту"
           subtitle={bank.envelopes.length > 0
-            ? `${bank.envelopes.length} шт. • ${bank.envelopes.reduce((s, e) => s + e.amount, 0).toFixed(0)} ₽`
-            : 'Копи на мечту'}
+            ? `${bank.envelopes.length} конвертов • ${bank.envelopes.reduce((s, e) => s + e.amount, 0).toFixed(0)} ₽`
+            : 'Создай конверт и копи'}
           onPress={() => setOpenSection('envelope')}
         />
 
         <SectionButton
-          emoji="💰"
-          title="Накопительный счёт"
+          emoji="🏦"
+          title="Положить под проценты"
           subtitle={bank.deposit
             ? `${bank.deposit.amount.toFixed(0)} ₽ под ${bank.deposit.percent}%`
-            : 'Создай и получай %'}
+            : 'Открой накопительный счёт'}
           onPress={() => setOpenSection('deposit')}
         />
 
         <SectionButton
           emoji="💱"
-          title="Обмен валюты"
+          title="Обменять валюту"
           subtitle="RUB ⇄ CNY ⇄ EGP ⇄ ANT"
           onPress={() => setOpenSection('exchange')}
         />
 
-        <SectionButton
-          emoji="🏦"
-          title="Кредит"
-          subtitle="3 дня (8%/день) • 7 дней (5%)"
-          onPress={() => setOpenSection('loan')}
-        />
-
-        {/* ─── ЗАБЛОКИРОВАННЫЕ ─── */}
-        <View style={styles.lockedRow}>
-          <LockedButton emoji="🏠" title="Ипотека" />
-          <LockedButton emoji="🔄" title="Обменник" />
-        </View>
+        {/* Кнопка кредита — только если нет активного */}
+        {!bank.loan && (
+          <SectionButton
+            emoji="🏦"
+            title="Взять кредит"
+            subtitle="3 дня (8%/день) или 7 дней (5%)"
+            onPress={() => setOpenSection('loan')}
+          />
+        )}
 
         <TouchableOpacity
           style={styles.backButton}
@@ -167,20 +170,10 @@ function SectionButton({ emoji, title, subtitle, onPress }) {
   );
 }
 
-function LockedButton({ emoji, title }) {
-  return (
-    <View style={styles.lockedButton}>
-      <Text style={styles.lockedEmoji}>{emoji}</Text>
-      <Text style={styles.lockedTitle}>{title}</Text>
-      <Text style={styles.lockedKey}>🔒</Text>
-    </View>
-  );
-}
-
 // ─── Модалка: Конверт ───
 function EnvelopeModal({ visible, onClose }) {
   const bank = useBank();
-  const [mode, setMode] = useState('list'); // 'list' | 'create'
+  const [mode, setMode] = useState('list');
   const [goal, setGoal] = useState('');
   const [amount, setAmount] = useState('');
   const [selectedEnv, setSelectedEnv] = useState(null);
@@ -206,6 +199,7 @@ function EnvelopeModal({ visible, onClose }) {
   const handleTransfer = (env) => {
     setSelectedEnv(env);
     setMode('transfer');
+    setAmount('');
   };
 
   const confirmTransfer = () => {
@@ -337,12 +331,10 @@ function EnvelopeModal({ visible, onClose }) {
 // ─── Модалка: Накопительный счёт ───
 function DepositModal({ visible, onClose }) {
   const bank = useBank();
-  const [mode, setMode] = useState('list');
   const [percent, setPercent] = useState(5);
   const [amount, setAmount] = useState('');
 
   const reset = () => {
-    setMode('list');
     setAmount('');
     setPercent(5);
   };
@@ -617,6 +609,15 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   scroll: { padding: 16, paddingBottom: 40 },
 
+  // 🔧 ИЗМЕНЕНО: заголовок экрана
+  screenTitle: {
+    fontSize: 28,
+    fontWeight: '800',
+    color: colors.text,
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+
   // Карта
   card: {
     backgroundColor: '#2c3e50',
@@ -699,20 +700,6 @@ const styles = StyleSheet.create({
   sectionTitle: { fontSize: 16, fontWeight: '700', color: colors.text },
   sectionSubtitle: { fontSize: 12, color: colors.textSecondary, marginTop: 2 },
   sectionArrow: { fontSize: 16, color: '#bbb' },
-
-  // Заблокированные
-  lockedRow: { flexDirection: 'row', gap: 10, marginTop: 4 },
-  lockedButton: {
-    flex: 1,
-    backgroundColor: '#e0e0e0',
-    borderRadius: 16,
-    padding: 16,
-    alignItems: 'center',
-    opacity: 0.6,
-  },
-  lockedEmoji: { fontSize: 26 },
-  lockedTitle: { fontSize: 12, color: '#666', marginTop: 4 },
-  lockedKey: { position: 'absolute', top: 8, right: 8, fontSize: 14 },
 
   // Кнопка назад
   backButton: {

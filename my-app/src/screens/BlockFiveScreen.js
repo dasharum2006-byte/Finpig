@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -54,7 +54,7 @@ export default function BlockFiveScreen({ navigation, route }) {
 
   const handlePressItem = (item) => {
     if (item.id > unlockedStep) {
-      Alert.alert('Заблокировано ', 'Этот шаг пока закрыт. Пройди предыдущие задания');
+      Alert.alert('Заблокировано 🔒', 'Этот шаг пока закрыт. Пройди предыдущие задания');
       return;
     }
 
@@ -68,11 +68,11 @@ export default function BlockFiveScreen({ navigation, route }) {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Text style={styles.backButtonText}>Назад</Text>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('Tasks')}>
+          <Text style={styles.backButtonText}>📋 Задания</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Блок 5</Text>
-        <View style={{ width: 70 }} />
+        <View style={{ width: 110 }} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -80,10 +80,10 @@ export default function BlockFiveScreen({ navigation, route }) {
           const isLocked = item.id > unlockedStep;
 
           return (
-            <TouchableOpacity 
-              key={item.id} 
+            <TouchableOpacity
+              key={item.id}
               style={[
-                styles.card, 
+                styles.card,
                 item.type === 'game' ? styles.gameCard : styles.quizCard,
                 isLocked && styles.lockedCard
               ]}

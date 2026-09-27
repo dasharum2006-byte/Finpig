@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useFocusEffect } from '@react-navigation/native'; 
-import { StyleSheet, Text, View, TouchableOpacity, Dimensions, ScrollView, Alert } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const BLOCK_THREE_ROUTINE = [
@@ -10,7 +10,6 @@ const BLOCK_THREE_ROUTINE = [
   { id: 4, type: 'sort', title: 'Задание 4: План действий', subtitle: 'Копим на подарок' },
   { id: 5, type: 'quiz', title: 'Вопрос 5: Ловушка скидок', subtitle: 'Не ведись на маркетинг' },
   { id: 6, type: 'quiz', title: 'Вопрос 6: Что такое бюджет?', subtitle: 'Финальный экзамен' },
-  
 ];
 
 const STORAGE_KEY = '@block_three_progress_v1';
@@ -18,7 +17,7 @@ const STORAGE_KEY = '@block_three_progress_v1';
 export default function BlockThreeScreen({ navigation, route }) {
   const [unlockedStep, setUnlockedStep] = useState(1);
 
-    useFocusEffect(
+  useFocusEffect(
     useCallback(() => {
       const loadProgress = async () => {
         try {
@@ -34,7 +33,6 @@ export default function BlockThreeScreen({ navigation, route }) {
     }, [])
   );
 
-    // 5. ОСТАВЛЯЕМ обычный useEffect только для СОХРАНЕНИЯ прогресса
   useEffect(() => {
     const saveProgress = async () => {
       try {
@@ -46,7 +44,6 @@ export default function BlockThreeScreen({ navigation, route }) {
     saveProgress();
   }, [unlockedStep]);
 
-  //6. ДОБАВЛЯЕМ обработку, если LevelThreeScreen всё-таки передаст параметр
   useEffect(() => {
     if (route.params?.highestCompletedStep) {
       const nextStep = route.params.highestCompletedStep + 1;
@@ -54,7 +51,6 @@ export default function BlockThreeScreen({ navigation, route }) {
       navigation.setParams({ highestCompletedStep: undefined });
     }
   }, [route.params?.highestCompletedStep, navigation]);
-
 
   const handlePressItem = (item) => {
     if (item.id > unlockedStep) {
@@ -72,11 +68,11 @@ export default function BlockThreeScreen({ navigation, route }) {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Text style={styles.backButtonText}>Назад</Text>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('Tasks')}>
+          <Text style={styles.backButtonText}>📋 Задания</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Блок 3</Text>
-        <View style={{ width: 70 }} />
+        <View style={{ width: 110 }} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -84,10 +80,10 @@ export default function BlockThreeScreen({ navigation, route }) {
           const isLocked = item.id > unlockedStep;
 
           return (
-            <TouchableOpacity 
-              key={item.id} 
+            <TouchableOpacity
+              key={item.id}
               style={[
-                styles.card, 
+                styles.card,
                 item.type === 'game' ? styles.gameCard : styles.quizCard,
                 isLocked && styles.lockedCard
               ]}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Dimensions, ScrollView, Image, Alert } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage'; 
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useBank } from '../context/BankContext';
 const { width } = Dimensions.get('window');
 
@@ -9,7 +9,6 @@ const LEVEL_THREE_STEPS = [
     id: 1,
     subTitle: 'Деньги не растут на деревьях ',
     text: 'Деньги не появляются в кошельке сами по себе. Родители ходят на работу, выполняют свои обязанности и получают за это зарплату. Твой главный ресурс сейчас — это время и силы, а главная "работа" — учеба и помощь дома.',
-    // image: require('../../assets/pictirequestion/twopeoplepig.png'), 
     question: 'Откуда у родителей берутся деньги?',
     options: [
       { text: 'Их приносит аист вместе с зарплатой', isCorrect: false },
@@ -21,19 +20,17 @@ const LEVEL_THREE_STEPS = [
     id: 2,
     subTitle: 'Нужды и Хотелки ',
     text: 'Все траты делятся на две группы. «Нужды» — это то, без чего нельзя прожить: еда, одежда, жилье, лекарства. «Хотелки» — это то, что приятно иметь, но можно и без этого обойтись: десятая машинка, сладкая газировка или новая игра.',
-    // image: require('../../assets/pictirequestion/shark.png'),
     question: 'Что из этого относится к «Нуждам»?',
     options: [
       { text: 'Новый чехол для телефона с блестками', isCorrect: false },
       { text: 'Зимняя куртка, потому что старая мала', isCorrect: true },
       { text: 'Большой набор мармеладных мишек', isCorrect: false }
-      ]
+    ]
   },
   {
     id: 3,
     subTitle: 'Подушка безопасности',
     text: 'Иногда случаются неожиданные вещи: сломался телефон, заболел кот или порвались кроссовки. Чтобы не паниковать, умные люди откладывают немного денег в «подушку безопасности». Это заначка на черный день, которую лучше не трогать без реальной причины.',
-    // image: require('../../assets/pictirequestion/velosiped.png'),
     question: 'Для чего нужна «подушка безопасности»?',
     options: [
       { text: 'Чтобы спать на ней было мягче', isCorrect: false },
@@ -48,10 +45,10 @@ const LEVEL_THREE_STEPS = [
     text: 'Ты хочешь сделать маме классный подарок на день рождения, но у тебя пока нет денег. Составь правильный план действий, чтобы заработать и купить подарок',
     question: 'Расположи шаги от начала до конца (сверху вниз):',
     initialItems: [
-      { id: 'step3', text: '3. Выполнять дела и откладывать деньги в копилку' },
-      { id: 'step1', text: '1. Придумать подарок и узнать его точную цену' },
-      { id: 'step4', text: '4. Купить подарок, красиво упаковать и вручить' },
-      { id: 'step2', text: '2. Договориться с родителями о помощи по дому за вознаграждение' },
+      { id: 'step3', text: 'Выполнять дела и откладывать деньги в копилку' },
+      { id: 'step1', text: 'Придумать подарок и узнать его точную цену' },
+      { id: 'step4', text: 'Купить подарок, красиво упаковать и вручить' },
+      { id: 'step2', text: 'Договориться с родителями о помощи по дому за вознаграждение' },
     ],
     correctOrder: ['step1', 'step2', 'step3', 'step4']
   },
@@ -59,7 +56,6 @@ const LEVEL_THREE_STEPS = [
     id: 5,
     subTitle: 'Ловушка «Супер-Скидки»',
     text: 'Магазины очень хитрые. Они пишут огромными буквами «СКИДКА 50%!» или «3 по цене 2!». Но если тебе не нужен этот товар, то даже со скидкой ты просто теряешь деньги. Покупай только то, что планировал.',
-    // image: require('../../assets/pictirequestion/hotun.jpg'),
     question: 'Как правильно реагировать на яркую скидку?',
     options: [
       { text: 'Сразу бежать и покупать, пока не разобрали!', isCorrect: false },
@@ -71,7 +67,6 @@ const LEVEL_THREE_STEPS = [
     id: 6,
     subTitle: 'Финал: Что такое Бюджет? ',
     text: 'Поздравляю, ты дошел до конца! Бюджет — это простой план: сколько денег ты получаешь (доходы) и на что ты их тратишь (расходы). Если доходы больше расходов — ты молодец, можно откладывать на мечту',
-    // image: require('../../assets/pictirequestion/phone.jpg'),
     question: 'Что такое семейный бюджет?',
     options: [
       { text: 'План доходов и расходов семьи', isCorrect: true },
@@ -81,9 +76,11 @@ const LEVEL_THREE_STEPS = [
   }
 ];
 
+const STORAGE_KEY = '@block_three_progress_v1';
+
 export default function LevelThreeScreen({ navigation, route }) {
   const startIndex = route.params?.startIndex ?? 0;
-  const bank = useBank(); 
+  const bank = useBank();
   const [currentStepIndex, setCurrentStepIndex] = useState(startIndex);
   const [selectedOption, setSelectedOption] = useState(null);
   const [isAnswered, setIsAnswered] = useState(false);
@@ -94,10 +91,10 @@ export default function LevelThreeScreen({ navigation, route }) {
   const [sortItems, setSortItems] = useState([]);
   const [isSortCorrect, setIsSortCorrect] = useState(false);
   const [showCorrectHint, setShowCorrectHint] = useState(false);
-  
+
   const step = LEVEL_THREE_STEPS[currentStepIndex];
 
-      useEffect(() => {
+  useEffect(() => {
     const loadSaved = async () => {
       try {
         const ans = await AsyncStorage.getItem('@block_three_answers_v1');
@@ -109,17 +106,16 @@ export default function LevelThreeScreen({ navigation, route }) {
     loadSaved();
   }, []);
 
-
-    useEffect(() => {
+  useEffect(() => {
     if (!step) return;
-    
+
     if (step.type === 'sort') {
       const savedOrder = savedSortOrders[currentStepIndex];
       if (savedOrder) {
         const restored = savedOrder.map(id => step.initialItems.find(i => i.id === id)).filter(Boolean);
         setSortItems(restored);
         setIsAnswered(true);
-        setIsSortCorrect(true); 
+        setIsSortCorrect(true);
         setShowCorrectHint(false);
       } else {
         setSortItems(step.initialItems);
@@ -138,28 +134,16 @@ export default function LevelThreeScreen({ navigation, route }) {
     }
   }, [currentStepIndex, step, savedAnswers, savedSortOrders]);
 
-
-  // const saveProgress = async (stepId) => {
-  //   try {
-  //     await AsyncStorage.setItem('@block_three_progress_v1', stepId.toString());
-  //   } catch (e) {
-  //     console.error('Ошибка сохранения прогресса Блока 3:', e);
-  //   }
-  // };
-
   const handleOptionPress = (option, optIndex) => {
     if (isAnswered) return;
-    if (savedAnswers[currentStepIndex] !== undefined) {
-      console.log("На этот вопрос уже отвечали");
-      return; 
-    }
+    if (savedAnswers[currentStepIndex] !== undefined) return;
     setSelectedOption(option);
     setIsAnswered(true);
     saveAnswer(currentStepIndex, optIndex);
     if (option.isCorrect) {
       setScore(prev => prev + 1);
       bank.addCoins(20);
-            Alert.alert("+20 монет уже на твоём счёте");
+      Alert.alert("+20 монет уже на твоём счёте");
     }
   };
 
@@ -182,24 +166,21 @@ export default function LevelThreeScreen({ navigation, route }) {
   };
 
   const checkSortOrder = () => {
-    if (savedSortOrders[currentStepIndex] !== undefined) {
-      console.log("Эта сортировка уже выполнена");
-      return;
-    }
+    if (savedSortOrders[currentStepIndex] !== undefined) return;
     const userOrder = sortItems.map(item => item.id);
     const isCorrect = JSON.stringify(userOrder) === JSON.stringify(step.correctOrder);
-    
+
     setIsAnswered(true);
     saveSortOrder(currentStepIndex, userOrder);
     if (isCorrect) {
       setIsSortCorrect(true);
       setScore(prev => prev + 1);
-      bank.addCoins(20); 
-            Alert.alert("+20 монет за правильный порядок");
+      bank.addCoins(20);
+      Alert.alert("+20 монет за правильный порядок");
     } else {
       setIsSortCorrect(false);
       setTimeout(() => {
-        const correctItems = step.correctOrder.map(correctId => 
+        const correctItems = step.correctOrder.map(correctId =>
           step.initialItems.find(item => item.id === correctId)
         );
         setSortItems(correctItems);
@@ -211,45 +192,46 @@ export default function LevelThreeScreen({ navigation, route }) {
 
   const saveProgress = async (stepId) => {
     try {
-      const savedStep = await AsyncStorage.getItem('@block_three_progress_v1'); 
+      const savedStep = await AsyncStorage.getItem(STORAGE_KEY);
       const currentSaved = savedStep ? parseInt(savedStep, 10) : 1;
       if (stepId > currentSaved) {
-        await AsyncStorage.setItem('@block_three_progress_v1', stepId.toString());
+        await AsyncStorage.setItem(STORAGE_KEY, stepId.toString());
       }
     } catch (e) {
       console.error('Ошибка сохранения прогресса Блока 3:', e);
     }
   };
-    const saveAnswer = async (qIndex, optIndex) => {
+
+  const saveAnswer = async (qIndex, optIndex) => {
     const updated = { ...savedAnswers, [qIndex]: optIndex };
     setSavedAnswers(updated);
     await AsyncStorage.setItem('@block_three_answers_v1', JSON.stringify(updated));
   };
 
-    const saveSortOrder = async (qIndex, order) => {
+  const saveSortOrder = async (qIndex, order) => {
     const updated = { ...savedSortOrders, [qIndex]: order };
     setSavedSortOrders(updated);
     await AsyncStorage.setItem('@block_three_sorts_v1', JSON.stringify(updated));
   };
 
-  const handleNextStep = () => {
-    const stepToUnlock = currentStepIndex + 2;
-    saveProgress(stepToUnlock);
+  const handleNextStep = async () => {
+    const nextStep = currentStepIndex + 2;
 
     if (currentStepIndex < LEVEL_THREE_STEPS.length - 1) {
+      await saveProgress(nextStep);
       setCurrentStepIndex(currentStepIndex + 1);
       setSelectedOption(null);
       setIsAnswered(false);
       setShowCorrectHint(false);
     } else {
-      saveProgress(LEVEL_THREE_STEPS.length + 1);
-      navigation.goBack();
+      await saveProgress(7);
+      navigation.navigate('BlockThreeScreen', { highestCompletedStep: 6 });
     }
   };
 
   const handleExit = async () => {
     await saveProgress(currentStepIndex + 1);
-    navigation.goBack();
+    navigation.navigate('BlockThreeScreen', { highestCompletedStep: currentStepIndex + 1 });
   };
 
   return (
@@ -271,7 +253,7 @@ export default function LevelThreeScreen({ navigation, route }) {
 
         <View style={styles.questionCard}>
           <Text style={styles.questionText}>{step.question}</Text>
-          
+
           {step.type === 'sort' ? (
             <View style={styles.sortContainer}>
               {isAnswered && !isSortCorrect && showCorrectHint && (
@@ -281,7 +263,7 @@ export default function LevelThreeScreen({ navigation, route }) {
               {sortItems.map((item, index) => {
                 let cardStyle = styles.sortCard;
                 if (isAnswered) {
-                  cardStyle = isSortCorrect 
+                  cardStyle = isSortCorrect
                     ? { ...styles.sortCard, backgroundColor: '#C8E6C9', borderColor: '#4CAF50' }
                     : { ...styles.sortCard, backgroundColor: '#FFCDD2', borderColor: '#F44336' };
                 }
@@ -323,12 +305,12 @@ export default function LevelThreeScreen({ navigation, route }) {
                 <TouchableOpacity
                   key={optIndex}
                   style={buttonStyle}
-                  onPress={() => handleOptionPress(option,optIndex)}
+                  onPress={() => handleOptionPress(option, optIndex)}
                   activeOpacity={0.7}
                   disabled={isAnswered}
                 >
                   <Text style={styles.optionText}>{option.text}</Text>
-                   {isAnswered && savedAnswers[currentStepIndex] === optIndex && (
+                  {isAnswered && savedAnswers[currentStepIndex] === optIndex && (
                     <Text style={styles.savedIndicator}>Твой ответ</Text>
                   )}
                 </TouchableOpacity>
@@ -357,17 +339,17 @@ const styles = StyleSheet.create({
   mainTitle: { fontSize: 15, fontWeight: 'bold', color: '#FFF', textAlign: 'center', flex: 1, marginHorizontal: 10 },
   scoreText: { fontSize: 16, fontWeight: 'bold', color: '#FFE082' },
   scrollContent: { paddingHorizontal: 20, paddingBottom: 40 },
-  
+
   storyCard: { backgroundColor: '#FFF', padding: 15, borderRadius: 20, marginBottom: 20, borderWidth: 2, borderColor: '#FFE082' },
   subTitle: { fontSize: 16, fontWeight: 'bold', color: '#E65100', marginBottom: 8 },
   storyImage: { width: '100%', height: 160, borderRadius: 12, marginBottom: 12 },
   storyText: { fontSize: 14, color: '#333', lineHeight: 22 },
-  
+
   questionCard: { backgroundColor: '#FFF8E1', padding: 15, borderRadius: 20, marginBottom: 20 },
   questionText: { fontSize: 15, fontWeight: 'bold', color: '#5D4037', marginBottom: 15 },
   optionButton: { backgroundColor: '#FFF', padding: 12, borderRadius: 12, marginBottom: 10, borderWidth: 2, borderColor: '#E0D4B7' },
   optionText: { fontSize: 14, color: '#333', fontWeight: '500' },
-  
+
   sortContainer: { marginBottom: 10 },
   sortCard: { backgroundColor: '#FFF', padding: 12, borderRadius: 12, marginBottom: 10, borderWidth: 2, borderColor: '#E0D4B7', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   sortCardText: { fontSize: 14, color: '#333', fontWeight: '500', flex: 1, paddingRight: 10 },
@@ -376,11 +358,11 @@ const styles = StyleSheet.create({
   arrowText: { fontSize: 18 },
   checkButton: { backgroundColor: '#3b71af', padding: 12, borderRadius: 12, alignItems: 'center', marginTop: 10 },
   checkButtonText: { color: '#FFF', fontSize: 15, fontWeight: 'bold' },
-  
+
   hintText: { fontSize: 16, fontWeight: 'bold', color: '#2E7D32', textAlign: 'center', marginBottom: 10, fontStyle: 'italic' },
   nextButton: { backgroundColor: '#E65100', padding: 15, borderRadius: 15, alignItems: 'center', marginTop: 10 },
   nextButtonText: { color: '#FFF', fontSize: 16, fontWeight: 'bold' },
-    savedIndicator: {
+  savedIndicator: {
     fontSize: 11,
     color: '#666',
     fontStyle: 'italic',

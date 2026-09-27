@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Dimensions, ScrollView, Image, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useBank } from '../context/BankContext';
-
 const { width } = Dimensions.get('window');
 
 const LEVEL_FOUR_STEPS = [
@@ -46,10 +45,10 @@ const LEVEL_FOUR_STEPS = [
     text: 'Ты получил 100 монет в подарок. Распредели их по правильным категориям от самой важной для будущего до наименее важной.',
     question: 'Расположи категории от самой важной до наименее важной (сверху вниз):',
     initialItems: [
-      { id: 'cat3', text: '3. Инвестиции (пусть деньги растут)' },
-      { id: 'cat1', text: '1. Накопления на важную цель (велосипед)' },
-      { id: 'cat4', text: '4. Мелкие траты на сладости прямо сейчас' },
-      { id: 'cat2', text: '2. Благотворительность (помощь приюту для животных)' },
+      { id: 'cat3', text: 'Инвестиции (пусть деньги растут)' },
+      { id: 'cat1', text: 'Накопления на важную цель (велосипед)' },
+      { id: 'cat4', text: 'Мелкие траты на сладости прямо сейчас' },
+      { id: 'cat2', text: 'Благотворительность (помощь приюту для животных)' },
     ],
     correctOrder: ['cat1', 'cat2', 'cat3', 'cat4']
   },
@@ -77,6 +76,8 @@ const LEVEL_FOUR_STEPS = [
   }
 ];
 
+const STORAGE_KEY = '@block_four_progress_v1';
+
 export default function LevelFourScreen({ navigation, route }) {
   const startIndex = route.params?.startIndex ?? 0;
   const [currentStepIndex, setCurrentStepIndex] = useState(startIndex);
@@ -88,7 +89,7 @@ export default function LevelFourScreen({ navigation, route }) {
   const [sortItems, setSortItems] = useState([]);
   const [isSortCorrect, setIsSortCorrect] = useState(false);
   const [showCorrectHint, setShowCorrectHint] = useState(false);
-  const bank = useBank(); 
+  const bank = useBank();
   const step = LEVEL_FOUR_STEPS[currentStepIndex];
 
   useEffect(() => {
@@ -103,7 +104,7 @@ export default function LevelFourScreen({ navigation, route }) {
     loadSaved();
   }, []);
 
-    useEffect(() => {
+  useEffect(() => {
     if (!step) return;
     if (step.type === 'sort') {
       const savedOrder = savedSortOrders[currentStepIndex];
@@ -111,7 +112,7 @@ export default function LevelFourScreen({ navigation, route }) {
         const restored = savedOrder.map(id => step.initialItems.find(i => i.id === id)).filter(Boolean);
         setSortItems(restored);
         setIsAnswered(true);
-        setIsSortCorrect(true); 
+        setIsSortCorrect(true);
         setShowCorrectHint(false);
       } else {
         setSortItems(step.initialItems);
@@ -122,35 +123,24 @@ export default function LevelFourScreen({ navigation, route }) {
       const savedAns = savedAnswers[currentStepIndex];
       if (savedAns !== undefined) {
         setSelectedOption(step.options[savedAns]);
-        setIsAnswered(true); 
+        setIsAnswered(true);
       } else {
         setSelectedOption(null);
         setIsAnswered(false);
       }
     }
-  },[currentStepIndex, step, savedAnswers, savedSortOrders]);
-
-//   const saveProgress = async (stepId) => {
-//     try {
-//       await AsyncStorage.setItem('@block_four_progress_v1', stepId.toString());
-//     } catch (e) {
-//       console.error('Ошибка сохранения прогресса Блока 4:', e);
-//     }
-//   };
+  }, [currentStepIndex, step, savedAnswers, savedSortOrders]);
 
   const handleOptionPress = (option, optIndex) => {
     if (isAnswered) return;
-    if (savedAnswers[currentStepIndex] !== undefined) {
-      console.log("На этот вопрос уже отвечали");
-      return; 
-    }
+    if (savedAnswers[currentStepIndex] !== undefined) return;
     setSelectedOption(option);
     setIsAnswered(true);
     saveAnswer(currentStepIndex, optIndex);
     if (option.isCorrect) {
       setScore(prev => prev + 1);
       bank.addCoins(20);
-            Alert.alert("+20 монет уже на твоём счёте");
+      Alert.alert("+20 монет уже на твоём счёте");
     }
   };
 
@@ -173,10 +163,7 @@ export default function LevelFourScreen({ navigation, route }) {
   };
 
   const checkSortOrder = () => {
-    if (savedSortOrders[currentStepIndex] !== undefined) {
-      console.log("Эта сортировка уже выполнена");
-      return;
-    }
+    if (savedSortOrders[currentStepIndex] !== undefined) return;
     const userOrder = sortItems.map(item => item.id);
     const isCorrect = JSON.stringify(userOrder) === JSON.stringify(step.correctOrder);
     setIsAnswered(true);
@@ -184,12 +171,12 @@ export default function LevelFourScreen({ navigation, route }) {
     if (isCorrect) {
       setIsSortCorrect(true);
       setScore(prev => prev + 1);
-      bank.addCoins(20); 
-            Alert.alert("+20 монет за правильный порядок");
+      bank.addCoins(20);
+      Alert.alert("+20 монет за правильный порядок");
     } else {
       setIsSortCorrect(false);
       setTimeout(() => {
-        const correctItems = step.correctOrder.map(correctId => 
+        const correctItems = step.correctOrder.map(correctId =>
           step.initialItems.find(item => item.id === correctId)
         );
         setSortItems(correctItems);
@@ -213,34 +200,34 @@ export default function LevelFourScreen({ navigation, route }) {
 
   const saveProgress = async (stepId) => {
     try {
-      const savedStep = await AsyncStorage.getItem('@block_four_progress_v1'); 
+      const savedStep = await AsyncStorage.getItem(STORAGE_KEY);
       const currentSaved = savedStep ? parseInt(savedStep, 10) : 1;
       if (stepId > currentSaved) {
-        await AsyncStorage.setItem('@block_four_progress_v1', stepId.toString());
+        await AsyncStorage.setItem(STORAGE_KEY, stepId.toString());
       }
     } catch (e) {
       console.error('Ошибка сохранения прогресса:', e);
     }
   };
 
+  const handleNextStep = async () => {
+    const nextStep = currentStepIndex + 2;
 
-  const handleNextStep = () => {
-    const stepToUnlock = currentStepIndex + 2;
-    saveProgress(stepToUnlock);
     if (currentStepIndex < LEVEL_FOUR_STEPS.length - 1) {
+      await saveProgress(nextStep);
       setCurrentStepIndex(currentStepIndex + 1);
       setSelectedOption(null);
       setIsAnswered(false);
       setShowCorrectHint(false);
     } else {
-      saveProgress(LEVEL_FOUR_STEPS.length + 1);
-      navigation.goBack(); 
+      await saveProgress(7);
+      navigation.navigate('BlockFourScreen', { highestCompletedStep: 6 });
     }
   };
 
   const handleExit = async () => {
     await saveProgress(currentStepIndex + 1);
-    navigation.goBack();
+    navigation.navigate('BlockFourScreen', { highestCompletedStep: currentStepIndex + 1 });
   };
 
   return (
@@ -262,7 +249,7 @@ export default function LevelFourScreen({ navigation, route }) {
 
         <View style={styles.questionCard}>
           <Text style={styles.questionText}>{step.question}</Text>
-          
+
           {step.type === 'sort' ? (
             <View style={styles.sortContainer}>
               {isAnswered && !isSortCorrect && showCorrectHint && (
@@ -272,7 +259,7 @@ export default function LevelFourScreen({ navigation, route }) {
               {sortItems.map((item, index) => {
                 let cardStyle = styles.sortCard;
                 if (isAnswered) {
-                  cardStyle = isSortCorrect 
+                  cardStyle = isSortCorrect
                     ? { ...styles.sortCard, backgroundColor: '#C8E6C9', borderColor: '#4CAF50' }
                     : { ...styles.sortCard, backgroundColor: '#FFCDD2', borderColor: '#F44336' };
                 }
@@ -348,17 +335,17 @@ const styles = StyleSheet.create({
   mainTitle: { fontSize: 15, fontWeight: 'bold', color: '#FFF', textAlign: 'center', flex: 1, marginHorizontal: 10 },
   scoreText: { fontSize: 16, fontWeight: 'bold', color: '#FFE082' },
   scrollContent: { paddingHorizontal: 20, paddingBottom: 40 },
-  
+
   storyCard: { backgroundColor: '#FFF', padding: 15, borderRadius: 20, marginBottom: 20, borderWidth: 2, borderColor: '#FFE082' },
   subTitle: { fontSize: 16, fontWeight: 'bold', color: '#E65100', marginBottom: 8 },
   storyImage: { width: '100%', height: 160, borderRadius: 12, marginBottom: 12 },
   storyText: { fontSize: 14, color: '#333', lineHeight: 22 },
-  
+
   questionCard: { backgroundColor: '#FFF8E1', padding: 15, borderRadius: 20, marginBottom: 20 },
   questionText: { fontSize: 15, fontWeight: 'bold', color: '#5D4037', marginBottom: 15 },
   optionButton: { backgroundColor: '#FFF', padding: 12, borderRadius: 12, marginBottom: 10, borderWidth: 2, borderColor: '#E0D4B7' },
   optionText: { fontSize: 14, color: '#333', fontWeight: '500' },
-  
+
   sortContainer: { marginBottom: 10 },
   sortCard: { backgroundColor: '#FFF', padding: 12, borderRadius: 12, marginBottom: 10, borderWidth: 2, borderColor: '#E0D4B7', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   sortCardText: { fontSize: 14, color: '#333', fontWeight: '500', flex: 1, paddingRight: 10 },
@@ -367,11 +354,11 @@ const styles = StyleSheet.create({
   arrowText: { fontSize: 18 },
   checkButton: { backgroundColor: '#3b71af', padding: 12, borderRadius: 12, alignItems: 'center', marginTop: 10 },
   checkButtonText: { color: '#FFF', fontSize: 15, fontWeight: 'bold' },
-  
+
   hintText: { fontSize: 16, fontWeight: 'bold', color: '#2E7D32', textAlign: 'center', marginBottom: 10, fontStyle: 'italic' },
   nextButton: { backgroundColor: '#E65100', padding: 15, borderRadius: 15, alignItems: 'center', marginTop: 10 },
   nextButtonText: { color: '#FFF', fontSize: 16, fontWeight: 'bold' },
-    savedIndicator: {
+  savedIndicator: {
     fontSize: 11,
     color: '#666',
     fontStyle: 'italic',

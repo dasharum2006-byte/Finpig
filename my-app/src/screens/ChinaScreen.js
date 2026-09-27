@@ -58,9 +58,10 @@ export default function ChinaScreen({ route, navigation }) {
       >
         <Text style={styles.title}>Китай</Text>
 
+        {/* 🔧 УВЕЛИЧЕН питомец */}
         <Image source={petImage} style={styles.petImage} />
 
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('World')}>
           <Text style={styles.backButtonText}>◀ Карта</Text>
         </TouchableOpacity>
 
@@ -106,12 +107,13 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   backButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+  // 🔧 УВЕЛИЧЕН питомец (было 210×210, стало 300×300)
   petImage: {
     position: 'absolute',
-    width: 210,
-    height: 210,
+    width: 300,
+    height: 300,
     resizeMode: 'contain',
-    marginTop: 390,
+    marginTop: 350,
     zIndex: 5,
   },
   interactiveCard: {
