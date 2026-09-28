@@ -84,11 +84,6 @@ export default function TasksScreen({ navigation }) {
       return;
     }
 
-    if (task.id === 6) {
-      Alert.alert('Скоро', 'Этот уровень находится в разработке');
-      return;
-    }
-
     navigation.navigate(task.screen);
   };
 

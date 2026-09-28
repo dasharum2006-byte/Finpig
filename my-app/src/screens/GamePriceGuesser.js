@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Image, Alert } from 'react-native';
-import Slider from '@react-native-community/slider'; // Убедись, что библиотека установлена, либо используй обычный View/TextInput
+import Slider from '@react-native-community/slider';
 import { useBank } from '../context/BankContext';
 
 // Список предметов для угадывания цен

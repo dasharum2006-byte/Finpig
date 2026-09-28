@@ -43,7 +43,8 @@ import BlockFourScreen from './src/screens/BlockFourScreen';
 import LivingRoomScreen from './src/screens/LivingRoomScreen'; 
 import { colors } from './src/theme';
 import MiniGamesScreen from './src/screens/MiniGamesScreen';
-import GamePriceGuesser from './screens/GamePriceGuesser';
+import GamePriceGuesser from './src/screens/GamePriceGuesser';
+import MemoryGame1Screen from './src/screens/MemoryGame1Screen';
 
 const Stack = createNativeStackNavigator();
 
@@ -209,6 +210,9 @@ export default function App() {
               />
               <Stack.Screen name="GamePriceGuesser" 
               component={GamePriceGuesser} 
+              options={{ headerShown: false }} />
+              <Stack.Screen name="MemoryGame1Screen" 
+              component={MemoryGame1Screen} 
               options={{ headerShown: false }} />
               <Stack.Screen
                 name="BlockTwoScreen"

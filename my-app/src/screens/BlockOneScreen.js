@@ -17,7 +17,7 @@ const BLOCK_ONE_ROUTINE = [
   { id: 10, type: 'quiz', title: 'Экзамен Банкира', subtitle: 'Экзамен Банкира' },
   { id: 11, type: 'quiz', title: 'Супермаркет', subtitle: 'Супермаркет' },
   { id: 12, type: 'quiz', title: 'Спецоперация в автобусе', subtitle: 'Спецоперация в автобусе' },
-  { id: 13, type: 'sort', title: 'Эволюция денег', subtitle: 'Эволюция денег' },
+  { id: 13, type: 'quiz', title: 'Эволюция денег', subtitle: 'Эволюция денег' },
   { id: 14, type: 'quiz', title: 'Тайна  кошелька', subtitle: 'Тайна  кошелька' },
   { id: 15, type: 'quiz', title: 'Невидимые монеты ', subtitle: 'Невидимые монеты ' },
   { id: 16, type: 'quiz', title: 'Чек-ап расходов ', subtitle: 'Чек-ап расхов ' },

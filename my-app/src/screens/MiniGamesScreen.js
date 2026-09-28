@@ -13,24 +13,24 @@ const GAMES_DATA = [
   },
   { 
     id: 'shop', 
-    title: '🛒 Симулятор магазина', 
+    title: 'Симулятор магазина', 
     desc: 'Проверь свои шпионские навыки на кассе', 
     screen:  'GamePriceGuesser',
     isAvailable: true 
   },
   { 
     id: 'clicker', 
-    title: '🪙 Монетный кликер', 
+    title: 'Монетный кликер', 
     desc: 'Кликай по Финпигу и зарабатывай золото', 
     screen: 'GameClicker', 
     isAvailable: false // Заглушка "Скоро"
   },
   { 
     id: 'runner', 
-    title: '🏃 Шпионский раннер', 
-    desc: 'Убегай от Хотюна и собирай сбережения', 
-    screen: 'GameRunner', 
-    isAvailable: false // Заглушка "Скоро"
+    title: 'Валюты стран', 
+    desc: 'Memory game', 
+    screen: 'MemoryGame1Screen', 
+    isAvailable: true 
   },
 ];
 

@@ -282,7 +282,7 @@ export default function LevelOneScreen({ navigation, route }) {
    };
 
   const moveUp = (index) => {
-    if (index === 0 || isAnswered || reviewMod) return;
+    if (index === 0 || isAnswered || reviewMode) return;
     const newItems = [...sortItems];
     const temp = newItems[index];
     newItems[index] = newItems[index - 1];
