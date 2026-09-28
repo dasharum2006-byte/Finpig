@@ -5,7 +5,7 @@ const {width} = Dimensions.get('window');
 import backgroundImage from '../../assets/fonshop.png';
 import { usePet } from '../context/PetContext';
 import { useBank } from '../context/BankContext'; 
-
+import { useBudgetPlan } from '../context/BudgetPlanContext';
 //БД товаров
 const SHOP_FOOD_DATA = [
     {
@@ -46,6 +46,7 @@ export default function FoodShopScreen({navigation}) {
     //индекс текущ активности
     // 👇 ПОДКЛЮЧАЕМ ГЛОБАЛЬНЫЙ БАНК
     const bank = useBank();
+    const budgetPlanCtx = useBudgetPlan();
     const pet = usePet();
     const [currentCategoryIndex,setCurrentCategoryIndex] = useState(0);
 
@@ -119,6 +120,8 @@ export default function FoodShopScreen({navigation}) {
         // setCoins(prev => prev - totalCost);
         bank.setBalance(bank.balance - totalCost);
         pet.addFoodToInventory(cart); 
+        budgetPlanCtx.updateFact('needs', totalCost);
+
         setCart([]);
         setPaymentError('');
         setIsCartVisible(false);

@@ -1,48 +1,55 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Alert } from 'react-native';
-import { useBank } from '../context/BankContext'; // Кошелёк для отображения баланса
+import { useBank } from '../context/BankContext'; 
 
-// Массив с нашими 4 играми
+
 const GAMES_DATA = [
-  { 
-    id: 'budget', 
-    title: '🎮 Собери бюджет', 
-    desc: 'Распредели доходы и расходы питомца', 
-    screen: 'GameBudgetPlanner', 
-    isAvailable: true 
+  {
+    id: 1,
+    title: 'Собери бюджет',
+    desc: 'Распредели доходы и расходы питомца',
+    screen: 'GameBudgetPlanner',
+    isAvailable: true,
   },
-  { 
-    id: 'shop', 
-    title: 'Симулятор магазина', 
-    desc: 'Проверь свои шпионские навыки на кассе', 
-    screen:  'GamePriceGuesser',
-    isAvailable: true 
+  {
+    id: 2,
+    title: 'Угадай цену',
+    desc: 'Попробуй угадать реальную стоимость товаров и не дать обсчитать Финпига!',
+    screen: 'GamePriceGuesser',
+    isAvailable: true,
   },
-  { 
-    id: 'clicker', 
-    title: 'Монетный кликер', 
-    desc: 'Кликай по Финпигу и зарабатывай золото', 
-    screen: 'GameClicker', 
-    isAvailable: false // Заглушка "Скоро"
+  {
+    id: 3,
+    title: 'Анти-Скам Чат',
+    desc: 'Раскуси уловки хитрых мошенников в переписке и защити свои сбережения!',
+    screen: 'ScamGameScreen',
+    isAvailable: true,
   },
-  { 
-    id: 'runner', 
-    title: 'Валюты стран', 
-    desc: 'Memory game', 
-    screen: 'MemoryGame1Screen', 
-    isAvailable: true 
+  {
+    id: 4,
+    title: 'Валютное Мемори',
+    desc: 'Ищи логические пары: сочетай флаги стран с их мультяшными купюрами!',
+    screen: 'MemoryGame1Screen',
+    isAvailable: true,
+  },
+  {
+    id: 5,
+    title: 'Ловля монеток',
+    desc: 'Успей поймать как можно больше падающих монет за 30 секунд!',
+    screen: 'MyNewGameScreen', 
+    isAvailable: true,
   },
 ];
+
 
 export default function MiniGamesScreen({ navigation }) {
   const bank = useBank();
 
   const handleLaunchGame = (game) => {
     if (!game.isAvailable) {
-      Alert.alert('Скоро в игре! 🛠️', 'Этот шпионский уровень находится в разработке.');
+      Alert.alert('Скоро в игре!', 'Этот уровень находится в разработке.');
       return;
     }
-    // Переходим на экран конкретной мини-игры
     navigation.navigate(game.screen);
   };
 
@@ -51,7 +58,7 @@ export default function MiniGamesScreen({ navigation }) {
       {/* Шапка экрана */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Text style={styles.backButtonText}>← Назад</Text>
+          <Text style={styles.backButtonText}>Назад</Text>
         </TouchableOpacity>
         
         <View style={styles.headerTitleContainer} pointerEvents="none">

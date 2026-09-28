@@ -1,113 +1,288 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect} from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Image, Alert } from 'react-native';
 import Slider from '@react-native-community/slider';
-import { useBank } from '../context/BankContext';
+import { useBank } from '../context/BankContext'; 
 
-// Список предметов для угадывания цен
+
 const ITEMS_DATA = [
   {
     id: 1,
-    name: '🥛 Литр молока',
-    image: require('../../assets/job.png'), // Замени на свою картинку молока
-    correctPrice: 80,
+    name: 'Упаковка молока',
+    // image: require('../../assets/job.png'), 
+    correctPrice: 100,
     minPrice: 10,
-    maxPrice: 200,
+    maxPrice: 2000,
     step: 5
   },
   {
     id: 2,
-    name: '💻 Новый игровой ноутбук',
-    image: require('../../assets/job.png'), // Замени на свою картинку ноута
-    correctPrice: 65000,
-    minPrice: 10000,
+    name: 'Новый игровой ноутбук',
+    // image: require('../../assets/job.png'), 
+    correctPrice: 80000,
+    minPrice: 1000,
     maxPrice: 150000,
-    step: 1000
+    step: 500
   },
   {
     id: 3,
-    name: '🛴 Городской самокат',
-    image: require('../../assets/job.png'), // Замени на свою картинку самоката
-    correctPrice: 4500,
+    name: 'Самокат трюковой',
+    // image: require('../../assets/job.png'), 
+    correctPrice: 5000,
     minPrice: 500,
     maxPrice: 15000,
+    step: 50
+  },
+  {
+    id: 4,
+    name: 'Телевизор',
+    // image: require('../../assets/job.png'), 
+    correctPrice: 25000,
+    minPrice: 500,
+    maxPrice: 100000,
     step: 100
-  }
+  },
+  {
+    id: 5,
+    name: 'Новая машина',
+    // image: require('../../assets/job.png'), 
+    correctPrice: 900000,
+    minPrice: 500,
+    maxPrice: 2500000,
+    step: 500
+  },
+    {
+    id: 6,
+    name: 'Макароны',
+    // image: require('../../assets/job.png'), 
+    correctPrice: 90,
+    minPrice: 5,
+    maxPrice: 1000,
+    step: 1
+  },
+  {
+    id: 7,
+    name: 'Комикс про динозавров',
+    // image: require('../../assets/job.png'), 
+    correctPrice: 400,
+    minPrice: 1,
+    maxPrice: 10000,
+    step: 5
+  },
+  {
+    id: 8,
+    name: 'Кукла',
+    // image: require('../../assets/job.png'), 
+    correctPrice: 2000,
+    minPrice: 1,
+    maxPrice: 10000,
+    step: 100
+  },
+  {
+  id: 9,
+  name: 'Шоколадный батончик',
+  // image: require('../../assets/cards/chocolate.png'), 
+  correctPrice: 70,
+  minPrice: 5,
+  maxPrice: 1000,
+  step: 5
+},
+{
+  id: 10,
+  name: 'Билет в кино',
+  // image: require('../../assets/cards/cinema.png'), 
+  correctPrice: 350,
+  minPrice: 5,
+  maxPrice: 1500,
+  step: 50
+},
+{
+  id: 11,
+  name: 'Пицца Пепперони',
+  // image: require('../../assets/cards/pizza.png'), 
+  correctPrice: 650,
+  minPrice: 200,
+  maxPrice: 5000,
+  step: 50
+},
+{
+  id: 12,
+  name: 'Беспроводные наушники',
+  // image: require('../../assets/cards/headphones.png'), 
+  correctPrice: 6000,
+  minPrice: 1,
+  maxPrice: 25000,
+  step: 500
+},
+{
+  id: 13,
+  name: 'Трендовые кроссовки',
+  // image: require('../../assets/cards/sneakers.png'), 
+  correctPrice: 8000,
+  minPrice: 90,
+  maxPrice: 30000,
+  step: 500
+},
+{
+  id: 14,
+  name: 'Настольная игра',
+  // image: require('../../assets/cards/boardgame.png'), 
+  correctPrice: 2500,
+  minPrice: 300,
+  maxPrice: 10000,
+  step: 100
+},
+{
+  id: 15,
+  name: 'Современный смартфон',
+  // image: require('../../assets/cards/phone.png'), 
+  correctPrice: 20000,
+  minPrice: 20,
+  maxPrice: 500000,
+  step: 1000
+},
+{
+  id: 16,
+  name: 'Игровая приставка',
+  // image: require('../../assets/cards/console.png'), 
+  correctPrice: 40000,
+  minPrice: 500,
+  maxPrice: 600000,
+  step: 1000
+},
+
+{
+  id: 17,
+  name: 'Крутой игровой ПК',
+  // image: require('../../assets/cards/pc.png'), 
+  correctPrice: 150000,
+  minPrice: 1000,
+  maxPrice: 4000000,
+  step: 5000
+},
+{
+  id: 18,
+  name: 'Поездка на море',
+  // image: require('../../assets/cards/vacation.png'), 
+  correctPrice: 120000,
+  minPrice: 10,
+  maxPrice: 1000000,
+  step: 5000
+},
+{
+  id: 19,
+  name: 'Электросамокат',
+  // image: require('../../assets/cards/scooter.png'), 
+  correctPrice: 35000,
+  minPrice: 2000,
+  maxPrice: 1200000,
+  step: 1000
+},
+{
+  id: 20,
+  name: 'Однокомнатная квартира',
+  // image: require('../../assets/cards/flat.png'), 
+  correctPrice: 9000000,
+  minPrice: 100000,
+  maxPrice: 150000000,
+  step: 50000
+}
 ];
+const getRandomItems = (array, count) => {
+  const shuffled = [...array].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, count);
+};
 
 export default function GamePriceGuesser({ navigation }) {
   const bank = useBank();
+  const [gameItems, setGameItems] = useState([]);
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
-  const item = ITEMS_DATA[currentItemIndex];
-
-  // Стейт для текущего значения ползунка (стартует с середины диапазона)
-  const [currentGuess, setCurrentValue] = useState((item.maxPrice + item.minPrice) / 2);
+  const [currentGuess, setCurrentValue] = useState(0);
   const [isAnswered, setIsAnswered] = useState(false);
   const [feedbackText, setFeedbackText] = useState('');
-
+  useEffect(() => {
+    const selectedItems = getRandomItems(ITEMS_DATA, 6);
+    setGameItems(selectedItems);
+    if (selectedItems.length > 0) {
+      const firstItem = selectedItems[0];
+      setCurrentValue((firstItem.maxPrice + firstItem.minPrice) / 2);
+    }
+  }, []);
+  const item = gameItems[currentItemIndex];
   const handleCheckPrice = () => {
+    if (!item) return;
     setIsAnswered(true);
-    
-    // Считаем разницу в процентах от реальной цены
     const difference = Math.abs(currentGuess - item.correctPrice);
     const percentDiff = (difference / item.correctPrice) * 100;
 
-    if (percentDiff <= 15) {
-      // Угадал очень близко (погрешность до 15%)
-      setFeedbackText('🔥 Красава! Ты отлично знаешь цену деньгам!');
+    if (percentDiff <= 45) {
+      setFeedbackText('🔥 Красава! Ты отлично знаешь цену деньгам!\n+30 монет прилетели на счёт');
       if (bank && typeof bank.addCoins === 'function') {
-        bank.addCoins(30); // Даем сочную награду за точность
+        bank.addCoins(30); 
       }
     } else if (currentGuess > item.correctPrice) {
-      // Назвал слишком большую цену
-      setFeedbackText('⚠️ Ого, это слишком дорого! Тебя пытаются обмануть, вещь стоит дешевле.');
+      if (percentDiff > 90) {
+        setFeedbackText('🚀🤯 Космически дорого! За эти деньги можно купить что-то в сто раз лучше! Настоящая цена намного ниже.');
+      } else {
+        setFeedbackText('⚠️ Ого, это слишком дорого! Тебя пытаются обмануть, вещь стоит дешевле.');
+      }
     } else {
-      // Назвал слишком маленькую цену
-      setFeedbackText('📉 Хм, слишком дёшево! Настоящая качественная вещь стоит дороже.');
+      if (percentDiff > 70) {
+        setFeedbackText('За такие копейки нам это никто не продаст! Настоящая качественная вещь стоит НАМНОГО дороже.');
+      } else {
+        setFeedbackText('Хм, немного маловато! Настоящая качественная вещь стоит подороже.');
+      }
     }
   };
 
   const handleNextItem = () => {
-    if (currentItemIndex < ITEMS_DATA.length - 1) {
+    if (currentItemIndex < gameItems.length - 1) {
       const nextIndex = currentItemIndex + 1;
-      const nextItem = ITEMS_DATA[nextIndex];
+      const nextItem = gameItems[nextIndex];
       setCurrentItemIndex(nextIndex);
       setCurrentValue((nextItem.maxPrice + nextItem.minPrice) / 2);
       setIsAnswered(false);
       setFeedbackText('');
     } else {
-      Alert.alert('Игра окончена! 🏆', 'Ты прошёл все шпионские товары!', [
-        { text: 'В меню игр', onPress: () => navigation.navigate('MiniGamesScreen') }
-      ]);
+      Alert.alert(
+        'Игра окончена 🏆', 
+        'Ты отлично справился со всеми 6 товарами и помог Финпигу!', 
+        [
+          { text: 'В меню игр', onPress: () => navigation.navigate('MiniGamesScreen') }
+        ]
+      );
     }
   };
 
+  // Пока массив случайных элементов пуст (доли секунды при старте), показываем заглушку
+  if (gameItems.length === 0 || !item) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text style={{ fontSize: 16, color: '#666' }}>Загрузка товаров...</Text>
+      </View>
+    );
+  }
+
+
+
   return (
     <View style={styles.container}>
-      {/* Шапка */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Text style={styles.backButtonText}>Выйти</Text>
         </TouchableOpacity>
         <View style={styles.headerTitleContainer}>
-          <Text style={styles.headerTitle}>Угадай цену 👁️</Text>
+          <Text style={styles.headerTitle}>Угадай цену</Text>
         </View>
         <Text style={styles.scoreText}>🪙 {bank?.balance ? Math.floor(bank.balance) : 0}</Text>
       </View>
-
-      {/* Белый Квадрат с предметом (как книга) */}
       <View style={styles.storyCard}>
-        <Text style={styles.subTitle}>Товар №{item.id}</Text>
+        <Text style={styles.subTitle}>Товар {item.id}</Text>
         <Image source={item.image} style={styles.storyImage} resizeMode="contain" />
         <Text style={styles.storyText}>Перед тобой — {item.name}. Подумай хорошенько, сколько этот предмет может стоить в реальном магазине, чтобы Финпига не обсчитали злодеи!</Text>
       </View>
-
-      {/* Блок управления ползунком */}
       <View style={styles.questionCard}>
         <Text style={styles.questionText}>Твоё предположение:</Text>
-        
-        {/* Крупное отображение текущей цены на ползунке */}
         <Text style={styles.priceLabel}>{Math.floor(currentGuess)} рублей</Text>
-
         <Slider
           style={styles.slider}
           minimumValue={item.minPrice}
@@ -120,14 +295,10 @@ export default function GamePriceGuesser({ navigation }) {
           maximumTrackTintColor="#E0D4B7"
           thumbTintColor="#5D4037"
         />
-
-        {/* Подписи минимума и максимума по краям */}
         <View style={styles.rangeLabelsRow}>
           <Text style={styles.rangeText}>{item.minPrice} руб</Text>
           <Text style={styles.rangeText}>{item.maxPrice} руб</Text>
         </View>
-
-        {/* Результат проверки */}
         {isAnswered && (
           <View style={styles.feedbackContainer}>
             <Text style={styles.hintText}>{feedbackText}</Text>
@@ -135,16 +306,14 @@ export default function GamePriceGuesser({ navigation }) {
           </View>
         )}
       </View>
-
-      {/* Кнопки действий */}
       {!isAnswered ? (
         <TouchableOpacity style={styles.checkButton} onPress={handleCheckPrice}>
-          <Text style={styles.checkButtonText}>Подтвердить цену ✅</Text>
+          <Text style={styles.checkButtonText}>Подтвердить цену</Text>
         </TouchableOpacity>
       ) : (
         <TouchableOpacity style={styles.nextButton} onPress={handleNextItem}>
           <Text style={styles.nextButtonText}>
-            {currentItemIndex === ITEMS_DATA.length - 1 ? 'Завершить 🏁' : 'Следующий товар ➡️'}
+            {currentItemIndex === ITEMS_DATA.length - 1 ? 'Завершить 🏁' : 'Следующий товар'}
           </Text>
         </TouchableOpacity>
       )}
@@ -224,8 +393,31 @@ const styles = StyleSheet.create({
     fontSize: 14, 
     color: '#333', 
     lineHeight: 20,
-    textAlign: 'justify' // Выравнивание по краям книги
+    textAlign: 'justify' 
   },
+    hintContainer: {
+    backgroundColor: '#fff',
+    padding: 15,
+    borderRadius: 12,
+    marginHorizontal: 20,
+    marginTop: 15,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  hintText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+
   questionCard: { 
     backgroundColor: '#FFF8E1', 
     padding: 20, 

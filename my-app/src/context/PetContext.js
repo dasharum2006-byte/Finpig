@@ -20,7 +20,7 @@ function computeHunger(lastFed) {
 
 export function PetProvider({ children }) {
   const [isLoaded, setIsLoaded] = useState(false);
-
+  const [isOnboardingDone, setIsOnboardingDone] = useState(false);
   const [pet, setPet] = useState(null);
   const [lastFed, setLastFed] = useState(null);
   const [hunger, setHunger] = useState(HUNGER_MAX);
@@ -34,6 +34,7 @@ export function PetProvider({ children }) {
         if (raw) {
           const s = JSON.parse(raw);
           setPet(s.pet ?? null);
+          setIsOnboardingDone(s.isOnboardingDone ?? false);
           const savedLastFed = s.lastFed ?? Date.now();
           setLastFed(savedLastFed);
           setHunger(computeHunger(savedLastFed));
@@ -55,9 +56,9 @@ export function PetProvider({ children }) {
     if (!isLoaded) return;
     AsyncStorage.setItem(
       STORAGE_KEY,
-      JSON.stringify({ pet, lastFed, hunger, inventory })
+      JSON.stringify({ pet, lastFed, hunger, inventory, isOnboardingDone })
      ).catch((e) => console.error('Pet save error:', e));
-  }, [isLoaded, pet, lastFed, hunger, inventory]);
+  }, [isLoaded, pet, lastFed, hunger, inventory, isOnboardingDone]);
 
   // ─── Тикер: обновляем голод каждые 30 секунд ───
   useEffect(() => {
@@ -121,7 +122,12 @@ export function PetProvider({ children }) {
     const now = Date.now();
     setLastFed(now);
     setHunger(HUNGER_MAX);
+    setIsOnboardingDone(false); 
   }, []);
+
+  const setOnboardingDone = useCallback((value) => {
+  setIsOnboardingDone(value);
+}, []);
 
 // Добавить купленную еду в инвентарь
   const addFoodToInventory = useCallback((newItems) => {
@@ -166,7 +172,9 @@ export function PetProvider({ children }) {
         evolvePet,
         feedPet,
         clearPet,
-        addFoodToInventory,     
+        addFoodToInventory,   
+        isOnboardingDone,
+        setOnboardingDone,  
         consumeFood, 
         HUNGER_MAX,
       }}

@@ -52,52 +52,51 @@ export default function TownScreen({ navigation }) {
 
           <Text style={styles.title}>Город</Text>
 
-          <View style={styles.buildingsContainer}>
-            <View style={styles.buildingsRow}>
-              <TouchableOpacity
-                style={styles.buildingCard}
-                onPress={() => navigation.navigate('FoodShop')}
-              >
-                <View style={styles.emojiCircle}>
-                  <Text style={styles.buildingEmoji}>🍏</Text>
-                </View>
-                <Text style={styles.buildingText}>Продуктовый магазин</Text>
-              </TouchableOpacity>
+         <View style={styles.buildingsContainer}>
+  <View style={styles.buildingsRow}>
+    <TouchableOpacity
+      style={styles.buildingCard}
+      onPress={() => navigation.navigate('FoodShop')}
+    >
+      <View style={styles.emojiCircle}>
+        <Text style={styles.buildingEmoji}>🍏</Text>
+      </View>
+      <Text style={styles.buildingText}>Продуктовый магазин</Text>
+    </TouchableOpacity>
 
-              <TouchableOpacity
-                style={styles.buildingCard}
-                onPress={() => alert('Магазин откроется скоро!')}
-              >
-                <View style={styles.emojiCircle}>
-                  <Text style={styles.buildingEmoji}>🛍️</Text>
-                </View>
-                <Text style={styles.buildingText}>Магазин одежды</Text>
-              </TouchableOpacity>
-            </View>
+    <TouchableOpacity
+      style={styles.buildingCard}
+      onPress={() => navigation.navigate('ToyShopScreen')}
+    >
+      <View style={styles.emojiCircle}>
+        <Text style={styles.buildingEmoji}>🧸</Text>
+      </View>
+      <Text style={styles.buildingText}>Магазин игрушек</Text>
+    </TouchableOpacity>
+  </View>
 
-            <View style={styles.buildingsRow}>
-              <TouchableOpacity
-                style={styles.buildingCard}
-                onPress={() => navigation.navigate('Bank')}
-              >
-                <View style={styles.emojiCircle}>
-                  <Text style={styles.buildingEmoji}>🏦</Text>
-                </View>
-                <Text style={styles.buildingText}>Финансовый Банк</Text>
-              </TouchableOpacity>
+  <View style={styles.buildingsRow}>
+    <TouchableOpacity
+      style={styles.buildingCard}
+      onPress={() => navigation.navigate('Bank')}
+    >
+      <View style={styles.emojiCircle}>
+        <Text style={styles.buildingEmoji}>🏦</Text>
+      </View>
+      <Text style={styles.buildingText}>Финансовый Банк</Text>
+    </TouchableOpacity>
 
-              <TouchableOpacity
-                style={styles.buildingCard}
-                onPress={() => navigation.navigate('World')}
-              >
-                <View style={styles.emojiCircle}>
-                  <Text style={styles.buildingEmoji}>🌍</Text>
-                </View>
-                <Text style={styles.buildingText}>Мир</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-
+    <TouchableOpacity
+      style={styles.buildingCard}
+      onPress={() => navigation.navigate('World')}
+    >
+      <View style={styles.emojiCircle}>
+        <Text style={styles.buildingEmoji}>🌍</Text>
+      </View>
+      <Text style={styles.buildingText}>Мир</Text>
+    </TouchableOpacity>
+  </View>
+</View>
           <Image
             source={petImage}
             style={[styles.petImage, { width: petSize, height: petSize }]}

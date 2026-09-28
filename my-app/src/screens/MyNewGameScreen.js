@@ -1,14 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, Animated, Dimensions} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Animated, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AsyncStorage from '@react-native-async-storage/async-storage';  // ← добавь эту строку
+import AsyncStorage from '@react-native-async-storage/async-storage';  
+import { useBank } from '../context/BankContext'; 
 
 const { width, height } = Dimensions.get('window');
 const GAME_DURATION = 30;
-const COIN_SIZE = 80;
+const COIN_SIZE = 70; 
 const HUD_HEIGHT = 90;
 
 export default function CatchCoinGame({ navigation }) {
+  const bank = useBank(); 
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(GAME_DURATION);
   const [running, setRunning] = useState(false);
@@ -33,16 +35,16 @@ export default function CatchCoinGame({ navigation }) {
     startGame();
   }, []);
 
+
   useEffect(() => {
     if (!running) return;
     const spawn = setInterval(() => {
       const id = idRef.current++;
       const x = Math.random() * (width - COIN_SIZE - 20) + 10;
       setCoins((prev) => [...prev, { id, x }]);
-    }, 800);
+    }, 700); 
     return () => clearInterval(spawn);
   }, [running]);
-
   useEffect(() => {
     if (!running) return;
     const t = setInterval(() => {
@@ -68,14 +70,14 @@ export default function CatchCoinGame({ navigation }) {
   const restart = () => {
     setScore(0);
     setTimeLeft(GAME_DURATION);
-    setCoins([]);
+    setCoins([]); 
     setRunning(true);
   };
-
-  // 🔧 Завершение игры: открываем шаг 8 (вторая игра)
   const handleFinishGame = async () => {
-  // Сохраняем, что шаг 7 (игра 1) пройден
     try {
+      if (score > 0 && bank && typeof bank.addCoins === 'function') {
+        bank.addCoins(score);
+      }
       const saved = await AsyncStorage.getItem('@block_one_progress_v1');
       const current = saved ? parseInt(saved, 10) : 0;
       if (7 > current) {
@@ -96,11 +98,10 @@ export default function CatchCoinGame({ navigation }) {
         <Text style={styles.hudStat}>⏱ {timeLeft}s</Text>
         <Text style={styles.hudStat}>🪙 {score}</Text>
       </View>
-
       <View style={styles.playArea}>
         {!isReady && (
           <View style={styles.readyOverlay}>
-            <Text style={styles.readyText}>Собирай монетки 🪙</Text>
+            <Text style={styles.readyText}>Приготовься... 🪙</Text>
           </View>
         )}
         {coins.map((coin) => (
@@ -111,7 +112,6 @@ export default function CatchCoinGame({ navigation }) {
             onMiss={() => removeCoin(coin.id)}
           />
         ))}
-
         {!running && isReady && (
           <View style={styles.overlay}>
             <Text style={styles.overTitle}>Игра окончена</Text>
@@ -131,25 +131,33 @@ export default function CatchCoinGame({ navigation }) {
     </SafeAreaView>
   );
 }
-
 function FallingCoin({ x, onCatch, onMiss }) {
-  const startY = HUD_HEIGHT;
-  const y = useRef(new Animated.Value(startY)).current;
-  const duration = 2500 + Math.random() * 1500;
+  const y = useRef(new Animated.Value(0)).current;
+  const duration = 2000 + Math.random() * 1200; 
 
   useEffect(() => {
     Animated.timing(y, {
-      toValue: height,
+      toValue: height - HUD_HEIGHT, 
       duration,
-      useNativeDriver: true,
+      useNativeDriver: true, 
     }).start(({ finished }) => {
       if (finished) onMiss();
     });
   }, []);
 
   return (
-    <Animated.View style={[styles.coin, { left: x, transform: [{ translateY: y }] }]}>
-      <TouchableOpacity onPress={onCatch} activeOpacity={0.7} style={styles.coinTouch}>
+    <Animated.View 
+      style={[
+        styles.coin, 
+        { 
+          transform: [
+            { translateX: x }, 
+            { translateY: y }
+          ] 
+        }
+      ]}
+    >
+      <TouchableOpacity onPress={onCatch} activeOpacity={0.5} style={styles.coinTouch}>
         <Text style={styles.coinEmoji}>🪙</Text>
       </TouchableOpacity>
     </Animated.View>
@@ -157,49 +165,106 @@ function FallingCoin({ x, onCatch, onMiss }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#365d69' },
+  container: {
+    flex: 1,
+    backgroundColor: '#1a1a2e', 
+  },
   hud: {
+    height: HUD_HEIGHT,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingVertical: 10,
-    backgroundColor: 'rgba(0, 0, 0, 0.2)',
+    backgroundColor: '#162447',
+    borderBottomWidth: 2,
+    borderColor: '#e43f5a',
     zIndex: 10,
   },
   hudBtn: {
-    backgroundColor: '#5D4037',
+    backgroundColor: '#e43f5a',
+    paddingVertical: 6,
     paddingHorizontal: 15,
-    paddingVertical: 8,
-    borderRadius: 10,
+    borderRadius: 8,
   },
-  hudBtnText: { color: '#FFF', fontSize: 18, fontWeight: 'bold' },
-  hudStat: { color: '#FFF', fontSize: 18, fontWeight: 'bold' },
-  playArea: { flex: 1, position: 'relative' },
-  coin: { position: 'absolute', width: COIN_SIZE, height: COIN_SIZE },
-  coinTouch: { width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center' },
-  coinEmoji: { fontSize: 60 },
-  readyOverlay: { ...StyleSheet.absoluteFillObject, justifyContent: 'center', alignItems: 'center' },
-  readyText: { fontSize: 28, fontWeight: 'bold', color: '#FFF' },
+  hudBtnText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  hudStat: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  playArea: {
+    flex: 1,
+    position: 'relative',
+  },
+  readyOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(26, 26, 46, 0.8)',
+  },
+  readyText: {
+    fontSize: 24,
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  coin: {
+    position: 'absolute',
+    top: 0, // Стартуют ровно из-под худ-панели
+    width: COIN_SIZE,
+    height: COIN_SIZE,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  coinTouch: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  coinEmoji: {
+    fontSize: 45, // Крупный классный эмодзи монетки
+  },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.75)',
+    backgroundColor: 'rgba(22, 36, 71, 0.95)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
   },
-  overTitle: { fontSize: 28, fontWeight: 'bold', color: '#FFF', marginBottom: 10 },
-  overScore: { fontSize: 20, color: '#FFD700', marginBottom: 30 },
-  btn: {
-    backgroundColor: '#4CAF50',
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 25,
-    marginBottom: 15,
-    width: width * 0.6,
-    alignItems: 'center',
+  overTitle: {
+    fontSize: 32,
+    color: '#fff',
+    fontWeight: 'bold',
+    marginBottom: 10,
   },
-  btnText: { color: '#FFF', fontSize: 16, fontWeight: 'bold' },
-  btnGhost: { backgroundColor: 'transparent', borderWidth: 2, borderColor: '#FFF' },
-  btnGhostText: { color: '#FFF' },
+  overScore: {
+    fontSize: 20,
+    color: '#f39c12',
+    fontWeight: 'bold',
+    marginBottom: 30,
+  },
+  btn: {
+    backgroundColor: '#00b4d8',
+    width: '80%',
+    padding: 15,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  btnText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  btnGhost: {
+    backgroundColor: 'transparent',
+    borderWidth: 2,
+    borderColor: '#00b4d8',
+  },
+  btnGhostText: {
+    color: '#00b4d8',
+  },
 });

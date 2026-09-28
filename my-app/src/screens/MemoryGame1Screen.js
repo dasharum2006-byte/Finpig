@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Image, Alert } from 'react-native';
-
+import { useBank } from '../context/BankContext'; 
 
 const CARDS_DATA = [
   // 1. ЕГИПЕТ (Вместо Крабс-доллара)
@@ -99,7 +99,9 @@ const CARDS_DATA = [
 const shuffleArray = (array) => {
   return [...array].sort(() => Math.random() - 0.5);
 };
-export default function App() {
+
+export default function MemoryGame1Screen({ navigation }) {
+  const bank = useBank();
   const [cards, setCards] = useState([]);
   const [selectedCards, setSelectedCards] = useState([]); 
   const [matchedCards, setMatchedCards] = useState([]);   
@@ -146,7 +148,10 @@ export default function App() {
 
   useEffect(() => {
     if (matchedCards.length === 8 && cards.length > 0) {
-      Alert.alert(`Вы нашли все пары за ${moves} ходов!`, [
+      if (bank && typeof bank.addCoins === 'function') {
+        bank.addCoins(30);
+      }
+      Alert.alert(`Вы нашли все пары за ${moves} ходов.\n\n+30 монет летят в твой кошелёк`, [
         { text: 'Играть снова', onPress: startNewGame }
       ]);
     }
@@ -156,7 +161,16 @@ export default function App() {
 
       return (
     <View style={styles.container}>
+       <View style={styles.topBar}>
+        <TouchableOpacity style={styles.backButtonTop} onPress={() => navigation.goBack()}>
+          <Text style={styles.backButtonText}>Назад</Text>
+        </TouchableOpacity>
       <Text style={styles.title}>Валюты стран</Text>
+      <View style={styles.bankBadge}>
+          <Text style={styles.bankText}>🪙 {bank?.coins ?? 0}</Text>
+        </View>
+
+      </View>
       <Text style={styles.subtitle}>Ходов: {moves}</Text>
       <View style={styles.grid}>
         {cards.map((card, index) => {
@@ -200,12 +214,35 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  title: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    color: '#1a1a1a',
-    marginBottom: 5,
+    topBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    paddingHorizontal: 20,
+    marginTop: 40, 
+    position: 'relative',
+    height: 50,
   },
+  backButtonTop: {
+    position: 'absolute',
+    left: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: '#e74c3c', 
+    borderRadius: 15,
+  },
+  backButtonText: {
+    color: '#FFF',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#2c3e50',
+  },
+
   subtitle: {
     fontSize: 18,
     color: '#666',

@@ -92,24 +92,24 @@ export function BankProvider({ children }) {
   const createCard = useCallback(() => {
     if (!cardNumber) {
       setCardNumber(generateCardNumber());
-      setBalance((b) => b + 100); // бонус за открытие карты
-      setWallets((w) => ({ ...w, rub: w.rub + 100 }));
+      // setBalance((b) => b + 100); // бонус за открытие карты
+      // setWallets((w) => ({ ...w, rub: w.rub + 100 }));
     }
   }, [cardNumber]);
 
   // ─── Ежедневный бонус +30 ₽ ───
-  useEffect(() => {
-    if (!isLoaded || !cardNumber) return;
-    const now = Date.now();
-    const DAY = 24 * 60 * 60 * 1000;
-    if (!lastDailyBonus || now - lastDailyBonus >= DAY) {
-      setBalance((b) => b + 30);
-      setWallets((w) => ({ ...w, rub: w.rub + 30 }));
-      setLastDailyBonus(now);
-      setNotification('🪙 Вам +30 монет за ежедневный вход!');
-      setTimeout(() => setNotification(null), 4000);
-    }
-  }, [isLoaded, cardNumber, lastDailyBonus]);
+  // useEffect(() => {
+  //   if (!isLoaded || !cardNumber) return;
+  //   const now = Date.now();
+  //   const DAY = 24 * 60 * 60 * 1000;
+  //   if (!lastDailyBonus || now - lastDailyBonus >= DAY) {
+  //     setBalance((b) => b + 30);
+  //     setWallets((w) => ({ ...w, rub: w.rub + 30 }));
+  //     setLastDailyBonus(now);
+  //     setNotification('🪙 Вам +30 монет за ежедневный вход!');
+  //     setTimeout(() => setNotification(null), 4000);
+  //   }
+  // }, [isLoaded, cardNumber, lastDailyBonus]);
 
   // ─── Начисление % по накопительному счёту ───
   useEffect(() => {

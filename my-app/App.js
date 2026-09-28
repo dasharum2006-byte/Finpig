@@ -45,6 +45,17 @@ import { colors } from './src/theme';
 import MiniGamesScreen from './src/screens/MiniGamesScreen';
 import GamePriceGuesser from './src/screens/GamePriceGuesser';
 import MemoryGame1Screen from './src/screens/MemoryGame1Screen';
+import ScamGameScreen from './src/screens/ScamGameScreen';
+import BudgetPlanScreen from './src/screens/BudgetPlanScreen';
+import { BudgetPlanProvider } from './src/context/BudgetPlanContext';
+import ToyShopScreen from './src/screens/ToyShopScreen';
+import GoalsScreen from './src/screens/GoalsScreen';
+import ParentGateScreen from './src/screens/ParentGateScreen';
+import ParentScreen from './src/screens/ParentScreen';
+import SettingsScreen from './src/screens/SettingsScreen';
+import { DemoProvider } from './src/context/DemoContext';
+import BudgetResultScreen from './src/screens/BudgetResultScreen';
+import NewBudgetPlanScreen from './src/screens/NewBudgetPlanScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -120,7 +131,10 @@ export default function App() {
   return (
     <BankProvider>
       <PetProvider>
+        <BudgetPlanProvider>  
+          <DemoProvider> 
         <SafeAreaProvider>
+          
           <NavigationContainer>
             <Stack.Navigator
               screenOptions={{
@@ -147,17 +161,51 @@ export default function App() {
                 options={{ headerShown: false, animation: 'slide_from_right' }}
               />
               <Stack.Screen
+                name="BudgetPlanScreen"
+                component={BudgetPlanScreen}
+                options={{ headerShown: false}}
+              />
+              <Stack.Screen
                 name="Kitchen"
                 component={KitchenScreen}
                 options={{ headerShown: false, animation: 'slide_from_left' }}
               />
+              <Stack.Screen
+                name="GoalsScreen"
+                component={GoalsScreen}
+                options={{ headerShown: false}}
+              />
+              <Stack.Screen 
+              name="BudgetResult" 
+              component={BudgetResultScreen} 
+              options={{ headerShown: false }} 
+              />
+              <Stack.Screen 
+              name="NewBudgetPlan" 
+              component={NewBudgetPlanScreen} 
+              options={{ headerShown: false }} 
+              />
               <Stack.Screen name="LivingRoomScreen" 
               component={LivingRoomScreen} 
               options={{ headerShown: false }} />
+            
                <Stack.Screen name="MiniGamesScreen" 
               component={MiniGamesScreen} 
               options={{ headerShown: false }} />
 
+              <Stack.Screen name="ScamGameScreen" 
+              component={ScamGameScreen} 
+              options={{ headerShown: false }} />
+              <Stack.Screen
+                name="ParentGateScreen"
+                component={ParentGateScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="Parent"
+                component={ParentScreen}
+                options={{ headerShown: false }}
+              />
               {/* ─── ГОРОД ─── */}
               <Stack.Screen
                 name="Town"
@@ -173,6 +221,11 @@ export default function App() {
                 name="Bank"
                 component={BankScreen}
                 options={{ title: '🏦 Банк' }}
+              />
+              <Stack.Screen
+                name="ToyShopScreen"
+                component={ToyShopScreen}
+                options={{ title: 'Магазин игрушек'}}
               />
 
               {/* ─── МИР ─── */}
@@ -281,13 +334,20 @@ export default function App() {
                 options={{ headerShown: false }}
               />
               <Stack.Screen
+              name="Settings"
+              component={SettingsScreen}
+              options={{ headerShown: false }}
+            />
+              <Stack.Screen
                 name="ArcticMarketScreen"
                 component={ArcticMarketScreen}
                 options={{ headerShown: false }}
               />
-            </Stack.Navigator>
-          </NavigationContainer>
-        </SafeAreaProvider>
+              </Stack.Navigator>
+                </NavigationContainer>
+              </SafeAreaProvider>
+            </DemoProvider> 
+        </BudgetPlanProvider>  
       </PetProvider>
     </BankProvider>
   );

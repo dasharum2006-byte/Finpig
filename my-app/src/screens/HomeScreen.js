@@ -1,28 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {
-  View,
-  Text,
-  Image,
-  ImageBackground,
-  TouchableOpacity,
-  StyleSheet,
-  Modal,
-  Pressable,
-  Animated,
-  Dimensions,
-  ScrollView,
-  PanResponder,
-  ActivityIndicator,
-} from 'react-native';
+import {View,Text,Image,ImageBackground,TouchableOpacity,StyleSheet,Modal, Pressable,Animated,
+  Dimensions,ScrollView,PanResponder,ActivityIndicator} from 'react-native';
+
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../theme';
 import { useBank } from '../context/BankContext';
 import { usePet } from '../context/PetContext';
 import { getEggImage, getPetImage } from '../petsConfig';
-
+import BudgetPlanScreen from './BudgetPlanScreen';
 const { width } = Dimensions.get('window');
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useBudgetPlan } from '../context/BudgetPlanContext';
+import { useDemo } from '../context/DemoContext';
 
 const PET_SIZE_BASE = width * 0.6;
+
 const PET_SIZES = {
   0: PET_SIZE_BASE * 0.7,
   1: PET_SIZE_BASE * 1.0,
@@ -36,7 +28,6 @@ const CLICK_STEP = 0.04;
 const FLASH_DURATION = 180;
 const EVO_FRAME_DURATION = 350;
 const MAX_STAGE = 3;
-
 const SWIPE_ACTIVATE = 8;
 const SWIPE_THRESHOLD = 40;
 
@@ -46,35 +37,108 @@ const ROOMS = [
   { id: 'room3', source: require('../../assets/Rooms/room3.png'), label: 'Комната 3' },
 ];
 
+function OnboardingFlow({ step, pet, onNext, onFinish, navigation }) {
+  if (step === 'intro')  return <IntroScreen onNext={() => onNext('budget')} />;
+  if (step === 'budget') return <StartBudgetScreen onNext={() => onNext('goal')} />;
+  if (step === 'goal')   return <GoalScreen onNext={() => onNext('plan')} />;
+  if (step === 'plan')   return <BudgetPlanScreen onFinish={onFinish} />;
+
+  return null;
+}
+
+function IntroScreen({ onNext }) {
+  return (
+    <SafeAreaView style={styles.container} edges={['bottom']}>
+      <View style={styles.onboardingWrap}>
+        <Text style={styles.onboardingTitle}>🐣 Привет! Я твой питомец.</Text>
+        <Text style={styles.onboardingText}>
+          Заботиться обо мне просто — у тебя есть монеты,
+          и ты решаешь, куда их тратить:
+        </Text>
+        <Text style={styles.onboardingLine}>🍎 Нужное — еда и уход. Без этого мне плохо.</Text>
+        <Text style={styles.onboardingLine}>🎈 Хочется — игрушки. Приятно, но можно подождать.</Text>
+        <Text style={styles.onboardingLine}>💰 В копилку — на твою мечту.</Text>
+        <TouchableOpacity style={styles.onboardingButton} onPress={onNext}>
+          <Text style={styles.onboardingButtonText}>Понятно →</Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
+  );
+}
+
+function StartBudgetScreen({ onNext }) {
+  const bank = useBank();
+
+  const handleNext = () => {
+    if (bank.balance === 0) {
+      bank.addCoins(500);
+    }
+    onNext();
+  };
+
+
+
+  
+  return (
+    <SafeAreaView style={styles.container} edges={['bottom']}>
+      <View style={styles.onboardingWrap}>
+        <Text style={styles.onboardingTitle}>💰 Вот твои первые монеты!</Text>
+        <Text style={styles.onboardingText}>
+          500 🪙 — это твой бюджет на первый период.
+        </Text>
+        <Text style={styles.onboardingText}>
+          Ты сам решишь, сколько на что потратить.
+          Главное — не потратить больше, чем есть.
+        </Text>
+        <TouchableOpacity style={styles.onboardingButton} onPress={handleNext}>
+          <Text style={styles.onboardingButtonText}>Дальше →</Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
+  );
+}
+
+  function GoalScreen({ onNext }) {
+  return (
+    <SafeAreaView style={styles.container} edges={['bottom']}>
+      <View style={styles.onboardingWrap}>
+        <Text style={styles.onboardingTitle}>🎯 Твоя цель: Велосипед</Text>
+        <Text style={styles.onboardingText}>Стоит: 500 🪙</Text>
+        <Text style={styles.onboardingText}>Накоплено: 0 🪙</Text>
+        <Text style={styles.onboardingText}>Осталось: 500 🪙</Text>
+        <TouchableOpacity style={styles.onboardingButton} onPress={onNext}>
+          <Text style={styles.onboardingButtonText}>Составить план →</Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
+  );
+}
+
 function HomeScreenInner({ route, navigation }) {
   const bank = useBank();
   const petCtx = usePet();
-
+   const { demoMode } = useDemo();   
   const incomingPet = route?.params?.pet;
-
-  useEffect(() => {
-    if (incomingPet) {
-      petCtx.setNewPet(incomingPet);
-    }
-  }, [incomingPet]);
-
-  const myPet = petCtx.pet;
-
   const [openMenu, setOpenMenu] = useState(null);
   const [roomIndex, setRoomIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const [evolving, setEvolving] = useState(false);
   const [flash, setFlash] = useState(false);
   const [hearts] = useState(3);
-
+  const [onboardingStep, setOnboardingStep] = useState(null);
   const progressRef = useRef(0);
   const decayTimer = useRef(null);
+  const budgetPlanCtx = useBudgetPlan();
   const scale = useRef(new Animated.Value(1)).current;
-
+  const [onboardingDone, setOnboardingDone] = useState(petCtx.isOnboardingDone ?? false);
+  const [showBudgetResult, setShowBudgetResult] = useState(false);  
+  const [showNewPlan, setShowNewPlan] = useState(false);  
+  const myPet = petCtx.pet;
   const currentStage = myPet?.stage ?? 0;
   const isMaxStage = currentStage >= MAX_STAGE;
   const petSize = PET_SIZES[currentStage] ?? PET_SIZES[0];
-
+  
+  
   const petImage = myPet
     ? (currentStage === 0
         ? getEggImage(myPet.speciesId)
@@ -82,7 +146,19 @@ function HomeScreenInner({ route, navigation }) {
     : null;
 
   const petName = myPet?.name ?? 'Питомец';
-
+  const hasSpending = budgetPlanCtx.currentFact && (
+  budgetPlanCtx.currentFact.needs > 0 ||
+  budgetPlanCtx.currentFact.wants > 0 ||
+  budgetPlanCtx.currentFact.savings > 0
+);
+  useEffect(() => {
+    if (incomingPet) {
+      petCtx.setNewPet(incomingPet);
+      if (!petCtx.isOnboardingDone) {
+      setOnboardingStep('intro');
+    }
+    }
+  }, [incomingPet]);
   const panResponder = useRef(
     PanResponder.create({
       onMoveShouldSetPanResponder: (_, g) =>
@@ -135,7 +211,6 @@ function HomeScreenInner({ route, navigation }) {
     await wait(FLASH_DURATION);
     setFlash(false);
     await wait(EVO_FRAME_DURATION);
-
     if (currentStage === 0) {
       petCtx.hatchPet();
     } else {
@@ -147,11 +222,51 @@ function HomeScreenInner({ route, navigation }) {
   };
 
   const wait = (ms) => new Promise((res) => setTimeout(res, ms));
-
   const menus = {
     room: { title: '🏠 Комната', isRoomPicker: true },
   };
 
+      if (showBudgetResult) {
+  return (
+    <BudgetPlanScreen
+      mode="result"
+      onFinish={() => {
+        setShowBudgetResult(false);
+        setShowNewPlan(true);
+      }}
+    />
+    );
+  }
+
+
+
+  if (showNewPlan) {
+  return (
+    <BudgetPlanScreen
+      mode="plan"
+      onFinish={() => {
+        setShowNewPlan(false);
+        budgetPlanCtx.finishPeriod?.();
+      }}
+    />
+    );
+  }
+
+    if (onboardingStep !== null && !onboardingDone) {
+    return (
+      <OnboardingFlow
+        step={onboardingStep}
+        pet={myPet}
+        onNext={(nextStep) => setOnboardingStep(nextStep)}
+        onFinish={() => {
+          petCtx.setOnboardingDone(true);
+          setOnboardingDone(true);
+          setOnboardingStep(null);
+        }}
+        navigation={navigation}
+      />
+    );
+  }
   if (!petCtx.isLoaded) {
     return (
       <SafeAreaView style={styles.container} edges={['bottom']}>
@@ -168,7 +283,7 @@ function HomeScreenInner({ route, navigation }) {
       <SafeAreaView style={styles.container} edges={['bottom']}>
         <View style={styles.emptyState}>
           <Text style={styles.emptyText}>Питомец не выбран</Text>
-          <Text style={styles.emptySubText}>Давай выберем яйцо!</Text>
+          <Text style={styles.emptySubText}>Давай выберем его</Text>
           <TouchableOpacity
             style={styles.emptyButton}
             onPress={() => navigation.navigate('Catalog')}
@@ -201,6 +316,13 @@ function HomeScreenInner({ route, navigation }) {
           <View style={styles.topBar}>
             <View style={styles.namePlate}>
               <Text style={styles.petName}>{petName}</Text>
+              <TouchableOpacity
+                style={styles.settingsBadge}
+                onPress={() => navigation.navigate('Settings')}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.settingsBadgeText}>⚙️</Text>
+              </TouchableOpacity>
             </View>
 
             <View style={styles.rightColumn}>
@@ -243,6 +365,12 @@ function HomeScreenInner({ route, navigation }) {
                   🪙 {bank.balance.toFixed(0)}
                 </Text>
               </TouchableOpacity>
+                {/* <TouchableOpacity
+                onPress={handleFullReset}
+                style={{ marginTop: 10, padding: 8, backgroundColor: '#ff4d4d', borderRadius: 8 }}>
+                <Text style={{ color: '#fff', fontSize: 11, fontWeight: '700' }}>СБРОС</Text>
+              </TouchableOpacity> */}
+                
             </View>
           </View>
 
@@ -285,14 +413,12 @@ function HomeScreenInner({ route, navigation }) {
               свайпни вправо, чтобы пойти на кухню →
             </Text>
           </View>
-
-          {/* 🔧 ИЗМЕНЕНО: убрана кнопка "Мир" */}
           <View style={styles.bottomBar}>
             <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('Tasks')}>
               <Text style={styles.actionEmoji}>📋</Text>
               <Text style={styles.actionText}>Задания</Text>
             </TouchableOpacity>
-
+            
             
             <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('LivingRoomScreen')}>
               <Text style={styles.actionEmoji}>🛋️</Text>
@@ -306,14 +432,66 @@ function HomeScreenInner({ route, navigation }) {
               <Text style={styles.actionEmoji}>🏙️</Text>
               <Text style={styles.actionText}>Город</Text>
             </TouchableOpacity>
-
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => navigation.navigate('GoalsScreen')}
+            >
+              <Text style={styles.actionEmoji}>🎯</Text>
+              <Text style={styles.actionText}>Цели</Text>
+            </TouchableOpacity>
             <TouchableOpacity style={styles.actionButton} onPress={() => setOpenMenu('room')}>
               <Text style={styles.actionEmoji}>🏠</Text>
               <Text style={styles.actionText}>Комната</Text>
             </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => navigation.navigate('ParentGateScreen')}
+            >
+              <Text style={styles.actionEmoji}>👨‍👩‍👧</Text>
+              <Text style={styles.actionText}>Родителю</Text>
+            </TouchableOpacity>
           </View>
         </ImageBackground>
       </View>
+            {demoMode && (
+        <TouchableOpacity
+          onPress={() => setShowBudgetResult(true)}
+          style={{
+            position: 'absolute',
+            top: 100,
+            right: 20,
+            paddingHorizontal: 16,
+            paddingVertical: 10,
+            backgroundColor: '#4caf50',
+            borderRadius: 12,
+            zIndex: 100,
+          }}
+        >
+          <Text style={{ color: '#fff', fontWeight: '700', fontSize: 13 }}>
+            🧪 ДЕМО: Итоги
+          </Text>
+        </TouchableOpacity>
+      )}
+
+      {!demoMode && currentStage >= MAX_STAGE && hasSpending && !budgetPlanCtx.periodCompleted && (
+        <TouchableOpacity
+          onPress={() => setShowBudgetResult(true)}
+          style={{
+            position: 'absolute',
+            bottom: 110,
+            right: 20,
+            paddingHorizontal: 14,
+            paddingVertical: 10,
+            backgroundColor: '#e8a87c',
+            borderRadius: 12,
+            zIndex: 100,
+          }}
+        >
+          <Text style={{ color: '#fff', fontWeight: '700', fontSize: 12 }}>
+            📊 Итоги периода
+          </Text>
+        </TouchableOpacity>
+      )}
 
       {flash && <View style={styles.flash} pointerEvents="none" />}
 
@@ -473,20 +651,31 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
 
-  bottomBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 14,
-    backgroundColor: 'rgba(255,255,255,0.92)',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-  },
-  actionButton: { alignItems: 'center', paddingVertical: 8, paddingHorizontal: 16, minWidth: 100 },
-  actionEmoji: { fontSize: 26, marginBottom: 4 },
+  // bottomBar: {
+  //   flexDirection: 'row',
+  //   justifyContent: 'space-around',
+  //   alignItems: 'center',
+  //   paddingHorizontal: 0,
+  //   paddingVertical: 14,
+  //   backgroundColor: 'rgba(255,255,255,0.92)',
+  //   borderTopLeftRadius: 24,
+  //   borderTopRightRadius: 24,
+  //   borderTopWidth: 1,
+  //   borderTopColor: colors.border,
+  // },
+      bottomBar: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 8,
+      paddingVertical: 14,
+      backgroundColor: 'rgba(255,255,255,0.92)',
+      borderTopLeftRadius: 24,
+      borderTopRightRadius: 24,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+    },
+  actionButton: { alignItems: 'center', paddingVertical: 8, paddingHorizontal: 16, minWidth: 70 },
+  actionEmoji: { fontSize: 20, marginBottom: 4 },
   actionText: { fontSize: 13, color: colors.text, fontWeight: '600' },
 
   flash: { ...StyleSheet.absoluteFillObject, backgroundColor: '#fff', opacity: 0.9 },
@@ -530,6 +719,52 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   roomCheckText: { color: '#fff', fontSize: 13, fontWeight: '700' },
+    onboardingWrap: {
+    flex: 1,
+    paddingHorizontal: 24,
+    paddingVertical: 32,
+    justifyContent: 'center',
+    gap: 12,
+  },
+  onboardingTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: 8,
+  },
+  onboardingText: {
+    fontSize: 16,
+    color: colors.text,
+    lineHeight: 22,
+  },
+  onboardingLine: {
+    fontSize: 16,
+    color: colors.text,
+    lineHeight: 22,
+    marginTop: 4,
+  },
+  onboardingButton: {
+    marginTop: 24,
+    backgroundColor: colors.accent,
+    paddingVertical: 16,
+    borderRadius: 14,
+    alignItems: 'center',
+  },
+  onboardingButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  settingsBadge: {
+  backgroundColor: 'rgba(255,255,255,0.85)',
+  paddingHorizontal: 12,
+  paddingVertical: 8,
+  borderRadius: 20,
+  marginTop: 8,
+},
+settingsBadgeText: {
+  fontSize: 20,
+},
 });
 
 export default React.memo(HomeScreenInner);
