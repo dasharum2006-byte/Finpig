@@ -31,7 +31,7 @@ export default function EgyptScreen({ navigation }) {
         resizeMode="cover"
       >
         <View style={styles.overlay}>
-          {/* Исправлено имя экрана на 'World' */}
+          {/* 🔧 ИСПРАВЛЕНО: 'WorldScreen' → 'World' */}
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('World')}>
             <Text style={styles.backButtonText}>🗺️ На карту</Text>
           </TouchableOpacity>
@@ -60,6 +60,7 @@ export default function EgyptScreen({ navigation }) {
             </TouchableOpacity>
           </View>
 
+          {/* 🔧 УВЕЛИЧЕН питомец */}
           <Image source={petImage} style={styles.petImage} />
         </View>
       </ImageBackground>
@@ -145,11 +146,12 @@ const styles = StyleSheet.create({
     color: '#3d2510',
     textAlign: 'left',
   },
+  // 🔧 УВЕЛИЧЕН питомец (было 150×150, стало 250×250)
   petImage: {
     position: 'absolute',
-    bottom: 60,
-    width: 150,
-    height: 150,
+    bottom: 40,
+    width: 250,
+    height: 250,
     resizeMode: 'contain',
   },
 });

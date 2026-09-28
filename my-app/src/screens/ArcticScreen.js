@@ -58,6 +58,7 @@ export default function ArcticScreen({ navigation }) {
             </TouchableOpacity>
           </View>
 
+          {/* 🔧 УВЕЛИЧЕН питомец */}
           <Image source={petImage} style={styles.petImage} />
           </View>
           </ImageBackground>
@@ -140,12 +141,12 @@ const styles = StyleSheet.create({
     color: '#006064',
     textAlign: 'left',
   },
+  // 🔧 УВЕЛИЧЕН питомец (было 150×150, стало 250×250)
   petImage: {
     position: 'absolute',
-    bottom: 190,
-    marginLeft: -100,
-    width: 150,
-    height: 150,
+    bottom: 40,
+    width: 250,
+    height: 250,
     resizeMode: 'contain',
   },
 });

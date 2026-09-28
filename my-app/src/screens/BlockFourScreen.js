@@ -1,107 +1,107 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const BLOCK_FOUR_ROUTINE = [
-  { id: 1, type: 'quiz', title: 'Вопрос 1: Первые заработки', subtitle: 'Как заработать карманные деньги' },
-  { id: 2, type: 'quiz', title: 'Вопрос 2: Правило 4-х копилок', subtitle: 'Траты, Накопления, Инвестиции, Добро' },
-  { id: 3, type: 'quiz', title: 'Вопрос 3: Осторожно, мошенники!', subtitle: 'Как защитить свои деньги' },
-  { id: 4, type: 'sort', title: 'Задание 4: Распредели бюджет', subtitle: 'Разложи деньги по копилкам' },
-  { id: 5, type: 'quiz', title: 'Вопрос 5: Что такое инфляция?', subtitle: 'Почему деньги обесцениваются' },
-  { id: 6, type: 'quiz', title: 'Вопрос 6: Мой финансовый план', subtitle: 'Финальный экзамен блока' },
+  { id: 1, type: 'quiz', title: 'Права шпиона-потребителя', subtitle: 'Защита качества покупок' },
+  { id: 2, type: 'quiz', title: 'Зачем платить налоги?', subtitle: 'Куда идут монеты города' },
+  { id: 3, type: 'quiz', title: 'Официальная разведка', subtitle: 'Ловушки сайтов-подделок' },
+  { id: 4, type: 'sort', title: 'Госуслуги', subtitle: 'Шпионский онлайн-алгоритм' },
+  { id: 5, type: 'quiz', title: 'Секретный агент', subtitle: 'Защита от фальшивой полиции' },
 ];
+
 
 const STORAGE_KEY = '@block_four_progress_v1';
 
 export default function BlockFourScreen({ navigation, route }) {
-  const [unlockedStep, setUnlockedStep] = useState(1);
+  const [completedStep, setCompletedStep] = useState(0);
 
-  // Читаем прогресс при каждом открытии экрана
-  useFocusEffect(
+    useFocusEffect(
     useCallback(() => {
       const loadProgress = async () => {
         try {
           const savedStep = await AsyncStorage.getItem(STORAGE_KEY);
-          if (savedStep) {
-            setUnlockedStep(parseInt(savedStep, 10));
-          }
+          let currentStepInt = savedStep ? parseInt(savedStep, 10) : 0;
+          
+          if (route.params?.completedStep !== undefined) {
+            currentStepInt = Math.max(currentStepInt, route.params.completedStep);
+            await AsyncStorage.setItem(STORAGE_KEY, currentStepInt.toString());
+            navigation.setParams({ completedStep: undefined }); 
+          }  
+          setCompletedStep(currentStepInt);
         } catch (e) {
           console.error('Ошибка загрузки прогресса Блока 4:', e);
         }
       };
       loadProgress();
-    }, [])
+    }, [route.params?.completedStep, navigation])
   );
-
-  // Сохраняем прогресс при его изменении
-  useEffect(() => {
-    const saveProgress = async () => {
-      try {
-        await AsyncStorage.setItem(STORAGE_KEY, unlockedStep.toString());
-      } catch (e) {
-        console.error('Ошибка сохранения прогресса Блока 4:', e);
+ 
+ 
+   const handlePressItem = (item) => {
+    const isCompleted = item.id <= completedStep;
+    const isCurrent = item.id === completedStep + 1;
+    if (isCompleted) {
+      if (item.type === 'quiz' || item.type === 'sort') {
+        navigation.navigate('LevelFourScreen', { 
+          startIndex: item.id - 1, 
+          reviewMode: true 
+        });
       }
-    };
-    saveProgress();
-  }, [unlockedStep]);
-
-  // На случай, если экран уровня всё-таки передаст параметр
-  useEffect(() => {
-    if (route.params?.highestCompletedStep) {
-      const nextStep = route.params.highestCompletedStep + 1;
-      setUnlockedStep(prev => Math.max(prev, nextStep));
-      navigation.setParams({ highestCompletedStep: undefined });
-    }
-  }, [route.params?.highestCompletedStep, navigation]);
-
-  const handlePressItem = (item) => {
-    if (item.id > unlockedStep) {
-      Alert.alert('Заблокировано 🔒', 'Этот шаг пока закрыт. Пройди предыдущие задания');
+      return;}
+    if (!isCurrent) {
+      Alert.alert('Заблокировано 🔒', 'Сначала пройди предыдущий шаг');
       return;
     }
-
     if (item.type === 'quiz' || item.type === 'sort') {
       navigation.navigate('LevelFourScreen', { startIndex: item.id - 1 });
-    } else if (item.type === 'game') {
-      navigation.navigate(item.screen, { stepId: item.id });
     }
   };
 
-  return (
+   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Text style={styles.backButtonText}>Назад</Text>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('Tasks')}>
+          <Text style={styles.backButtonText}>Задания</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Блок 4</Text>
-        <View style={{ width: 70 }} />
+        <View style={{ width: 110 }} />
       </View>
-
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {BLOCK_FOUR_ROUTINE.map((item) => {
-          const isLocked = item.id > unlockedStep;
-
+          const isCompleted = item.id <= completedStep;
+          const isCurrent = item.id === completedStep + 1;
+          const isLocked = item.id > completedStep + 1;
           return (
-            <TouchableOpacity 
-              key={item.id} 
+            <TouchableOpacity
+              key={item.id}
               style={[
-                styles.card, 
-                item.type === 'game' ? styles.gameCard : styles.quizCard,
-                isLocked && styles.lockedCard
+                styles.card,
+                styles.quizCard, 
+                isCompleted && styles.completedCard, 
+                isLocked && styles.lockedCard,
               ]}
               onPress={() => handlePressItem(item)}
               activeOpacity={isLocked ? 1 : 0.8}
             >
               <View style={styles.cardInfo}>
-                <Text style={[styles.cardTitle, isLocked && styles.lockedText]}>
-                  {isLocked ? `🔒 ${item.title}` : item.title}
+                <Text style={[
+                  styles.cardTitle,
+                  isCompleted && styles.completedText,
+                  isLocked && styles.lockedText,
+                ]}>
+                  {isCompleted ? `${item.title}` : isLocked ? `🔒 ${item.title}` : item.title}
                 </Text>
-                <Text style={styles.cardSubtitle}>
-                  {isLocked ? "Пройди прошлый уровень" : item.subtitle}
+                <Text style={[
+                  styles.cardSubtitle,
+                  isCompleted && styles.completedSubText,
+                ]}>
+                  {isCompleted ? 'Нажми, чтобы посмотреть ответы' : isLocked ? 'Пройди прошлый уровень' : item.subtitle}
                 </Text>
               </View>
-              {!isLocked && <Text style={styles.arrow}>▶</Text>}
+              {isCurrent && <Text style={styles.arrow}>▶</Text>}
+              {isCompleted && <Text style={styles.checkMark}>✅</Text>}
             </TouchableOpacity>
           );
         })}
@@ -111,19 +111,89 @@ export default function BlockFourScreen({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F5F7FA', paddingTop: 50 },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, marginBottom: 20 },
-  backButton: { backgroundColor: '#558faa', paddingHorizontal: 15, paddingVertical: 8, borderRadius: 12 },
-  backButtonText: { color: '#FFF', fontWeight: 'bold' },
-  headerTitle: { fontSize: 22, fontWeight: 'bold', color: '#333' },
-  scrollContent: { paddingHorizontal: 20, paddingBottom: 40 },
-  card: { flexDirection: 'row', alignItems: 'center', padding: 16, borderRadius: 16, marginBottom: 12, borderWidth: 1, elevation: 2 },
-  quizCard: { backgroundColor: '#FFF', borderColor: '#E2E8F0' },
-  gameCard: { backgroundColor: '#EBF8FF', borderColor: '#BEE3F8' },
-  cardInfo: { flex: 1 },
-  cardTitle: { fontSize: 16, fontWeight: 'bold', color: '#2D3748' },
-  lockedText: { color: '#A0AEC0' },
-  cardSubtitle: { fontSize: 13, color: '#718096', marginTop: 4 },
-  arrow: { fontSize: 16, color: '#A0AEC0', marginLeft: 10 },
-  lockedCard: { backgroundColor: '#E2E8F0', borderColor: '#CBD5E0', opacity: 0.6 },
+  container: { 
+    flex: 1, 
+    backgroundColor: '#F5F7FA', 
+    paddingTop: 25, 
+  },
+  header: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'center', 
+    paddingHorizontal: 20, 
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  backButton: { 
+    backgroundColor: '#3e9250cb', 
+    paddingHorizontal: 15, 
+    paddingVertical: 8, 
+    borderRadius: 12 
+  },
+  backButtonText: { 
+    color: '#131212', 
+    fontWeight: 'bold' 
+  },
+  headerTitle: { 
+    fontSize: 26, 
+    marginLeft: 35,
+    fontWeight: 'bold', 
+    color: '#333',
+    textAlign: 'center', 
+    flex: 1,            
+    textAlignVertical: 'center',
+  },
+  scrollContent: { 
+    paddingHorizontal: 20, 
+    paddingBottom: 40 
+  },
+
+  card: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'space-between', 
+    padding: 16, 
+    borderRadius: 16, 
+    marginBottom: 12, 
+    borderWidth: 1, 
+    elevation: 2,
+  },
+  quizCard: { 
+    backgroundColor: '#FFF', 
+    borderColor: '#E2E8F0' 
+  },
+  gameCard: { 
+    backgroundColor: '#EBF8FF', 
+    borderColor: '#BEE3F8' 
+  },
+  cardInfo: { 
+    flex: 1,            
+    alignItems: 'flex-start', 
+  },
+  cardTitle: { 
+    fontSize: 16, 
+    fontWeight: 'bold', 
+    color: '#2D3748',
+    textAlign: 'left'    
+  },
+  lockedText: { 
+    color: '#A0AEC0' 
+  },
+  cardSubtitle: { 
+    fontSize: 13, 
+    color: '#718096', 
+    marginTop: 4,
+    textAlign: 'left'    
+  },
+  arrow: { 
+    fontSize: 16, 
+    color: '#A0AEC0', 
+    marginLeft: 10,      
+    marginTop: 0 
+  },
+  lockedCard: { 
+    backgroundColor: '#E2E8F0', 
+    borderColor: '#CBD5E0', 
+    opacity: 0.6 
+  },
 });

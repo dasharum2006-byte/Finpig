@@ -1,103 +1,138 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useFocusEffect } from '@react-navigation/native'; 
-import { StyleSheet, Text, View, TouchableOpacity, Dimensions, ScrollView, Alert } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
 const BLOCK_TWO_ROUTINE = [
-  { id: 1, type: 'quiz', title: 'Шаг 1: Секрет кармана', subtitle: 'Откуда берутся деньги' },
-  { id: 2, type: 'quiz', title: 'Шаг 2: Ловушка Хотюна', subtitle: 'Охота за скидками' },
-  { id: 3, type: 'quiz', title: 'Шаг 3: Монстр Одолжун', subtitle: 'Что такое долг' },
-  { id: 4, type: 'quiz', title: 'Шаг 4: Кредитный капкан', subtitle: 'Ловушка для взрослых' },
-  { id: 5, type: 'quiz', title: 'Шаг 5: Фин-щит агента', subtitle: 'Когда кредит оправдан' },
-  { id: 6, type: 'quiz', title: 'Шаг 6: Суперприём Рассрочка', subtitle: 'Делим платежи на части' },
-  { id: 7, type: 'quiz', title: 'Шаг 7: Коварные риски', subtitle: 'Опасно ли давать в долг' },
-  { id: 8, type: 'sort', title: 'Задание 8: Экзамен Банкира', subtitle: 'Умные и глупые цели' },
-  { id: 9, type: 'quiz', title: 'Шаг 9: Шпионский счёт', subtitle: 'Пересчитываем сдачу' },
-  { id: 10, type: 'quiz', title: 'Шаг 10: Разведка цен', subtitle: 'Маркетплейс против лавки' },
-  
-  // Мини-игры второго блока (откроются после прохождения всех 10 шагов)
-  { id: 11, type: 'game', screen: 'GameBudgetPlanner', title: '🎮 Игра 1: Собери бюджет', subtitle: 'Распредели доходы и расходы' },
-  { id: 12, type: 'game', screen: 'GameShopSimulator', title: '🎮 Игра 2: Симулятор магазина', subtitle: 'Проверка на прочность' },
+  { id: 1, type: 'quiz', title: 'Деньги не растут на деревьях', subtitle: 'Деньги не растут на деревьях' },
+  { id: 2, type: 'quiz', title: 'Ловушка Хотюна «Супер-Скидки»', subtitle: 'Ловушка Хотюна «Супер-Скидки»' },
+  { id: 3, type: 'quiz', title: 'Монстр Долгов «Одолжун»', subtitle: 'Монстр Долгов «Одолжун»' },
+  { id: 4, type: 'quiz', title: 'Одолжун и коварные риски', subtitle: 'Одолжун и коварные риски' },
+  { id: 5, type: 'sort', title: 'Проверка Банкира', subtitle: 'Проверка Банкира' },
+  { id: 6, type: 'quiz', title: 'Шпионский счет сдачи', subtitle: 'Шпионский счет сдачи' },
+  { id: 7, type: 'quiz', title: 'Разведка цен', subtitle: 'Разведка цен' },
+  { id: 8, type: 'quiz', title: 'Ловушка коварных ссылок', subtitle: 'Ловушка коварных ссылок' },
+  { id: 9, type: 'quiz', title: 'Шпионский шифр карты ', subtitle: 'Шпионский шифр карты ' },
+  { id: 10, type: 'quiz', title: 'Секреты семейной базы', subtitle: 'Секреты семейной базы' },
+  { id: 11, type: 'quiz', title: 'Ловушка "Срочно переведи монеты!"', subtitle: 'Ловушка "Срочно переведи монеты!"' },
+  { id: 12, type: 'quiz', title: 'Шпионский сейф для карты ', subtitle: 'Шпионский сейф для карты ' },
+  { id: 13, type: 'quiz', title: 'Покупки в интернете', subtitle: 'Покупки в интернете' },
+  { id: 14, type: 'sort', title: 'Валюты', subtitle: 'Валюты' },
+  { id: 15, type: 'quiz', title: 'Обмен валюты', subtitle: 'Обмен валюты' },
+
 ];
 
 const STORAGE_KEY = '@block_two_progress_v1';
 
 export default function BlockTwoScreen({ navigation, route }) {
-  const [unlockedStep, setUnlockedStep] = useState(1);
+  const [completedStep, setCompletedStep] = useState(0);
 
   useFocusEffect(
     useCallback(() => {
       const loadProgress = async () => {
         try {
           const savedStep = await AsyncStorage.getItem(STORAGE_KEY);
-          if (savedStep) {
-            setUnlockedStep(parseInt(savedStep, 10));
-          }
-        } catch (e) {
-          console.error('Ошибка загрузки прогресса Блока 1:', e);
+          let currentStepInt = savedStep ? parseInt(savedStep, 10) : 0;
+          if (route.params?.completedStep !== undefined) {
+            currentStepInt = Math.max(currentStepInt, route.params.completedStep);
+            await AsyncStorage.setItem(STORAGE_KEY, currentStepInt.toString());
+            navigation.setParams({ completedStep: undefined }); 
+          } 
+          setCompletedStep(currentStepInt);
+        }
+        catch (e) {
+        console.error('Ошибка загрузки прогресса Блока 2:', e);
         }
       };
       loadProgress();
-    }, [])
+    }, [route.params?.completedStep, navigation])
   );
+   
+  
+  // useEffect(() => {
+  //   const saveProgress = async () => {
+  //     try {
+  //       await AsyncStorage.setItem(STORAGE_KEY, completedStep.toString());
+  //     } catch (e) {
+  //       console.error('Ошибка сохранения прогресса Блока 2:', e);
+  //     }
+  //   };
+  //   saveProgress();
+  // }, [completedStep]);
 
-  useEffect(() => {
-    const saveProgress = async () => {
-      try {
-        await AsyncStorage.setItem(STORAGE_KEY, unlockedStep.toString());
-      } catch (e) {
-        console.error('Ошибка сохранения прогресса:', e);
-      }
-    };
-    saveProgress();
-  }, [unlockedStep]);
+  // useEffect(() => {
+  //   if (route.params?.completedStep !== undefined) {
+  //     setCompletedStep(prev => Math.max(prev, route.params.completedStep));
+  //     navigation.setParams({ completedStep: undefined });
+  //   }
+  // }, [route.params?.completedStep, navigation]);
 
   const handlePressItem = (item) => {
-    if (item.id > unlockedStep) {
-      Alert.alert('Заблокировано 🔒', 'Этот шаг пока закрыт. Пройди предыдущие задания!');
+    const isCompleted = item.id <= completedStep;
+    const isCurrent = item.id === completedStep + 1;
+
+    if (isCompleted) {
+      if (item.type === 'quiz' || item.type === 'sort') {
+      navigation.navigate('LevelTwoScreen', { startIndex: item.id - 1, reviewMode: true });
+      // Alert.alert('Уже пройдено');
+      // return;
+    } return;
+  }
+    if (!isCurrent) {
+      Alert.alert('Заблокировано 🔒', 'Сначала пройди предыдущий шаг');
       return;
     }
-
     if (item.type === 'quiz' || item.type === 'sort') {
       navigation.navigate('LevelTwoScreen', { startIndex: item.id - 1 });
-    } else if (item.type === 'game') {
-      navigation.navigate(item.screen, { stepId: item.id });
     }
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Text style={styles.backButtonText}>Назад</Text>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('Tasks')}>
+          <Text style={styles.backButtonText}>Задания</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Блок 2</Text>
-        <View style={{ width: 70 }} />
+        <View style={{ width: 110 }} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {BLOCK_TWO_ROUTINE.map((item) => {
-          const isLocked = item.id > unlockedStep;
+          const isCompleted = item.id <= completedStep;
+          const isCurrent = item.id === completedStep + 1;
+          const isLocked = item.id > completedStep + 1;
 
           return (
-            <TouchableOpacity 
-              key={item.id} 
+            <TouchableOpacity
+              key={item.id}
               style={[
-                styles.card, 
-                item.type === 'game' ? styles.gameCard : styles.quizCard,
-                isLocked && styles.lockedCard
+                styles.card,
+                styles.quizCard,
+                isCompleted && styles.completedCard,
+                isLocked && styles.lockedCard,
               ]}
               onPress={() => handlePressItem(item)}
-              activeOpacity={isLocked ? 1 : 0.8}
+              activeOpacity={isLocked  ? 1 : 0.8}
             >
               <View style={styles.cardInfo}>
-                <Text style={[styles.cardTitle, isLocked && styles.lockedText]}>
-                  {isLocked ? `🔒 ${item.title}` : item.title}
+                <Text style={[
+                  styles.cardTitle,
+                  isCompleted && styles.completedText,
+                  isLocked && styles.lockedText,
+                ]}>
+                  {isCompleted ? `${item.title}` : isLocked ? `🔒 ${item.title}` : item.title}
                 </Text>
-                <Text style={styles.cardSubtitle}>
-                  {isLocked ? "Пройди прошлый уровень" : item.subtitle}
+                <Text style={[
+                  styles.cardSubtitle,
+                  isCompleted && styles.completedText,
+                ]}>
+                  {isCompleted ? 'Нажми, чтобы посмотреть ответы' : isLocked ? 'Пройди прошлый уровень' : item.subtitle}
                 </Text>
               </View>
-              {!isLocked && <Text style={styles.arrow}>▶</Text>}
+              {isCurrent && <Text style={styles.arrow}>▶</Text>}
+              {isCompleted && <Text style={styles.checkMark}>✅</Text>}
             </TouchableOpacity>
           );
         })}
@@ -105,21 +140,90 @@ export default function BlockTwoScreen({ navigation, route }) {
     </View>
   );
 }
-
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F5F7FA', paddingTop: 50 },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, marginBottom: 20 },
-  backButton: { backgroundColor: '#558faa', paddingHorizontal: 15, paddingVertical: 8, borderRadius: 12 },
-  backButtonText: { color: '#FFF', fontWeight: 'bold' },
-  headerTitle: { fontSize: 22, fontWeight: 'bold', color: '#333' },
-  scrollContent: { paddingHorizontal: 20, paddingBottom: 40 },
-  card: { flexDirection: 'row', alignItems: 'center', padding: 16, borderRadius: 16, marginBottom: 12, borderWidth: 1, elevation: 2 },
-  quizCard: { backgroundColor: '#FFF', borderColor: '#E2E8F0' },
-  gameCard: { backgroundColor: '#EBF8FF', borderColor: '#BEE3F8' },
-  cardInfo: { flex: 1 },
-  cardTitle: { fontSize: 16, fontWeight: 'bold', color: '#2D3748' },
-  lockedText: { color: '#A0AEC0' },
-  cardSubtitle: { fontSize: 13, color: '#718096', marginTop: 4 },
-  arrow: { fontSize: 16, color: '#A0AEC0', marginLeft: 10 },
-  lockedCard: { backgroundColor: '#E2E8F0', borderColor: '#CBD5E0', opacity: 0.6 },
+  container: { 
+    flex: 1, 
+    backgroundColor: '#F5F7FA', 
+    paddingTop: 25, 
+  },
+  header: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'center', 
+    paddingHorizontal: 20, 
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  backButton: { 
+    backgroundColor: '#3e9250cb', 
+    paddingHorizontal: 15, 
+    paddingVertical: 8, 
+    borderRadius: 12 
+  },
+  backButtonText: { 
+    color: '#131212', 
+    fontWeight: 'bold' 
+  },
+  headerTitle: { 
+    fontSize: 26, 
+    marginLeft: 35,
+    fontWeight: 'bold', 
+    color: '#333',
+    textAlign: 'center', 
+    flex: 1,            
+    textAlignVertical: 'center',
+  },
+  scrollContent: { 
+    paddingHorizontal: 20, 
+    paddingBottom: 40 
+  },
+
+  card: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'space-between', 
+    padding: 16, 
+    borderRadius: 16, 
+    marginBottom: 12, 
+    borderWidth: 1, 
+    elevation: 2,
+  },
+  quizCard: { 
+    backgroundColor: '#FFF', 
+    borderColor: '#E2E8F0' 
+  },
+  gameCard: { 
+    backgroundColor: '#EBF8FF', 
+    borderColor: '#BEE3F8' 
+  },
+  cardInfo: { 
+    flex: 1,            
+    alignItems: 'flex-start', 
+  },
+  cardTitle: { 
+    fontSize: 16, 
+    fontWeight: 'bold', 
+    color: '#2D3748',
+    textAlign: 'left'    
+  },
+  lockedText: { 
+    color: '#A0AEC0' 
+  },
+  cardSubtitle: { 
+    fontSize: 13, 
+    color: '#718096', 
+    marginTop: 4,
+    textAlign: 'left'    
+  },
+  arrow: { 
+    fontSize: 16, 
+    color: '#A0AEC0', 
+    marginLeft: 10,      
+    marginTop: 0 
+  },
+  lockedCard: { 
+    backgroundColor: '#E2E8F0', 
+    borderColor: '#CBD5E0', 
+    opacity: 0.6 
+  },
 });

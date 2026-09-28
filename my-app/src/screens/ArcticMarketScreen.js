@@ -112,7 +112,7 @@ export default function ArcticMarketScreen({ navigation }) {
           ))}
         </View>
 
-        {/* ПИТОМЕЦ */}
+        {/* 🔧 УВЕЛИЧЕН питомец */}
         <Image source={petImage} style={styles.petImage} />
 
       </View>
@@ -231,12 +231,13 @@ const styles = StyleSheet.create({
     color: '#666',
     marginTop: 4,
   },
+  // 🔧 УВЕЛИЧЕН питомец (было 140×140, стало 200×200)
   petImage: {
     position: 'absolute',
-    bottom: 30,
+    bottom: 20,
     alignSelf: 'center',
-    width: 140,
-    height: 140,
+    width: 200,
+    height: 200,
     resizeMode: 'contain',
   },
 });

@@ -40,8 +40,6 @@ import ArcticBankScreen from './src/screens/ArcticBankScreen';
 import ArcticMarketScreen from './src/screens/ArcticMarketScreen';
 import LevelFourScreen from './src/screens/LevelFourScreen';
 import BlockFourScreen from './src/screens/BlockFourScreen';
-import LevelFiveScreen from './src/screens/LevelFiveScreen';
-import BlockFiveScreen from './src/screens/BlockFiveScreen';
 import LivingRoomScreen from './src/screens/LivingRoomScreen'; 
 import { colors } from './src/theme';
 
@@ -232,16 +230,6 @@ export default function App() {
               <Stack.Screen
                 name="LevelFourScreen"
                 component={LevelFourScreen}
-                options={{ headerShown: false }}
-              />
-              <Stack.Screen
-                name="BlockFiveScreen"
-                component={BlockFiveScreen}
-                options={{ headerShown: false }}
-              />
-              <Stack.Screen
-                name="LevelFiveScreen"
-                component={LevelFiveScreen}
                 options={{ headerShown: false }}
               />
 

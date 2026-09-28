@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -22,7 +22,6 @@ import { getEggImage, getPetImage } from '../petsConfig';
 
 const { width } = Dimensions.get('window');
 
-// Размеры по стадиям: 0=яйцо, 1=мелкий, 2=подросток, 3=взрослый
 const PET_SIZE_BASE = width * 0.6;
 const PET_SIZES = {
   0: PET_SIZE_BASE * 0.7,
@@ -38,9 +37,8 @@ const FLASH_DURATION = 180;
 const EVO_FRAME_DURATION = 350;
 const MAX_STAGE = 3;
 
-// ─── Свайп: лёгкий, в любом месте экрана ───
-const SWIPE_ACTIVATE = 8;    // px — минимальное движение для активации
-const SWIPE_THRESHOLD = 40;  // px — минимальная длина для срабатывания
+const SWIPE_ACTIVATE = 8;
+const SWIPE_THRESHOLD = 40;
 
 const ROOMS = [
   { id: 'room1', source: require('../../assets/Rooms/room.png'), label: 'Комната 1' },
@@ -48,7 +46,7 @@ const ROOMS = [
   { id: 'room3', source: require('../../assets/Rooms/room3.png'), label: 'Комната 3' },
 ];
 
-export default function HomeScreen({ route, navigation }) {
+function HomeScreenInner({ route, navigation }) {
   const bank = useBank();
   const petCtx = usePet();
 
@@ -85,7 +83,6 @@ export default function HomeScreen({ route, navigation }) {
 
   const petName = myPet?.name ?? 'Питомец';
 
-  // ─── Свайп ВПРАВО → на кухню (лёгкий, в любом месте) ───
   const panResponder = useRef(
     PanResponder.create({
       onMoveShouldSetPanResponder: (_, g) =>
@@ -289,6 +286,7 @@ export default function HomeScreen({ route, navigation }) {
             </Text>
           </View>
 
+          {/* 🔧 ИЗМЕНЕНО: убрана кнопка "Мир" */}
           <View style={styles.bottomBar}>
             <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('Tasks')}>
               <Text style={styles.actionEmoji}>📋</Text>
@@ -308,6 +306,7 @@ export default function HomeScreen({ route, navigation }) {
               <Text style={styles.actionEmoji}>🏙️</Text>
               <Text style={styles.actionText}>Город</Text>
             </TouchableOpacity>
+
             <TouchableOpacity style={styles.actionButton} onPress={() => setOpenMenu('room')}>
               <Text style={styles.actionEmoji}>🏠</Text>
               <Text style={styles.actionText}>Комната</Text>
@@ -360,7 +359,7 @@ export default function HomeScreen({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
+  container: { flex: 1, backgroundColor: '#d9c3a5' },
   room: { flex: 1, justifyContent: 'space-between' },
 
   emptyState: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
@@ -532,3 +531,5 @@ const styles = StyleSheet.create({
   },
   roomCheckText: { color: '#fff', fontSize: 13, fontWeight: '700' },
 });
+
+export default React.memo(HomeScreenInner);
