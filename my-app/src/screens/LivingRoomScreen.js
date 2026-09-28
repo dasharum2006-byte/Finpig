@@ -15,14 +15,14 @@ export default function LivingRoomScreen({ navigation }) {
 
         <View style={styles.content}>
           <Text style={styles.title}>Гостиная</Text>
-          {/* <TouchableOpacity 
+          <TouchableOpacity 
             style={styles.gameButton} 
             onPress={() => navigation.navigate('MiniGamesScreen')} 
             activeOpacity={0.8}
-          > */}
+          >
             <Text style={styles.gameEmoji}>🎮</Text>
             <Text style={styles.gameText}>Мини-игры</Text>
-          {/* </TouchableOpacity> */}
+          </TouchableOpacity>
         </View>
 
       </View>

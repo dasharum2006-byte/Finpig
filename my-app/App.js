@@ -42,6 +42,8 @@ import LevelFourScreen from './src/screens/LevelFourScreen';
 import BlockFourScreen from './src/screens/BlockFourScreen';
 import LivingRoomScreen from './src/screens/LivingRoomScreen'; 
 import { colors } from './src/theme';
+import MiniGamesScreen from './src/screens/MiniGamesScreen';
+import GamePriceGuesser from './screens/GamePriceGuesser';
 
 const Stack = createNativeStackNavigator();
 
@@ -151,6 +153,9 @@ export default function App() {
               <Stack.Screen name="LivingRoomScreen" 
               component={LivingRoomScreen} 
               options={{ headerShown: false }} />
+               <Stack.Screen name="MiniGamesScreen" 
+              component={MiniGamesScreen} 
+              options={{ headerShown: false }} />
 
               {/* ─── ГОРОД ─── */}
               <Stack.Screen
@@ -202,6 +207,9 @@ export default function App() {
                 component={MyNewGameScreen2}
                 options={{ headerShown: false }}
               />
+              <Stack.Screen name="GamePriceGuesser" 
+              component={GamePriceGuesser} 
+              options={{ headerShown: false }} />
               <Stack.Screen
                 name="BlockTwoScreen"
                 component={BlockTwoScreen}

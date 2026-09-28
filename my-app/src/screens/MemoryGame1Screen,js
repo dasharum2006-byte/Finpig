@@ -1,0 +1,212 @@
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView, Alert } from 'react-native';
+
+// 1. Исходные данные для пар (всего 4 пары = 8 карточек, плюс 1 пустая/бонусная для сетки 3х3)
+const CARDS_DATA = [
+  { id: 1, pairId: 'USD', type: 'image', content: '💵 \$ [USD]' },
+  { id: 2, pairId: 'USD', type: 'text', content: 'Доллар\n(Американская валюта)' },
+  { id: 3, pairId: 'EUR', type: 'image', content: '💶 € [EUR]' },
+  { id: 4, pairId: 'EUR', type: 'text', content: 'Евро\n(Валюта Евросоюза)' },
+  { id: 5, pairId: 'GBP', type: 'image', content: '💷 £ [GBP]' },
+  { id: 6, pairId: 'GBP', type: 'text', content: 'Фунт Стерлингов\n(Валюта Великобритании)' },
+  { id: 7, pairId: 'JPY', type: 'image', content: '💴 ¥ [JPY]' },
+   { id: 8, pairId: 'JPY', type: 'text', content: 'Японская Иена\n(Валюта Японии)' },
+  { id: 9, pairId: 'CNY', type: 'image', content: '🇨🇳 ¥ [CNY]' },
+  { id: 10, pairId: 'CNY', type: 'text', content: 'Китайский Юань\n(Валюта Поднебесной)' },
+  { id: 11, pairId: 'KBR', type: 'image', content: '🦀 💵 $ [Krab Dollar]' },
+    { id: 12, pairId: 'KBR', type: 'text', content: 'Крабс-доллар\n(Валюта Бикини Боттом)' },
+    { id: 13, pairId: 'TRY', type: 'image', content: '🇹🇷 ₺ [TRY]' },
+{ id: 14, pairId: 'TRY', type: 'text', content: 'Турецкая Лира\n(Валюта Турции)' },
+
+
+];
+
+// Функция для перемешивания массива карточек
+const shuffleArray = (array) => {
+  return [...array].sort(() => Math.random() - 0.5);
+};
+
+export default function App() {
+  const [cards, setCards] = useState([]);
+  const [selectedCards, setSelectedCards] = useState([]); // Индексы выбранных карточек (максимум 2)
+  const [matchedCards, setMatchedCards] = useState([]);   // ID угаданных карточек
+  const [moves, setMoves] = useState(0);                   // Счётчик ходов
+
+  // Инициализация игры при старте
+  useEffect(() => {
+    startNewGame();
+  }, []);
+
+  const startNewGame = () => {
+    setCards(shuffleArray(CARDS_DATA));
+    setSelectedCards([]);
+    setMatchedCards([]);
+    setMoves(0);
+  };
+
+  // Главный алгоритм клика по карточке
+  const handleCardPress = (index) => {
+    const card = cards[index];
+
+    // Игнорируем клик, если:
+    // 1. Карточка уже открыта или угадана
+    // 2. Уже открыты 2 карточки и идет анимация ожидания
+    // 3. Кликнули по бонусной карточке (если она изначально считается открытой)
+    if (
+      selectedCards.includes(index) || 
+      matchedCards.includes(card.id) || 
+      selectedCards.length >= 2 ||
+      card.type === 'bonus'
+    ) {
+      return;
+    }
+
+    // Добавляем карточку в текущий выбор
+    const newSelected = [...selectedCards, index];
+    setSelectedCards(newSelected);
+
+    // Если это вторая открытая карточка — проверяем совпадение
+    if (newSelected.length === 2) {
+      setMoves(moves + 1);
+      const firstCard = cards[newSelected[0]];
+      const secondCard = cards[newSelected[1]];
+
+      if (firstCard.pairId === secondCard.pairId) {
+        // Пара совпала! Добавляем их ID в список угаданных
+        setMatchedCards((prev) => [...prev, firstCard.id, secondCard.id]);
+        setSelectedCards([]); // Очищаем выбор для следующего хода
+      } else {
+        // Пара не совпала. Ждем 1 секунду, чтобы игрок запомнил, и переворачиваем обратно
+        setTimeout(() => {
+          setSelectedCards([]);
+        }, 1000);
+      }
+    }
+  };
+
+  // Проверка на победу (8 основных карточек угаданы)
+  useEffect(() => {
+    if (matchedCards.length === 16) {
+      Alert.alert('Победа! 🎉', `Вы нашли все пары за ${moves} ходов!`, [
+        { text: 'Играть снова', onPress: startNewGame }
+      ]);
+    }
+  }, [matchedCards]);
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.title}>Валютное Мемори 🗺️</Text>
+      <Text style={styles.subtitle}>Ходов: {moves}</Text>
+
+      <View style={styles.grid}>
+        {cards.map((card, index) => {
+          // Карточка открыта, если она в выбранных, уже угадана или это бонусная карточка
+          const isOpened = 
+            selectedCards.includes(index) || 
+            matchedCards.includes(card.id) || 
+            card.type === 'bonus';
+
+          return (
+            <TouchableOpacity
+              key={card.id}
+              style={[
+                styles.card,
+                isOpened ? styles.cardOpened : styles.cardClosed,
+                card.type === 'bonus' && styles.cardBonus
+              ]}
+              onPress={() => handleCardPress(index)}
+            >
+              {isOpened ? (
+                <Text style={styles.cardText}>{card.content}</Text>
+              ) : (
+                <Text style={styles.shirtText}>?</Text>
+              )}
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+
+      <TouchableOpacity style={styles.button} onPress={startNewGame}>
+        <Text style={styles.buttonText}>Начать заново</Text>
+      </TouchableOpacity>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f4f6f9',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  title: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: '#1a1a1a',
+    marginBottom: 5,
+  },
+  subtitle: {
+    fontSize: 18,
+    color: '#666',
+    marginBottom: 20,
+  },
+  grid: {
+    width: 340,
+    height: 340,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    alignContent: 'space-between',
+  },
+  card: {
+    width: 78,
+    height: 78,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 5,
+    // Тени для красивого объема
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  cardClosed: {
+    backgroundColor: '#4A90E2',
+  },
+  cardOpened: {
+    backgroundColor: '#FFF',
+    borderWidth: 2,
+    borderColor: '#4A90E2',
+  },
+  cardBonus: {
+    backgroundColor: '#FFE0B2',
+    borderColor: '#FFA726',
+    borderWidth: 2,
+  },
+  cardText: {
+    fontSize: 12,
+    textAlign: 'center',
+    fontWeight: '600',
+    color: '#333',
+  },
+  shirtText: {
+    fontSize: 32,
+    color: '#FFF',
+    fontWeight: 'bold',
+  },
+  button: {
+    marginTop: 30,
+    backgroundColor: '#2ecc71',
+    paddingVertical: 12,
+    paddingHorizontal: 30,
+    borderRadius: 25,
+  },
+  buttonText: {
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+});
