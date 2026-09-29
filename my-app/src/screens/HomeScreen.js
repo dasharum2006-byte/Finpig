@@ -47,10 +47,6 @@ const ROOMS = [
 ];
 
 // ─── Что открывается на каждом уровне ───
-// Lv.1 — яйцо: всё, КРОМЕ Мира и Целей
-// Lv.2 — малыш: то же (Мир и Цели закрыты)
-// Lv.3 — подросток: открываются Мир и Цели
-// Lv.4 — взрослый: + Кредит
 const LEVEL_FEATURES = {
   1: [
     { id: 'tasks', emoji: '📋', title: 'Задания', desc: 'Пройди блок 1' },
@@ -400,7 +396,7 @@ function HomeScreenInner({ route, navigation }) {
     room: { title: '🏠 Комната', isRoomPicker: true },
   };
 
-  // ⭐ Переход из мини-меню уровня
+  // Переход из мини-меню уровня
   const handleFeaturePress = (featureId) => {
     setLevelMenuOpen(false);
 
@@ -504,19 +500,24 @@ function HomeScreenInner({ route, navigation }) {
             style={styles.room}
             resizeMode="cover"
           >
+            {/* ⭐ Верхняя панель: имя + ⚙️ слева, уровень/сердечки/голод/баланс справа */}
             <View style={styles.topBar}>
-              <View style={styles.namePlate}>
-                <Text style={styles.petName}>{petName}</Text>
+              {/* ЛЕВАЯ КОЛОНКА: имя питомца + кнопка настроек под ним */}
+              <View style={styles.leftColumn}>
+                <View style={styles.namePlate}>
+                  <Text style={styles.petName}>{petName}</Text>
+                </View>
+
+                <TouchableOpacity
+                  style={styles.settingsBadge}
+                  onPress={() => navigation.navigate('Settings')}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.settingsBadgeText}>⚙️</Text>
+                </TouchableOpacity>
               </View>
 
-              <TouchableOpacity
-                style={styles.settingsBadge}
-                onPress={() => navigation.navigate('Settings')}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.settingsBadgeText}>⚙️</Text>
-              </TouchableOpacity>
-
+              {/* ПРАВАЯ КОЛОНКА */}
               <View style={styles.rightColumn}>
                 <View style={styles.rightTopRow}>
                   <TouchableOpacity
@@ -527,13 +528,15 @@ function HomeScreenInner({ route, navigation }) {
                     <Text style={styles.levelBadgeText}>Lv.{bank.level} ▾</Text>
                   </TouchableOpacity>
 
-                  <TouchableOpacity
-                    style={styles.plusBtn}
-                    onPress={() => bank.levelUp()}
-                    activeOpacity={0.7}
-                  >
-                    <Text style={styles.plusBtnText}>+1</Text>
-                  </TouchableOpacity>
+                  {demoMode && (
+                    <TouchableOpacity
+                      style={styles.plusBtn}
+                      onPress={() => bank.levelUp()}
+                      activeOpacity={0.7}
+                    >
+                      <Text style={styles.plusBtnText}>+1</Text>
+                    </TouchableOpacity>
+                  )}
 
                   <View style={styles.heartsRow}>
                     {[0, 1, 2].map((i) => (
@@ -573,6 +576,7 @@ function HomeScreenInner({ route, navigation }) {
               </View>
             </View>
 
+            {/* Питомец */}
             <View style={styles.petWrapper}>
               <TouchableOpacity activeOpacity={0.9} onPress={handlePetClick}>
                 <Animated.Image
@@ -606,6 +610,7 @@ function HomeScreenInner({ route, navigation }) {
               </View>
             </View>
 
+            {/* Нижняя панель */}
             <View style={styles.bottomBar}>
               <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('Tasks')}>
                 <Text style={styles.actionEmoji}>📋</Text>
@@ -637,6 +642,7 @@ function HomeScreenInner({ route, navigation }) {
         </Animated.View>
       </View>
 
+      {/* Демо-кнопка Итоги */}
       {demoMode && (
         <TouchableOpacity
           onPress={() => setShowBudgetResult(true)}
@@ -677,7 +683,7 @@ function HomeScreenInner({ route, navigation }) {
         </TouchableOpacity>
       )}
 
-      {/* Модалка выбора комнаты */}
+      {/* Модалка комнаты */}
       <Modal
         visible={openMenu !== null}
         transparent
@@ -796,6 +802,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 12,
   },
+
+  // ✅ НОВАЯ ЛЕВАЯ КОЛОНКА: имя + кнопка ⚙️ под ним
+  leftColumn: {
+    alignItems: 'flex-start',
+    gap: 8,
+  },
+
   namePlate: {
     backgroundColor: colors.accent,
     paddingHorizontal: 20,
@@ -912,14 +925,25 @@ const styles = StyleSheet.create({
   actionEmoji: { fontSize: 20, marginBottom: 4 },
   actionText: { fontSize: 13, color: colors.text, fontWeight: '600' },
 
+  // ✅ ОБНОВЛЁННЫЙ STYLE: круглая кнопка 50×50, шрифт 26
   settingsBadge: {
-    backgroundColor: 'rgba(255,255,255,0.85)',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    marginTop: 8,
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.08)',
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
   },
-  settingsBadgeText: { fontSize: 20 },
+  settingsBadgeText: {
+    fontSize: 26,
+  },
 
   // Intro / Onboarding
   introContainer: { flex: 1 },

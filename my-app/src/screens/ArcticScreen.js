@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     width: '100%',
-    marginTop: 450,          // ← было 550, подняли кнопки выше
+    marginTop: 600,          // ← было 550, подняли кнопки выше
     alignItems: 'center',
     gap: 10,
   },
@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
   // ✅ Питомец — по центру, чуть ниже центра, увеличен
   petImage: {
     position: 'absolute',
-    bottom: '35%',           // ← было 20 (пиксели), стало 12% от низа
+    bottom: '25%',           // ← было 20 (пиксели), стало 12% от низа
     alignSelf: 'center',     // ← по центру
     width: 320,              // ← было 180, стало 320
     height: 320,             // ← было 180, стало 320
