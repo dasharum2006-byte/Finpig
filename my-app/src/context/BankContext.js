@@ -5,10 +5,6 @@ const BankContext = createContext(null);
 
 const STORAGE_KEY = '@bank_state_v1';
 
-// ── Курсы валют (из PDF) ──
-// 2 русских = 1 юань  → 1 юань = 2 ₽
-// 1 русский = 4 египетских → 1 ег = 0.25 ₽
-// 5 русских = 1 антарктическая → 1 ан = 5 ₽
 export const CURRENCIES = [
   { id: 'rub',  code: 'RUB', name: 'Русские',      emoji: '🪙', rateToRub: 1 },
   { id: 'cny',  code: 'CNY', name: 'Юани',         emoji: '🀄', rateToRub: 2 },
@@ -16,14 +12,12 @@ export const CURRENCIES = [
   { id: 'ant',  code: 'ANT', name: 'Антарктические', emoji: '🐧', rateToRub: 5 },
 ];
 
-// Генерация номера карты вида 1234 5678 9012 3456
 const generateCardNumber = () => {
   return Array.from({ length: 4 }, () =>
     Math.floor(1000 + Math.random() * 9000)
   ).join(' ');
 };
 
-// Генерация номера счёта для конверта
 const generateAccountNumber = () => {
   return '40817' + Math.floor(1000000000 + Math.random() * 8999999999);
 };
@@ -31,29 +25,18 @@ const generateAccountNumber = () => {
 export function BankProvider({ children }) {
   const [isLoaded, setIsLoaded] = useState(false);
 
-  const [balance, setBalance] = useState(0);              // ₽ монеты на карте
+  const [balance, setBalance] = useState(0);
   const [cardNumber, setCardNumber] = useState(null);
-  const [level, setLevel] = useState(1);
+  const [level, setLevel] = useState(1); // ← старт с 0
 
-  // Конверты — [{ id, accountNumber, goal, amount }]
   const [envelopes, setEnvelopes] = useState([]);
-
-  // Накопительный счёт — { accountNumber, percent, amount, lastAccrual }
   const [deposit, setDeposit] = useState(null);
-
-  // Кредит — { amount, takenAt, days, percent, totalToRepay } | null
   const [loan, setLoan] = useState(null);
-
-  // Мультивалютные кошельки — { rub, cny, egp, ant }
   const [wallets, setWallets] = useState({ rub: 0, cny: 0, egp: 0, ant: 0 });
 
-  // Время последнего бонуса +30
   const [lastDailyBonus, setLastDailyBonus] = useState(null);
-
-  // Уведомление для показа
   const [notification, setNotification] = useState(null);
 
-  // ─── Загрузка ───
   useEffect(() => {
     (async () => {
       try {
@@ -77,7 +60,6 @@ export function BankProvider({ children }) {
     })();
   }, []);
 
-  // ─── Сохранение ───
   useEffect(() => {
     if (!isLoaded) return;
     AsyncStorage.setItem(
@@ -88,30 +70,37 @@ export function BankProvider({ children }) {
     ).catch((e) => console.error('Bank save error:', e));
   }, [isLoaded, balance, cardNumber, level, envelopes, deposit, loan, wallets, lastDailyBonus]);
 
-  // ─── Создание карты (при первом заходе в банк) ───
   const createCard = useCallback(() => {
     if (!cardNumber) {
       setCardNumber(generateCardNumber());
-      // setBalance((b) => b + 100); // бонус за открытие карты
-      // setWallets((w) => ({ ...w, rub: w.rub + 100 }));
     }
   }, [cardNumber]);
 
-  // ─── Ежедневный бонус +30 ₽ ───
-  // useEffect(() => {
-  //   if (!isLoaded || !cardNumber) return;
-  //   const now = Date.now();
-  //   const DAY = 24 * 60 * 60 * 1000;
-  //   if (!lastDailyBonus || now - lastDailyBonus >= DAY) {
-  //     setBalance((b) => b + 30);
-  //     setWallets((w) => ({ ...w, rub: w.rub + 30 }));
-  //     setLastDailyBonus(now);
-  //     setNotification('🪙 Вам +30 монет за ежедневный вход!');
-  //     setTimeout(() => setNotification(null), 4000);
-  //   }
-  // }, [isLoaded, cardNumber, lastDailyBonus]);
+  // ─── Простое повышение уровня вручную (для кнопки +1) ───
+  const levelUp = useCallback(() => {
+    setLevel((prev) => Math.min(4, prev + 1));
+  }, []);
 
-  // ─── Начисление % по накопительному счёту ───
+  // Автоматический пересчёт уровня (можно использовать где угодно)
+  const checkLevelUp = useCallback(async () => {
+    try {
+      const b1 = await AsyncStorage.getItem('@block_one_progress_v1');
+      const blockOneDone = (b1 ? parseInt(b1, 10) : 0) >= 6;
+
+      let newLevel = 0;
+      if (blockOneDone) newLevel = 1;
+
+      setLevel((prev) => (newLevel > prev ? newLevel : prev));
+    } catch (e) {
+      console.error('Level check error:', e);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isLoaded) return;
+    checkLevelUp();
+  }, [isLoaded]);
+
   useEffect(() => {
     if (!isLoaded || !deposit) return;
     const interval = setInterval(() => {
@@ -123,11 +112,10 @@ export function BankProvider({ children }) {
         setNotification(`💰 Начислено +${bonus} ₽ на накопительный счёт`);
         setTimeout(() => setNotification(null), 4000);
       }
-    }, 60 * 1000); // проверяем раз в минуту
+    }, 60 * 1000);
     return () => clearInterval(interval);
   }, [isLoaded, deposit]);
 
-  // ─── Создание конверта ───
   const createEnvelope = useCallback((goal, initialAmount = 0) => {
     if (initialAmount > balance) return false;
     const env = {
@@ -142,7 +130,6 @@ export function BankProvider({ children }) {
     return true;
   }, [balance]);
 
-  // ─── Перевод на конверт ───
   const transferToEnvelope = useCallback((envId, amount) => {
     if (amount <= 0 || amount > balance) return false;
     setEnvelopes((prev) =>
@@ -152,7 +139,6 @@ export function BankProvider({ children }) {
     return true;
   }, [balance]);
 
-  // ─── Снять с конверта ───
   const withdrawFromEnvelope = useCallback((envId, amount) => {
     const env = envelopes.find((e) => e.id === envId);
     if (!env || amount <= 0 || amount > env.amount) return false;
@@ -163,7 +149,6 @@ export function BankProvider({ children }) {
     return true;
   }, [envelopes]);
 
-  // ─── Создать накопительный счёт ───
   const createDeposit = useCallback((percent, initialAmount) => {
     if (initialAmount > balance) return false;
     const dep = {
@@ -177,7 +162,6 @@ export function BankProvider({ children }) {
     return true;
   }, [balance]);
 
-  // ─── Перевод на накопительный ───
   const transferToDeposit = useCallback((amount) => {
     if (!deposit || amount <= 0 || amount > balance) return false;
     setDeposit((d) => ({ ...d, amount: d.amount + amount }));
@@ -185,7 +169,6 @@ export function BankProvider({ children }) {
     return true;
   }, [deposit, balance]);
 
-  // ─── Снять с накопительного ───
   const withdrawFromDeposit = useCallback((amount) => {
     if (!deposit || amount <= 0 || amount > deposit.amount) return false;
     setDeposit((d) => ({ ...d, amount: d.amount - amount }));
@@ -193,9 +176,8 @@ export function BankProvider({ children }) {
     return true;
   }, [deposit]);
 
-  // ─── Взять кредит ───
   const takeLoan = useCallback((amount, days) => {
-    const percent = days === 3 ? 8 : 5; // 8% в день на 3 дня, 5% в неделю на 7 дней
+    const percent = days === 3 ? 8 : 5;
     const totalToRepay = days === 3
       ? +(amount * (1 + percent / 100 * days)).toFixed(2)
       : +(amount * (1 + percent / 100)).toFixed(2);
@@ -204,7 +186,6 @@ export function BankProvider({ children }) {
     return true;
   }, []);
 
-  // ─── Погасить кредит ───
   const repayLoan = useCallback(() => {
     if (!loan) return false;
     if (balance < loan.totalToRepay) return false;
@@ -213,7 +194,6 @@ export function BankProvider({ children }) {
     return true;
   }, [loan, balance]);
 
-  // ─── Обмен валюты ───
   const exchangeCurrency = useCallback((fromId, toId, amount) => {
     if (amount <= 0) return false;
     if ((wallets[fromId] || 0) < amount) return false;
@@ -226,22 +206,20 @@ export function BankProvider({ children }) {
       [fromId]: (w[fromId] || 0) - amount,
       [toId]: (w[toId] || 0) + result,
     }));
-    // Если меняем рубли — синхронизируем balance
     if (fromId === 'rub') setBalance((b) => b - amount);
     if (toId === 'rub') setBalance((b) => b + result);
     return true;
   }, [wallets]);
 
-  // ─── Добавить монеты (для заданий) ───
   const addCoins = useCallback((amount) => {
     setBalance((b) => b + amount);
     setWallets((w) => ({ ...w, rub: w.rub + amount }));
   }, []);
-    // ─── Полный сброс банка (для удаления профиля) ───
+
   const resetBank = useCallback(() => {
     setBalance(0);
     setCardNumber(null);
-    setLevel(0);
+    setLevel(1);
     setEnvelopes([]);
     setDeposit(null);
     setLoan(null);
@@ -254,14 +232,14 @@ export function BankProvider({ children }) {
     isLoaded,
     balance, setBalance,
     cardNumber, createCard,
-    level, setLevel,
+    level, setLevel, levelUp, checkLevelUp,
     envelopes, createEnvelope, transferToEnvelope, withdrawFromEnvelope,
     deposit, createDeposit, transferToDeposit, withdrawFromDeposit,
     loan, takeLoan, repayLoan,
     wallets, exchangeCurrency,
     notification, setNotification,
     addCoins,
-     resetBank,    
+    resetBank,
   };
 
   return <BankContext.Provider value={value}>{children}</BankContext.Provider>;

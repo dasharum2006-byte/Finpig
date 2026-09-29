@@ -26,9 +26,10 @@ export default function ArcticScreen({ navigation }) {
   return (
     <View style={styles.container} edges={['bottom']}>
       <ImageBackground
-        source={require('../../assets/mainarctica.jpg')} 
+        source={require('../../assets/mainarctica.jpg')}
         style={styles.bg}
-        resizeMode="cover">
+        resizeMode="cover"
+      >
         <View style={styles.overlay}>
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('World')}>
             <Text style={styles.backButtonText}>🗺️ На карту</Text>
@@ -58,12 +59,11 @@ export default function ArcticScreen({ navigation }) {
             </TouchableOpacity>
           </View>
 
-          {/* 🔧 УВЕЛИЧЕН питомец */}
+          {/* ✅ Питомец — по центру, чуть ниже центра, увеличен */}
           <Image source={petImage} style={styles.petImage} />
-          </View>
-          </ImageBackground>
         </View>
-     
+      </ImageBackground>
+    </View>
   );
 }
 
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     width: '100%',
-    marginTop: 550,
+    marginTop: 450,          // ← было 550, подняли кнопки выше
     alignItems: 'center',
     gap: 10,
   },
@@ -112,7 +112,6 @@ const styles = StyleSheet.create({
     width: width * 0.42,
     height: 70,
     backgroundColor: 'rgba(255, 255, 255, 0.92)',
-
     borderRadius: 18,
     paddingHorizontal: 5,
     alignItems: 'center',
@@ -141,12 +140,14 @@ const styles = StyleSheet.create({
     color: '#006064',
     textAlign: 'left',
   },
-  // 🔧 УВЕЛИЧЕН питомец (было 150×150, стало 250×250)
+
+  // ✅ Питомец — по центру, чуть ниже центра, увеличен
   petImage: {
     position: 'absolute',
-    bottom: 40,
-    width: 250,
-    height: 250,
+    bottom: '35%',           // ← было 20 (пиксели), стало 12% от низа
+    alignSelf: 'center',     // ← по центру
+    width: 320,              // ← было 180, стало 320
+    height: 320,             // ← было 180, стало 320
     resizeMode: 'contain',
   },
 });

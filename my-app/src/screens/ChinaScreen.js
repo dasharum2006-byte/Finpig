@@ -110,8 +110,9 @@ const styles = StyleSheet.create({
   // 🔧 УВЕЛИЧЕН питомец (было 210×210, стало 300×300)
   petImage: {
     position: 'absolute',
-    width: 300,
-    height: 300,
+    width: 400,
+    height: 400,
+    bottom: 190,
     resizeMode: 'contain',
     marginTop: 350,
     zIndex: 5,

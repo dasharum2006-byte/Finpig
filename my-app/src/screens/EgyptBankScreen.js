@@ -1,24 +1,33 @@
 import React, { useState } from 'react';
-import { 
-  StyleSheet, 
-  Text, 
-  View, 
-  ImageBackground, 
-  Image, 
-  TouchableOpacity, 
-  SafeAreaView, 
+import {
+  StyleSheet,
+  Text,
+  View,
+  ImageBackground,
+  Image,
+  TouchableOpacity,
+  SafeAreaView,
   Dimensions,
-  Alert
+  Alert,
 } from 'react-native';
+import { usePet } from '../context/PetContext';
+import { getEggImage, getPetImage } from '../petsConfig';
 
 const { width } = Dimensions.get('window');
 
 export default function EgyptBankScreen({ navigation }) {
-  // Изначальный баланс игрока
-  const [coins, setCoins] = useState(350);       // Золотые монеты
-  const [crystals, setCrystals] = useState(5);    // Редкие кристаллы Египта
+  const petCtx = usePet();
+  const currentStage = petCtx.pet?.stage ?? 0;
 
-  // Функция: Обменять 1 Кристалл на 50 Монет
+  const petImage = petCtx.pet
+    ? (currentStage === 0
+        ? getEggImage(petCtx.pet.speciesId)
+        : getPetImage(petCtx.pet.speciesId, petCtx.pet.variationId, currentStage - 1))
+    : require('../../assets/Animals/Pinguin/Black/pinguin1_m.png');
+
+  const [coins, setCoins] = useState(350);
+  const [crystals, setCrystals] = useState(5);
+
   const handleExchangeCrystal = () => {
     if (crystals < 1) {
       Alert.alert('Упс!', 'У тебя нет египетских кристаллов для обмена! 💎');
@@ -32,27 +41,25 @@ export default function EgyptBankScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
-      {/* Фон банка с чистым папирусом по центру (egypt_bank.jpg) */}
       <ImageBackground
         source={require('../../assets/egyptbank.png')}
         style={styles.bg}
         resizeMode="cover"
       >
-        {/* Кнопка "Назад в город" */}
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('EgyptScreen')}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.navigate('EgyptScreen')}
+        >
           <Text style={styles.backButtonText}>⬅ В город</Text>
         </TouchableOpacity>
 
-        {/* Кошелек игрока (Монеты и Кристаллы) в верхнем правом углу */}
         <View style={styles.walletContainer}>
           <Text style={styles.walletText}>🪙 {coins}</Text>
           <Text style={styles.walletText}>💎 {crystals}</Text>
         </View>
 
-        {/* Заголовок */}
-        <Text style={styles.title}>Королевский Обменник</Text>
+        <Text style={styles.title}>Банк</Text>
 
-        {/* ТЕКСТ ПОВЕРХ ЧИСТОГО ПАПИРУСА НА СТЕНЕ */}
         <View style={styles.papyrusContainer}>
           <Text style={styles.papyrusTitle}>📜 Курс Обмена</Text>
           <Text style={styles.papyrusText}>
@@ -61,19 +68,15 @@ export default function EgyptBankScreen({ navigation }) {
           <Text style={styles.rateText}>1 Кристалл 💎 = 50 Монет 🪙</Text>
         </View>
 
-        {/* Кнопка обмена внизу экрана */}
+        {/* Кнопка обмена — смещена выше */}
         <View style={styles.buttonsContainer}>
           <TouchableOpacity style={styles.exchangeButton} onPress={handleExchangeCrystal}>
             <Text style={styles.buttonText}>Обменять 1 💎 на 50 🪙</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Персонаж-банкир, стоящий СЛЕВА */}
-        <Image
-          source={require('../../assets/Animals/Pinguin/Black/pinguin1_m.png')} 
-          style={styles.bankerImage}
-        />
-
+        {/* Питомец — по центру снизу, увеличен */}
+        <Image source={petImage} style={styles.bankerImage} />
       </ImageBackground>
     </SafeAreaView>
   );
@@ -82,6 +85,7 @@ export default function EgyptBankScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#b8860b' },
   bg: { flex: 1, alignItems: 'center' },
+
   backButton: {
     position: 'absolute',
     top: 50,
@@ -93,6 +97,7 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   backButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 14 },
+
   walletContainer: {
     position: 'absolute',
     top: 50,
@@ -107,6 +112,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   walletText: { color: '#3d2510', fontWeight: 'bold', fontSize: 14, marginVertical: 1 },
+
   title: {
     fontSize: 22,
     fontWeight: '900',
@@ -115,43 +121,55 @@ const styles = StyleSheet.create({
     textShadowColor: '#fff',
     textShadowRadius: 4,
   },
-  
-  // ПОЗИЦИОНИРОВАНИЕ ТЕКСТА СТРОГО НА ПАПИРУС (на стене)
+
   papyrusContainer: {
     position: 'absolute',
-    top: '26%', // Регулируй этот процент под свой фон с папирусом
-    width: width * 0.72, 
+    top: '26%',
+    width: width * 0.78,           // ← шире, чтобы текст не сжимался
     alignItems: 'center',
-    paddingHorizontal: 15,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    backgroundColor: 'rgba(255, 255, 255, 0.85)', // ← БЕЛАЯ ПОДЛОЖКА — не сливается с фоном
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: 'rgba(61, 37, 16, 0.3)',          // ← тонкая тёмная рамка
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 3,
   },
   papyrusTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#4a2c11',
-    marginBottom: 6,
+    fontSize: 22,                  // ← было 15, стало 22
+    fontWeight: '900',
+    color: '#2c1a08',              // ← почти чёрный — максимальный контраст
+    marginBottom: 12,
+    textAlign: 'center',
   },
   papyrusText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#5c3a21',
+    fontSize: 17,                  // ← было 11, стало 17
+    fontWeight: '700',
+    color: '#1a0f05',              // ← почти чёрный текст
     textAlign: 'center',
-    lineHeight: 16,
+    lineHeight: 24,                // ← было 15, стало 24
   },
   rateText: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#b8860b',
-    marginTop: 12,
-    backgroundColor: 'rgba(61, 37, 16, 0.1)',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
+    fontSize: 20,                  // ← было 13, стало 20
+    fontWeight: '900',
+    color: '#ffffff',              // ← БЕЛЫЙ текст
+    marginTop: 16,
+    backgroundColor: '#b8860b',    // ← золотая плашка — выделяется
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 10,
+    overflow: 'hidden',
+    textAlign: 'center',
   },
 
-  // Блок кнопки обмена внизу экрана
+  // ✅ Кнопка обмена — поднята выше (было bottom: 180)
   buttonsContainer: {
     position: 'absolute',
-    bottom: 180, 
+    bottom: 300,           // ← было 180, теперь выше
     width: '100%',
     paddingHorizontal: 40,
   },
@@ -171,13 +189,13 @@ const styles = StyleSheet.create({
   },
   buttonText: { fontSize: 16, fontWeight: 'bold', color: '#3d2510' },
 
-  // Банкир СЛЕВА внизу
+  // ✅ Питомец — по центру снизу, увеличен
   bankerImage: {
     position: 'absolute',
-    bottom: 30,
-    left: 20, 
-    width: 130,
-    height: 130,
+    bottom: 10,            // ← было 30, опущен чуть ниже
+    alignSelf: 'center',   // ← было left: 20, теперь по центру
+    width: 250,            // ← было 130, увеличен
+    height: 250,           // ← было 130, увеличен
     resizeMode: 'contain',
   },
 });

@@ -260,6 +260,10 @@ const handleTap = async (item) => {
       if (reviewMode) {
         navigation.navigate('BlockTwoScreen');
       } else {
+        // ⭐ +1 уровень
+        if (bank?.levelUp && bank.level < 3) {
+          bank.levelUp();
+        }
         navigation.navigate('BlockTwoScreen', { completedStep: LEVEL_TWO_STEPS.length });
       }
     }

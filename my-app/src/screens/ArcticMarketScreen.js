@@ -112,7 +112,7 @@ export default function ArcticMarketScreen({ navigation }) {
           ))}
         </View>
 
-        {/* 🔧 УВЕЛИЧЕН питомец */}
+        {/* ✅ Питомец — по центру снизу, увеличен */}
         <Image source={petImage} style={styles.petImage} />
 
       </View>
@@ -191,16 +191,10 @@ const styles = StyleSheet.create({
   },
   itemCard: {
     width: width * 0.36,
-    backgroundColor: 'rgba(255, 255, 255, 0.92)',
+    backgroundColor: 'transparent',
     borderRadius: 15,
     padding: 10,
     alignItems: 'center',
-    borderWidth: 1.5,
-    borderColor: '#006064',
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 2,
   },
   itemEmoji: {
     fontSize: 32,
@@ -231,13 +225,14 @@ const styles = StyleSheet.create({
     color: '#666',
     marginTop: 4,
   },
-  // 🔧 УВЕЛИЧЕН питомец (было 140×140, стало 200×200)
+
+  // ✅ Питомец — по центру снизу, увеличен
   petImage: {
     position: 'absolute',
-    bottom: 20,
-    alignSelf: 'center',
-    width: 200,
-    height: 200,
+    bottom: 30,              // ← чуть ниже
+    alignSelf: 'center',     // ← по центру
+    width: 250,              // ← было 200, стало 250
+    height: 250,             // ← было 200, стало 250
     resizeMode: 'contain',
   },
 });
