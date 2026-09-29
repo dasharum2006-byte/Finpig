@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Alert } from 'react-native';
+import { TouchableOpacity } from '../components/ui';
 import { useBank } from '../context/BankContext'; 
+import { backToLivingRoom } from '../navigation';
 
 
 const GAMES_DATA = [
@@ -8,7 +10,7 @@ const GAMES_DATA = [
     id: 1,
     title: 'Собери бюджет',
     desc: 'Распредели доходы и расходы питомца',
-    screen: 'GameBudgetPlanner',
+    screen: 'MyNewGameScreen2',
     isAvailable: true,
   },
   {
@@ -39,6 +41,13 @@ const GAMES_DATA = [
     screen: 'MyNewGameScreen', 
     isAvailable: true,
   },
+  {
+    id: 6,
+    title: 'Доход или расход?',
+    desc: 'Определи, куда движутся деньги: приходят доходом или уходят расходом!',
+    screen: 'IncomeExpenseGameScreen',
+    isAvailable: true,
+  },
 ];
 
 
@@ -57,7 +66,7 @@ export default function MiniGamesScreen({ navigation }) {
     <View style={styles.container}>
       {/* Шапка экрана */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <TouchableOpacity style={styles.backButton} onPress={() => backToLivingRoom(navigation)}>
           <Text style={styles.backButtonText}>Назад</Text>
         </TouchableOpacity>
         
@@ -103,7 +112,7 @@ export default function MiniGamesScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: { 
     flex: 1, 
-    backgroundColor: '#365d69', 
+    backgroundColor: '#1976D2', 
     paddingTop: 50 
   },
   header: { 
@@ -116,7 +125,7 @@ const styles = StyleSheet.create({
     height: 50
   },
   backButton: { 
-    backgroundColor: '#5D4037', 
+    backgroundColor: '#1976D2', 
     paddingHorizontal: 15, 
     paddingVertical: 8, 
     borderRadius: 12,
@@ -141,7 +150,7 @@ const styles = StyleSheet.create({
     color: '#FFF' 
   },
   scoreText: { 
-    fontSize: 16, 
+    fontSize: 17, 
     fontWeight: 'bold', 
     color: '#FFE082',
     zIndex: 10
@@ -165,8 +174,8 @@ const styles = StyleSheet.create({
     borderColor: '#FFE082' 
   },
   lockedCard: { 
-    backgroundColor: '#E2E8F0', 
-    borderColor: '#CBD5E0', 
+    backgroundColor: '#EAF4FF', 
+    borderColor: '#90CAF9', 
     opacity: 0.7 
   },
   cardInfo: { 
@@ -176,19 +185,19 @@ const styles = StyleSheet.create({
   cardTitle: { 
     fontSize: 17, 
     fontWeight: 'bold', 
-    color: '#5D4037' 
+    color: '#1976D2' 
   },
   lockedText: { 
-    color: '#718096' 
+    color: '#1976D2' 
   },
   cardSubtitle: { 
-    fontSize: 13, 
-    color: '#718096', 
+    fontSize: 17, 
+    color: '#1976D2', 
     marginTop: 4 
   },
   arrow: { 
-    fontSize: 16, 
-    color: '#5D4037', 
+    fontSize: 17, 
+    color: '#1976D2', 
     marginLeft: 10 
   }
 });

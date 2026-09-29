@@ -92,6 +92,31 @@ const [periodCompleted, setPeriodCompleted] = useState(false);
      setGoal(null);       
   }, []);
 
+  // ─── Демо-режим: мгновенно «прокрутить» период ───
+  // Создаёт запись в истории и оставляет активный план на 100% выполнения.
+  const completeDemoPeriod = useCallback((options = {}) => {
+    const budget = options.budget ?? 500;
+    const needs = options.needs ?? 250;
+    const wants = options.wants ?? 150;
+    const savings = options.savings ?? 100;
+    const plan = {
+      budget,
+      needs,
+      wants,
+      savings,
+      periodId: Date.now().toString(),
+      confirmedAt: Date.now(),
+      demo: true,
+    };
+    const fact = { needs, wants, savings };
+    const record = { plan, fact, completedAt: Date.now(), demo: true };
+    setHistory((prev) => [...prev, record]);
+    setCurrentPlan(plan);
+    setCurrentFact(fact);
+    setPeriodCompleted(false);
+    return record;
+  }, []);
+
 
   const getMatchPercent = useCallback(() => {
     if (!currentPlan || !currentFact) return 0;
@@ -118,6 +143,7 @@ const [periodCompleted, setPeriodCompleted] = useState(false);
         periodCompleted,
         updateFact,
         finishPeriod,
+        completeDemoPeriod,
         resetPlan,
          goal,          
   setGoal,   

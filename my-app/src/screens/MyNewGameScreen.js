@@ -1,16 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Animated,
-  Dimensions,
-} from 'react-native';
+import { View, Text, StyleSheet, Animated, Dimensions } from 'react-native';
+import { TouchableOpacity } from '../components/ui';
 
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useBank } from '../context/BankContext';
+import { usePet } from '../context/PetContext';
+import { backToLivingRoom } from '../navigation';
 
 const { width, height } = Dimensions.get('window');
 
@@ -20,6 +15,7 @@ const HUD_HEIGHT = 90;
 
 export default function CatchCoinGame({ navigation }) {
   const bank = useBank();
+  const petCtx = usePet();
 
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(GAME_DURATION);
@@ -148,11 +144,11 @@ export default function CatchCoinGame({ navigation }) {
     setRunning(false);
     setCoins([]);
 
-    navigation.navigate('BlockOneScreen');
+    backToLivingRoom(navigation);
   };
 
   // Завершить игру и получить награду
-  const handleFinishGame = async () => {
+  const handleFinishGame = () => {
     // Не позволяем функции запуститься дважды
     if (finishingRef.current) {
       return;
@@ -160,54 +156,23 @@ export default function CatchCoinGame({ navigation }) {
 
     finishingRef.current = true;
 
+    if (petCtx?.boostHappiness) petCtx.boostHappiness();
+
     setRunning(false);
     setCoins([]);
 
-    try {
-      // Начисляем монеты только один раз
-      if (
-        !rewardGivenRef.current &&
-        score > 0 &&
-        bank &&
-        typeof bank.addCoins === 'function'
-      ) {
-        rewardGivenRef.current = true;
-
-        try {
-          bank.addCoins(score);
-        } catch (bankError) {
-          console.error(
-            'Ошибка начисления монет:',
-            bankError
-          );
-        }
-      }
-
-      // Сохраняем прогресс
-      const saved = await AsyncStorage.getItem(
-        '@block_one_progress_v1'
-      );
-
-      const parsed = Number.parseInt(saved ?? '0', 10);
-
-      const current = Number.isNaN(parsed)
-        ? 0
-        : parsed;
-
-      if (current < 7) {
-        await AsyncStorage.setItem(
-          '@block_one_progress_v1',
-          '7'
-        );
-      }
-    } catch (error) {
-      console.error(
-        'Ошибка сохранения прогресса игры 1:',
-        error
-      );
-    } finally {
-      navigation.navigate('BlockOneScreen');
+    // Начисляем монеты только один раз
+    if (
+      !rewardGivenRef.current &&
+      score > 0 &&
+      bank &&
+      typeof bank.addCoins === 'function'
+    ) {
+      rewardGivenRef.current = true;
+      bank.addCoins(score);
     }
+
+    backToLivingRoom(navigation);
   };
 
   return (
@@ -289,7 +254,7 @@ export default function CatchCoinGame({ navigation }) {
                   styles.btnGhostText,
                 ]}
               >
-                Завершить шаг ✅
+                В гостиную ✅
               </Text>
             </TouchableOpacity>
           </View>
@@ -364,7 +329,7 @@ function FallingCoin({ x, onCatch, onMiss }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: '#0D47A1',
   },
 
   hud: {
@@ -373,7 +338,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    backgroundColor: '#162447',
+    backgroundColor: '#0D47A1',
     borderBottomWidth: 2,
     borderColor: '#e43f5a',
     zIndex: 10,
@@ -463,7 +428,7 @@ const styles = StyleSheet.create({
   },
 
   btn: {
-    backgroundColor: '#00b4d8',
+    backgroundColor: '#1E88E5',
     width: '80%',
     padding: 15,
     borderRadius: 12,
@@ -473,17 +438,17 @@ const styles = StyleSheet.create({
 
   btnText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: 'bold',
   },
 
   btnGhost: {
     backgroundColor: 'transparent',
     borderWidth: 2,
-    borderColor: '#00b4d8',
+    borderColor: '#1E88E5',
   },
 
   btnGhostText: {
-    color: '#00b4d8',
+    color: '#1E88E5',
   },
 });

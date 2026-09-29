@@ -1,15 +1,6 @@
 import React, { useState } from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  ImageBackground,
-  Image,
-  TouchableOpacity,
-  SafeAreaView,
-  Dimensions,
-  Alert,
-} from 'react-native';
+import { StyleSheet, Text, View, ImageBackground, Image, SafeAreaView, Dimensions, Alert } from 'react-native';
+import { TouchableOpacity } from '../components/ui';
 import { usePet } from '../context/PetContext';
 import { getEggImage, getPetImage } from '../petsConfig';
 
@@ -90,13 +81,13 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 50,
     left: 20,
-    backgroundColor: '#3d2510',
+    backgroundColor: '#0D47A1',
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 15,
     zIndex: 10,
   },
-  backButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 14 },
+  backButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 17 },
 
   walletContainer: {
     position: 'absolute',
@@ -107,16 +98,16 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 15,
     borderWidth: 1.5,
-    borderColor: '#3d2510',
+    borderColor: '#0D47A1',
     zIndex: 10,
     alignItems: 'flex-start',
   },
-  walletText: { color: '#3d2510', fontWeight: 'bold', fontSize: 14, marginVertical: 1 },
+  walletText: { color: '#0D47A1', fontWeight: 'bold', fontSize: 17, marginVertical: 1 },
 
   title: {
     fontSize: 22,
     fontWeight: '900',
-    color: '#3d2510',
+    color: '#0D47A1',
     marginTop: 110,
     textShadowColor: '#fff',
     textShadowRadius: 4,
@@ -180,14 +171,14 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     alignItems: 'center',
     borderWidth: 1.5,
-    borderColor: '#3d2510',
+    borderColor: '#0D47A1',
     elevation: 3,
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },
   },
-  buttonText: { fontSize: 16, fontWeight: 'bold', color: '#3d2510' },
+  buttonText: { fontSize: 17, fontWeight: 'bold', color: '#0D47A1' },
 
   // ✅ Питомец — по центру снизу, увеличен
   bankerImage: {

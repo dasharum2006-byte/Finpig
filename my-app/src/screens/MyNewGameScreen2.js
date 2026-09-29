@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Dimensions, Animated, Alert } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { StyleSheet, Text, View, Dimensions, Animated, Alert } from 'react-native';
+import { TouchableOpacity } from '../components/ui';
 import { useBank } from '../context/BankContext'; 
+import { usePet } from '../context/PetContext';
+import { backToLivingRoom } from '../navigation';
 
 const { width, height } = Dimensions.get('window');
 const GAME_EVENTS = [
@@ -20,6 +22,7 @@ const GAME_EVENTS = [
 
 export default function GameSortExpenses({ navigation }) {
   const bank = useBank(); // Подключили твой банк!
+  const petCtx = usePet();
   const [gameState, setGameState] = useState('instruction');
   const [currentEventIndex, setCurrentTaskIndex] = useState(0);
   const [score, setScore] = useState(0);
@@ -126,22 +129,13 @@ export default function GameSortExpenses({ navigation }) {
     setSalaryStep(1);
   };
 
-  const handleWinFinish = async () => {
-    try {
-      // НАЧИСЛЯЕМ ЗАРАБОТАННЫЕ МОНЕТЫ В БАНК ТЕРМИНАТОРА! 💰
-      if (score > 0 && bank && typeof bank.addCoins === 'function') {
-        bank.addCoins(Math.floor(score / 2)); // Даем половину от набранных очков в виде чистых монет
-      }
-
-      const saved = await AsyncStorage.getItem('@block_one_progress_v1');
-      const current = saved ? parseInt(saved, 10) : 0;
-      if (8 > current) {
-        await AsyncStorage.setItem('@block_one_progress_v1', '8');
-      }
-    } catch (e) {
-      console.error('Ошибка сохранения прогресса игры 2:', e);
+  const handleWinFinish = () => {
+    if (petCtx?.boostHappiness) petCtx.boostHappiness();
+    // Начисляем заработанные монеты в банк
+    if (score > 0 && bank && typeof bank.addCoins === 'function') {
+      bank.addCoins(Math.floor(score / 2));
     }
-    navigation.navigate('BlockOneScreen');
+    backToLivingRoom(navigation);
   };
 
   // --- РАЗМЕТКА ИНТЕРФЕЙСА (БЛОК RETURN) ---
@@ -152,6 +146,9 @@ export default function GameSortExpenses({ navigation }) {
         <Text style={styles.headerText}>🏆 Очки: {score}</Text>
         <Text style={styles.headerText}>🐷 Копилка: {savings} 🪙</Text>
         <Text style={styles.bankText}>💰 Счет: {bank?.balance ? Math.floor(bank.balance) : 0}</Text>
+        <TouchableOpacity style={styles.exitBtn} onPress={() => backToLivingRoom(navigation)}>
+          <Text style={styles.exitBtnText}>✖ Выход</Text>
+        </TouchableOpacity>
       </View>
 
       {/* ЭКРАН 1: ИНСТРУКЦИЯ */}
@@ -205,8 +202,11 @@ export default function GameSortExpenses({ navigation }) {
           <Text style={styles.title}>Отличная работа! 🎉</Text>
           <Text style={styles.desc}>Ты успешно распределила весь бюджет и защитила сбережения от Монстра Хотюна!</Text>
           <Text style={styles.winScore}>Набрано очков: {score}</Text>
-          <TouchableOpacity style={styles.btn} onPress={handleWinFinish}>
-            <Text style={styles.btnText}>Завершить шаг ✅</Text>
+          <TouchableOpacity
+            style={styles.btn}
+            onPress={handleWinFinish}
+          >
+            <Text style={styles.btnText}>Завершить ✅</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -225,9 +225,9 @@ export default function GameSortExpenses({ navigation }) {
           {/* Кнопка Выйти */}
           <TouchableOpacity 
             style={[styles.btn, { backgroundColor: '#7f8c8d', marginTop: 12 }]} 
-            onPress={() => navigation.navigate('BlockOneScreen')}
+            onPress={() => backToLivingRoom(navigation)}
           >
-            <Text style={styles.btnText}>Выйти</Text>
+            <Text style={styles.btnText}>В гостиную</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -238,7 +238,7 @@ export default function GameSortExpenses({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e', // Глубокий космический фон
+    backgroundColor: '#0D47A1', // Глубокий космический фон
     paddingTop: 50,
   },
   
@@ -248,9 +248,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     alignItems: 'center',
     paddingVertical: 14,
-    backgroundColor: '#162447',
+    backgroundColor: '#0D47A1',
     borderBottomWidth: 3,
-    borderColor: '#00b4d8', // Яркий неоновый бортик
+    borderColor: '#1E88E5', // Яркий неоновый бортик
     elevation: 5,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -259,12 +259,23 @@ const styles = StyleSheet.create({
   },
   headerText: {
     color: '#fff',
-    fontSize: 14,
+    fontSize: 17,
     fontWeight: 'bold',
   },
   bankText: {
     color: '#f1c40f', // Золотой счет банка
-    fontSize: 14,
+    fontSize: 17,
+    fontWeight: 'bold',
+  },
+  exitBtn: {
+    backgroundColor: '#e74c3c',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 10,
+  },
+  exitBtnText: {
+    color: '#fff',
+    fontSize: 17,
     fontWeight: 'bold',
   },
 
@@ -274,7 +285,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 25,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: '#0D47A1',
   },
   title: {
     fontSize: 28,
@@ -287,7 +298,7 @@ const styles = StyleSheet.create({
     textShadowRadius: 10,
   },
   desc: {
-    fontSize: 15,
+    fontSize: 17,
     color: '#bfa3ff', // Приятный сиреневый текст для чтения
     textAlign: 'center',
     lineHeight: 24,
@@ -301,21 +312,21 @@ const styles = StyleSheet.create({
     marginBottom: 35,
   },
   btn: {
-    backgroundColor: '#00b4d8', // Яркая бирюзовая кнопка
+    backgroundColor: '#1E88E5', // Яркая бирюзовая кнопка
     paddingVertical: 15,
     borderRadius: 16,
     width: '90%',
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 4,
-    shadowColor: '#00b4d8',
+    shadowColor: '#1E88E5',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.4,
     shadowRadius: 5,
   },
   btnText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: 'bold',
     textTransform: 'uppercase', // Делает текст на кнопках геймерским
     letterSpacing: 1,
@@ -332,13 +343,13 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: width * 0.05,
     width: width * 0.9,
-    backgroundColor: '#1f1f3a', // Темная подложка карточки, чтобы текст выделялся
+    backgroundColor: '#0D47A1', // Темная подложка карточки, чтобы текст выделялся
     padding: 22,
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: '#00b4d8', // Неоновый контур
+    borderColor: '#1E88E5', // Неоновый контур
     elevation: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
@@ -346,14 +357,14 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
   },
   fallingText: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: 'bold',
     color: '#fff', // Белый читаемый текст события
     textAlign: 'center',
     lineHeight: 22,
   },
   subStepText: {
-    fontSize: 13,
+    fontSize: 17,
     color: '#e74c3c', // Подсказка для Зарплаты вспыхивает красным
     fontWeight: 'bold',
     marginTop: 10,
@@ -388,7 +399,7 @@ const styles = StyleSheet.create({
   },
   bucketText: {
     color: '#fff',
-    fontSize: 12,
+    fontSize: 17,
     fontWeight: 'bold',
     textAlign: 'center',
     lineHeight: 15,

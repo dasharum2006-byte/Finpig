@@ -1,15 +1,6 @@
 import React, { useState } from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  Image,
-  TouchableOpacity,
-  SafeAreaView,
-  Dimensions,
-  Alert,
-  ImageBackground,
-} from 'react-native';
+import { StyleSheet, Text, View, Image, SafeAreaView, Dimensions, Alert, ImageBackground } from 'react-native';
+import { TouchableOpacity } from '../components/ui';
 import { usePet } from '../context/PetContext';
 import { getEggImage, getPetImage } from '../petsConfig';
 
@@ -135,7 +126,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 50,
     left: 20,
-    backgroundColor: '#3d2510',
+    backgroundColor: '#0D47A1',
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 15,
@@ -144,7 +135,7 @@ const styles = StyleSheet.create({
   backButtonText: {
     color: '#fff',
     fontWeight: 'bold',
-    fontSize: 14,
+    fontSize: 17,
   },
   coinsContainer: {
     position: 'absolute',
@@ -155,13 +146,13 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 15,
     borderWidth: 1.5,
-    borderColor: '#3d2510',
+    borderColor: '#0D47A1',
     zIndex: 10,
   },
   coinsText: {
-    color: '#3d2510',
+    color: '#0D47A1',
     fontWeight: 'bold',
-    fontSize: 16,
+    fontSize: 17,
   },
   headerContainer: {
     width: '100%',
@@ -172,7 +163,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: '900',
     color: '#fff',
-    backgroundColor: '#3d2510',
+    backgroundColor: '#0D47A1',
     paddingHorizontal: 25,
     paddingVertical: 8,
     borderRadius: 20,
@@ -198,7 +189,7 @@ const styles = StyleSheet.create({
     padding: 10,
     alignItems: 'center',
     borderWidth: 1.5,
-    borderColor: '#3d2510',
+    borderColor: '#0D47A1',
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 3,
@@ -211,9 +202,9 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   itemName: {
-    fontSize: 12,
+    fontSize: 17,
     fontWeight: 'bold',
-    color: '#3d2510',
+    color: '#0D47A1',
     textAlign: 'center',
   },
   priceTag: {
@@ -226,12 +217,12 @@ const styles = StyleSheet.create({
     borderColor: '#ffeeba',
   },
   priceText: {
-    fontSize: 11,
+    fontSize: 17,
     fontWeight: 'bold',
     color: '#856404',
   },
   countText: {
-    fontSize: 10,
+    fontSize: 17,
     color: '#777',
     marginTop: 4,
   },

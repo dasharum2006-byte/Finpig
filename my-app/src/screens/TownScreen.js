@@ -1,13 +1,6 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ImageBackground,
-  Image,
-  TouchableOpacity,
-  Dimensions,
-} from 'react-native';
+import { View, Text, StyleSheet, ImageBackground, Image, Dimensions } from 'react-native';
+import { TouchableOpacity } from '../components/ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { usePet } from '../context/PetContext';
 import { getEggImage, getPetImage } from '../petsConfig';
@@ -137,7 +130,7 @@ const styles = StyleSheet.create({
     borderColor: '#00f0ff',
     zIndex: 10,
   },
-  backButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 14 },
+  backButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 17 },
   buildingsContainer: {
     width: '100%',
     paddingHorizontal: 20,
@@ -176,7 +169,7 @@ const styles = StyleSheet.create({
   },
   buildingEmoji: { fontSize: 26 },
   buildingText: {
-    fontSize: 13,
+    fontSize: 17,
     fontWeight: '600',
     color: '#ffffff',
     textAlign: 'center',

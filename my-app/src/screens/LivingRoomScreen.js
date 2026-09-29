@@ -1,8 +1,6 @@
 import React, { useRef } from 'react';
-import {
-  View, Text, StyleSheet, TouchableOpacity, ImageBackground,
-  PanResponder, Dimensions,
-} from 'react-native';
+import { View, Text, StyleSheet, ImageBackground, PanResponder, Dimensions } from 'react-native';
+import { TouchableOpacity } from '../components/ui';
 
 const { width } = Dimensions.get('window');
 const SWIPE_ACTIVATE = 15;
@@ -64,7 +62,7 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     height: '100%',
-    backgroundColor: '#d9c3a5',
+    backgroundColor: '#1E88E5',
     paddingTop: 0,
   },
   mainContainer: {
@@ -115,7 +113,7 @@ const styles = StyleSheet.create({
   },
   swipeHint: {
     marginTop: 20,
-    fontSize: 13,
+    fontSize: 17,
     color: '#FFF',
     fontStyle: 'italic',
     textShadowColor: 'rgba(0,0,0,0.5)',

@@ -1,13 +1,6 @@
 import React from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  Image,
-  TouchableOpacity,
-  ImageBackground,
-  Dimensions,
-} from 'react-native';
+import { StyleSheet, Text, View, Image, ImageBackground, Dimensions } from 'react-native';
+import { TouchableOpacity } from '../components/ui';
 import { usePet } from '../context/PetContext';
 import { getEggImage, getPetImage } from '../petsConfig';
 
@@ -68,7 +61,7 @@ export default function ArcticScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#e0f7fa' },
+  container: { flex: 1, backgroundColor: '#EAF4FF' },
   bg: { flex: 1 },
   overlay: {
     flex: 1,
@@ -78,7 +71,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 26,
     fontWeight: '900',
-    color: '#006064',
+    color: '#0D47A1',
     letterSpacing: 1.5,
     textShadowColor: 'rgba(255, 255, 255, 0.9)',
     textShadowOffset: { width: 1, height: 1 },
@@ -95,10 +88,10 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 20,
     borderWidth: 1.5,
-    borderColor: '#006064',
+    borderColor: '#0D47A1',
     zIndex: 10,
   },
-  backButtonText: { color: '#006064', fontWeight: 'bold', fontSize: 14 },
+  backButtonText: { color: '#0D47A1', fontWeight: 'bold', fontSize: 17 },
   buildingsContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -116,7 +109,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
     alignItems: 'center',
     borderWidth: 1.5,
-    borderColor: '#006064',
+    borderColor: '#0D47A1',
     marginBottom: 0,
     shadowColor: '#000',
     shadowOpacity: 0.08,
@@ -135,9 +128,9 @@ const styles = StyleSheet.create({
   },
   buildingEmoji: { fontSize: 22 },
   buildingText: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: '700',
-    color: '#006064',
+    color: '#0D47A1',
     textAlign: 'left',
   },
 

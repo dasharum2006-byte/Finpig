@@ -1,13 +1,6 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ImageBackground,
-  Image,
-  TouchableOpacity,
-  Dimensions,
-} from 'react-native';
+import { View, Text, StyleSheet, ImageBackground, Image, Dimensions } from 'react-native';
+import { TouchableOpacity } from '../components/ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { usePet } from '../context/PetContext';
 import { getEggImage, getPetImage } from '../petsConfig';
@@ -106,7 +99,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     zIndex: 10,
   },
-  backButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+  backButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 17 },
   // 🔧 УВЕЛИЧЕН питомец (было 210×210, стало 300×300)
   petImage: {
     position: 'absolute',
@@ -132,12 +125,12 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   fortuneTitle: { fontSize: 18, fontWeight: 'bold', color: '#cc0000', marginBottom: 1 },
-  fortuneText: { fontSize: 15, color: '#333', textAlign: 'center', marginVertical: 2, minHeight: 30 },
+  fortuneText: { fontSize: 17, color: '#0D47A1', textAlign: 'center', marginVertical: 2, minHeight: 30 },
   actionButton: {
     backgroundColor: '#cc0000',
     paddingHorizontal: 10,
     paddingVertical: 10,
     borderRadius: 18,
   },
-  actionButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+  actionButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 17 },
 });

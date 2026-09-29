@@ -1,7 +1,6 @@
 import React, { useState, useCallback } from 'react';
-import {
-  View, Text, TouchableOpacity, StyleSheet, ScrollView,
-} from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { TouchableOpacity } from '../components/ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -10,8 +9,8 @@ import { useBudgetPlan } from '../context/BudgetPlanContext';
 
 const BLOCKS = [
   { id: 1, key: '@block_one_progress_v1', title: 'Блок 1: Основы', total: 6 },
-  { id: 2, key: '@block_two_progress_v1', title: 'Блок 2: Банковские хитрости', total: 15 },
-  { id: 3, key: '@block_three_progress_v1', title: 'Блок 3: Бюджет и цели', total: 13 },
+  { id: 2, key: '@block_two_progress_v1', title: 'Блок 2: Банковские хитрости', total: 6 },
+  { id: 3, key: '@block_three_progress_v1', title: 'Блок 3: Бюджет и цели', total: 5 },
   { id: 4, key: '@block_four_progress_v1', title: 'Блок 4: Законы', total: 5 },
 ];
 

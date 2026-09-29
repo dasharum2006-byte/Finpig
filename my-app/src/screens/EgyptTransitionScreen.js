@@ -1,13 +1,6 @@
 import React from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  ImageBackground,
-  Image,
-  TouchableOpacity,
-  Dimensions,
-} from 'react-native';
+import { StyleSheet, Text, View, ImageBackground, Image, Dimensions } from 'react-native';
+import { TouchableOpacity } from '../components/ui';
 import { usePet } from '../context/PetContext';
 import { getEggImage, getPetImage } from '../petsConfig';
 
@@ -86,7 +79,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 26,
     fontWeight: '900',
-    color: '#3d2510',
+    color: '#0D47A1',
     letterSpacing: 1.5,
     textShadowColor: 'rgba(255, 255, 255, 0.8)',
     textShadowOffset: { width: 1, height: 1 },
@@ -103,10 +96,10 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#3d2510',
+    borderColor: '#0D47A1',
     zIndex: 10,
   },
-  backButtonText: { color: '#3d2510', fontWeight: 'bold', fontSize: 14 },
+  backButtonText: { color: '#0D47A1', fontWeight: 'bold', fontSize: 17 },
   buildingsContainer: {
     flexDirection: 'column',
     width: '100%',
@@ -122,7 +115,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     alignItems: 'center',
     borderWidth: 1.5,
-    borderColor: '#3d2510',
+    borderColor: '#0D47A1',
     marginBottom: 16,
     shadowColor: '#000',
     shadowOpacity: 0.1,
@@ -141,9 +134,9 @@ const styles = StyleSheet.create({
   },
   buildingEmoji: { fontSize: 22 },
   buildingText: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: '700',
-    color: '#3d2510',
+    color: '#0D47A1',
     textAlign: 'left',
   },
   // 🔧 УВЕЛИЧЕН питомец (было 150×150, стало 250×250)

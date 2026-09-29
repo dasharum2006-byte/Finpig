@@ -1,15 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-  Modal,
-  TextInput,
-  Alert,
-  Dimensions,
-} from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Modal, TextInput, Alert, Dimensions } from 'react-native';
+import { TouchableOpacity } from '../components/ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../theme';
 import { useBank, CURRENCIES } from '../context/BankContext';
@@ -285,7 +276,7 @@ function EnvelopeModal({ visible, onClose }) {
                   value={goal}
                   onChangeText={setGoal}
                   placeholder="Например: на велосипед"
-                  placeholderTextColor="#999"
+                  placeholderTextColor="#7BA7D4"
                 />
                 <Text style={styles.inputLabel}>Сколько положить сразу? (можно 0)</Text>
                 <TextInput
@@ -294,7 +285,7 @@ function EnvelopeModal({ visible, onClose }) {
                   onChangeText={setAmount}
                   keyboardType="numeric"
                   placeholder="0"
-                  placeholderTextColor="#999"
+                  placeholderTextColor="#7BA7D4"
                 />
                 <TouchableOpacity style={styles.primaryBtn} onPress={handleCreate}>
                   <Text style={styles.primaryBtnText}>Создать</Text>
@@ -313,7 +304,7 @@ function EnvelopeModal({ visible, onClose }) {
                   onChangeText={setAmount}
                   keyboardType="numeric"
                   placeholder="0"
-                  placeholderTextColor="#999"
+                  placeholderTextColor="#7BA7D4"
                 />
                 <Text style={styles.hintText}>Доступно: {bank.balance.toFixed(2)} ₽</Text>
                 <TouchableOpacity style={styles.primaryBtn} onPress={confirmTransfer}>
@@ -392,7 +383,7 @@ function DepositModal({ visible, onClose }) {
                   onChangeText={setAmount}
                   keyboardType="numeric"
                   placeholder="0"
-                  placeholderTextColor="#999"
+                  placeholderTextColor="#7BA7D4"
                 />
                 <TouchableOpacity style={styles.primaryBtn} onPress={handleCreate}>
                   <Text style={styles.primaryBtnText}>Открыть счёт под {percent}%</Text>
@@ -416,7 +407,7 @@ function DepositModal({ visible, onClose }) {
                   onChangeText={setAmount}
                   keyboardType="numeric"
                   placeholder="0"
-                  placeholderTextColor="#999"
+                  placeholderTextColor="#7BA7D4"
                 />
                 <TouchableOpacity style={styles.primaryBtn} onPress={handleTopUp}>
                   <Text style={styles.primaryBtnText}>Перевести</Text>
@@ -500,7 +491,7 @@ function ExchangeModal({ visible, onClose }) {
             onChangeText={setAmount}
             keyboardType="numeric"
             placeholder="0"
-            placeholderTextColor="#999"
+            placeholderTextColor="#7BA7D4"
           />
 
           <Text style={styles.hintText}>
@@ -591,7 +582,7 @@ function LoanModal({ visible, onClose }) {
                 onChangeText={setAmount}
                 keyboardType="numeric"
                 placeholder="0"
-                placeholderTextColor="#999"
+                placeholderTextColor="#7BA7D4"
               />
 
               <TouchableOpacity style={styles.primaryBtn} onPress={take}>
@@ -620,7 +611,7 @@ const styles = StyleSheet.create({
 
   // Карта
   card: {
-    backgroundColor: '#2c3e50',
+    backgroundColor: '#0D47A1',
     borderRadius: 20,
     padding: 20,
     marginBottom: 16,
@@ -633,7 +624,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   cardTopRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  cardBankName: { color: '#ecf0f1', fontSize: 15, fontWeight: '600' },
+  cardBankName: { color: '#ecf0f1', fontSize: 17, fontWeight: '600' },
   cardEmoji: { fontSize: 26 },
   cardNumber: {
     color: '#fff',
@@ -644,7 +635,7 @@ const styles = StyleSheet.create({
     marginVertical: 24,
   },
   cardBottomRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' },
-  cardLabel: { color: '#95a5a6', fontSize: 10, letterSpacing: 1 },
+  cardLabel: { color: '#95a5a6', fontSize: 17, letterSpacing: 1 },
   cardBalance: { color: '#fff', fontSize: 20, fontWeight: '700' },
   cardLevel: { color: '#f1c40f', fontSize: 20, fontWeight: '700' },
 
@@ -665,8 +656,8 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
   },
   walletEmoji: { fontSize: 20 },
-  walletAmount: { fontSize: 14, fontWeight: '700', color: colors.text, marginTop: 2 },
-  walletCode: { fontSize: 9, color: colors.textSecondary, letterSpacing: 1 },
+  walletAmount: { fontSize: 17, fontWeight: '700', color: colors.text, marginTop: 2 },
+  walletCode: { fontSize: 17, color: colors.textSecondary, letterSpacing: 1 },
 
   // Кредит-баннер
   loanBanner: {
@@ -678,7 +669,7 @@ const styles = StyleSheet.create({
     borderColor: '#ff6b6b',
   },
   loanBannerTitle: { fontWeight: '700', color: '#c0392b' },
-  loanBannerText: { color: '#c0392b', marginTop: 4, fontSize: 13 },
+  loanBannerText: { color: '#c0392b', marginTop: 4, fontSize: 17 },
 
   // Секции
   section: {
@@ -697,9 +688,9 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   sectionEmoji: { fontSize: 30, marginRight: 14 },
-  sectionTitle: { fontSize: 16, fontWeight: '700', color: colors.text },
-  sectionSubtitle: { fontSize: 12, color: colors.textSecondary, marginTop: 2 },
-  sectionArrow: { fontSize: 16, color: '#bbb' },
+  sectionTitle: { fontSize: 17, fontWeight: '700', color: colors.text },
+  sectionSubtitle: { fontSize: 17, color: colors.textSecondary, marginTop: 2 },
+  sectionArrow: { fontSize: 17, color: '#bbb' },
 
   // Кнопка назад
   backButton: {
@@ -710,7 +701,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     backgroundColor: colors.accent,
   },
-  backButtonText: { color: '#fff', fontSize: 15, fontWeight: '600' },
+  backButtonText: { color: '#fff', fontSize: 17, fontWeight: '600' },
 
   // Тост
   toast: {
@@ -749,15 +740,15 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   modalTitle: { fontSize: 20, fontWeight: '700', color: colors.text },
-  modalClose: { fontSize: 22, color: '#999', paddingHorizontal: 8 },
+  modalClose: { fontSize: 22, color: '#7BA7D4', paddingHorizontal: 8 },
 
-  inputLabel: { fontSize: 14, color: colors.text, fontWeight: '600', marginTop: 12, marginBottom: 6 },
+  inputLabel: { fontSize: 17, color: colors.text, fontWeight: '600', marginTop: 12, marginBottom: 6 },
   input: {
     backgroundColor: '#f5f5f5',
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 12,
-    fontSize: 16,
+    fontSize: 17,
     color: colors.text,
     borderWidth: 1,
     borderColor: colors.border,
@@ -767,7 +758,7 @@ const styles = StyleSheet.create({
 
   envCard: {
     flexDirection: 'row',
-    backgroundColor: '#f8f8f8',
+    backgroundColor: '#EAF4FF',
     borderRadius: 14,
     padding: 14,
     marginBottom: 10,
@@ -775,10 +766,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
-  envGoal: { fontSize: 15, fontWeight: '700', color: colors.text },
-  envAccount: { fontSize: 11, color: colors.textSecondary, marginTop: 2, fontFamily: 'monospace' },
+  envGoal: { fontSize: 17, fontWeight: '700', color: colors.text },
+  envAccount: { fontSize: 17, color: colors.textSecondary, marginTop: 2, fontFamily: 'monospace' },
   envAmount: { fontSize: 18, fontWeight: '700', color: colors.accent, marginTop: 4 },
-  envPercent: { fontSize: 12, color: '#27ae60', fontWeight: '600', marginTop: 2 },
+  envPercent: { fontSize: 17, color: '#27ae60', fontWeight: '600', marginTop: 2 },
 
   smallBtn: {
     width: 36,
@@ -797,7 +788,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 16,
   },
-  primaryBtnText: { color: '#fff', fontSize: 16, fontWeight: '700' },
+  primaryBtnText: { color: '#fff', fontSize: 17, fontWeight: '700' },
 
   percentRow: { flexDirection: 'row', gap: 10, marginBottom: 4 },
   percentBtn: {
@@ -810,10 +801,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
   },
   percentBtnActive: { backgroundColor: colors.accent, borderColor: colors.accent },
-  percentBtnText: { fontSize: 14, fontWeight: '600', color: colors.text },
+  percentBtnText: { fontSize: 17, fontWeight: '600', color: colors.text },
   percentBtnTextActive: { color: '#fff' },
 
-  hintText: { fontSize: 12, color: colors.textSecondary, marginTop: 6, fontStyle: 'italic' },
+  hintText: { fontSize: 17, color: colors.textSecondary, marginTop: 6, fontStyle: 'italic' },
 
   currencyRow: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
   currencyBtn: {
@@ -828,5 +819,5 @@ const styles = StyleSheet.create({
   },
   currencyBtnActive: { backgroundColor: colors.accent, borderColor: colors.accent },
   currencyEmoji: { fontSize: 18 },
-  currencyCode: { fontSize: 10, fontWeight: '700', color: colors.text, marginTop: 2 },
+  currencyCode: { fontSize: 17, fontWeight: '700', color: colors.text, marginTop: 2 },
 });

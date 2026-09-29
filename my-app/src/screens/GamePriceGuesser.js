@@ -1,7 +1,10 @@
 import React, { useState, useEffect} from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Image, Alert } from 'react-native';
+import { StyleSheet, Text, View, Image, Alert } from 'react-native';
+import { TouchableOpacity } from '../components/ui';
 import Slider from '@react-native-community/slider';
 import { useBank } from '../context/BankContext'; 
+import { usePet } from '../context/PetContext';
+import { backToLivingRoom } from '../navigation';
 
 
 const ITEMS_DATA = [
@@ -194,6 +197,7 @@ const getRandomItems = (array, count) => {
 
 export default function GamePriceGuesser({ navigation }) {
   const bank = useBank();
+  const petCtx = usePet();
   const [gameItems, setGameItems] = useState([]);
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
   const [currentGuess, setCurrentValue] = useState(0);
@@ -243,11 +247,12 @@ export default function GamePriceGuesser({ navigation }) {
       setIsAnswered(false);
       setFeedbackText('');
     } else {
+      if (petCtx?.boostHappiness) petCtx.boostHappiness();
       Alert.alert(
         'Игра окончена 🏆', 
         'Ты отлично справился со всеми 6 товарами и помог Финпигу!', 
         [
-          { text: 'В меню игр', onPress: () => navigation.navigate('MiniGamesScreen') }
+          { text: 'В гостиную', onPress: () => backToLivingRoom(navigation) }
         ]
       );
     }
@@ -257,7 +262,7 @@ export default function GamePriceGuesser({ navigation }) {
   if (gameItems.length === 0 || !item) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text style={{ fontSize: 16, color: '#666' }}>Загрузка товаров...</Text>
+        <Text style={{ fontSize: 17, color: '#1976D2' }}>Загрузка товаров...</Text>
       </View>
     );
   }
@@ -267,7 +272,7 @@ export default function GamePriceGuesser({ navigation }) {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <TouchableOpacity style={styles.backButton} onPress={() => backToLivingRoom(navigation)}>
           <Text style={styles.backButtonText}>Выйти</Text>
         </TouchableOpacity>
         <View style={styles.headerTitleContainer}>
@@ -276,7 +281,7 @@ export default function GamePriceGuesser({ navigation }) {
         <Text style={styles.scoreText}>🪙 {bank?.balance ? Math.floor(bank.balance) : 0}</Text>
       </View>
       <View style={styles.storyCard}>
-        <Text style={styles.subTitle}>Товар {item.id}</Text>
+        <Text style={styles.subTitle}>Товар {currentItemIndex + 1} из {gameItems.length}</Text>
         <Image source={item.image} style={styles.storyImage} resizeMode="contain" />
         <Text style={styles.storyText}>Перед тобой — {item.name}. Подумай хорошенько, сколько этот предмет может стоить в реальном магазине, чтобы Финпига не обсчитали злодеи!</Text>
       </View>
@@ -292,8 +297,8 @@ export default function GamePriceGuesser({ navigation }) {
           onValueChange={setCurrentValue}
           disabled={isAnswered}
           minimumTrackTintColor="#E65100"
-          maximumTrackTintColor="#E0D4B7"
-          thumbTintColor="#5D4037"
+          maximumTrackTintColor="#90CAF9"
+          thumbTintColor="#1976D2"
         />
         <View style={styles.rangeLabelsRow}>
           <Text style={styles.rangeText}>{item.minPrice} руб</Text>
@@ -313,7 +318,7 @@ export default function GamePriceGuesser({ navigation }) {
       ) : (
         <TouchableOpacity style={styles.nextButton} onPress={handleNextItem}>
           <Text style={styles.nextButtonText}>
-            {currentItemIndex === ITEMS_DATA.length - 1 ? 'Завершить 🏁' : 'Следующий товар'}
+            {currentItemIndex === gameItems.length - 1 ? 'Завершить 🏁' : 'Следующий товар'}
           </Text>
         </TouchableOpacity>
       )}
@@ -324,7 +329,7 @@ export default function GamePriceGuesser({ navigation }) {
 const styles = StyleSheet.create({
   container: { 
     flex: 1, 
-    backgroundColor: '#365d69', 
+    backgroundColor: '#1976D2', 
     paddingTop: 50 
   },
   header: { 
@@ -337,7 +342,7 @@ const styles = StyleSheet.create({
     height: 50
   },
   backButton: { 
-    backgroundColor: '#5D4037', 
+    backgroundColor: '#1976D2', 
     paddingHorizontal: 12, 
     paddingVertical: 8, 
     borderRadius: 10,
@@ -346,7 +351,7 @@ const styles = StyleSheet.create({
   backButtonText: { 
     color: '#FFF', 
     fontWeight: 'bold', 
-    fontSize: 13 
+    fontSize: 17 
   },
   headerTitleContainer: {
     position: 'absolute',
@@ -363,7 +368,7 @@ const styles = StyleSheet.create({
     color: '#FFF' 
   },
   scoreText: { 
-    fontSize: 16, 
+    fontSize: 17, 
     fontWeight: 'bold', 
     color: '#FFE082',
     zIndex: 10
@@ -378,7 +383,7 @@ const styles = StyleSheet.create({
     borderColor: '#FFE082' 
   },
   subTitle: { 
-    fontSize: 14, 
+    fontSize: 17, 
     fontWeight: 'bold', 
     color: '#E65100', 
     marginBottom: 8 
@@ -390,8 +395,8 @@ const styles = StyleSheet.create({
     marginBottom: 12 
   },
   storyText: { 
-    fontSize: 14, 
-    color: '#333', 
+    fontSize: 17, 
+    color: '#0D47A1', 
     lineHeight: 20,
     textAlign: 'justify' 
   },
@@ -412,7 +417,7 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
   },
   hintText: {
-    fontSize: 14,
+    fontSize: 17,
     fontWeight: 'bold',
     textAlign: 'center',
     lineHeight: 20,
@@ -426,9 +431,9 @@ const styles = StyleSheet.create({
     marginBottom: 15 
   },
   questionText: { 
-    fontSize: 15, 
+    fontSize: 17, 
     fontWeight: 'bold', 
-    color: '#5D4037', 
+    color: '#1976D2', 
     marginBottom: 10,
     textAlign: 'center'
   },
@@ -449,8 +454,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5
   },
   rangeText: {
-    fontSize: 12,
-    color: '#718096',
+    fontSize: 17,
+    color: '#1976D2',
     fontWeight: 'bold'
   },
   feedbackContainer: {
@@ -459,15 +464,15 @@ const styles = StyleSheet.create({
     gap: 6
   },
   hintText: { 
-    fontSize: 14, 
+    fontSize: 17, 
     fontWeight: 'bold', 
     color: '#2E7D32', 
     textAlign: 'center'
   },
   realPriceText: {
-    fontSize: 15,
+    fontSize: 17,
     fontWeight: 'bold',
-    color: '#5D4037',
+    color: '#1976D2',
     fontStyle: 'italic'
   },
   checkButton: { 
@@ -480,7 +485,7 @@ const styles = StyleSheet.create({
   },
   checkButtonText: { 
     color: '#FFF', 
-    fontSize: 16, 
+    fontSize: 17, 
     fontWeight: 'bold' 
   },
   nextButton: { 
@@ -493,7 +498,7 @@ const styles = StyleSheet.create({
   },
   nextButtonText: { 
     color: '#FFF', 
-    fontSize: 16, 
+    fontSize: 17, 
     fontWeight: 'bold' 
   }
 });

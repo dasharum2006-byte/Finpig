@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Alert, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, Alert, ScrollView } from 'react-native';
+import { TouchableOpacity } from '../components/ui';
 import { useBank } from '../context/BankContext'; 
+import { usePet } from '../context/PetContext';
+import { backToLivingRoom } from '../navigation';
 
 const SCAM_GAME_DATA = [
   {
@@ -76,7 +79,7 @@ const SCAM_GAME_DATA = [
   {
     id: 6,
     senderName: '👮 Капитан полиции Смирнов',
-    avatarColor: '#2c3e50',
+    avatarColor: '#0D47A1',
     chatHistory: [
       'Здравствуйте. Я из милиции. Ваши родители подозреваются в серьёзном нарушении закона. Они не оплатили налоги за прошлый месяц.',
       'Чтобы доказать их невиновность, вы должны тайно взять из дома наличные деньги или золото и передать нашему курьеру.'
@@ -121,6 +124,7 @@ const SCAM_GAME_DATA = [
 
 export default function ScamGameScreen({ navigation }) {
   const bank = useBank();
+  const petCtx = usePet();
   const [currentStage, setCurrentStage] = useState(0);
   const [selectedOptionId, setSelectedOptionId] = useState(null);
   const [showFeedback, setShowFeedback] = useState(false);
@@ -159,11 +163,12 @@ export default function ScamGameScreen({ navigation }) {
       setShowFeedback(false);
       setFeedbackMessage('');
     } else {
+      if (petCtx?.boostHappiness) petCtx.boostHappiness();
       Alert.alert(
         'Супер-защита активирована🛡️', 
         'Ты успешно прошёл все 8 чатов, раскусил уловку со ссылкой-ловушкой и спас кошелёк Финпига!', 
         [
-          { text: 'В меню игр', onPress: () => navigation.navigate('MiniGamesScreen') }
+          { text: 'В гостиную', onPress: () => backToLivingRoom(navigation) }
         ]
       );
     }
@@ -175,7 +180,7 @@ export default function ScamGameScreen({ navigation }) {
     return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <TouchableOpacity style={styles.backButton} onPress={() => backToLivingRoom(navigation)}>
           <Text style={styles.backButtonText}>Выйти</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Анти-Скам Чат</Text>
@@ -235,7 +240,7 @@ export default function ScamGameScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f7fa',
+    backgroundColor: '#EAF4FF',
     paddingTop: 45,
   },
   header: {
@@ -260,10 +265,10 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#2c3e50',
+    color: '#0D47A1',
   },
   scoreText: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: 'bold',
     color: '#f39c12',
   },
@@ -291,9 +296,9 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   contactName: {
-    fontSize: 15,
+    fontSize: 17,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#0D47A1',
   },
   chatArea: {
     flex: 1,
@@ -313,8 +318,8 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   messageText: {
-    fontSize: 14,
-    color: '#333',
+    fontSize: 17,
+    color: '#0D47A1',
     lineHeight: 18,
   },
   feedbackBox: {
@@ -327,10 +332,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   feedbackText: {
-    fontSize: 14,
+    fontSize: 17,
     fontWeight: 'bold',
     textAlign: 'center',
-    color: '#2c3e50',
+    color: '#0D47A1',
   },
   actionArea: {
     paddingHorizontal: 15,
@@ -346,9 +351,9 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   optionText: {
-    fontSize: 13,
+    fontSize: 17,
     fontWeight: '600',
-    color: '#2c3e50',
+    color: '#0D47A1',
     textAlign: 'left',
   },
   nextButton: {
@@ -359,7 +364,7 @@ const styles = StyleSheet.create({
   },
   nextButtonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: 'bold',
   },
 });

@@ -1,14 +1,6 @@
 import React, { useState } from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  Image,
-  TouchableOpacity,
-  SafeAreaView,
-  Dimensions,
-  Alert,
-} from 'react-native';
+import { StyleSheet, Text, View, Image, SafeAreaView, Dimensions, Alert } from 'react-native';
+import { TouchableOpacity } from '../components/ui';
 import { usePet } from '../context/PetContext';
 import { getEggImage, getPetImage } from '../petsConfig';
 
@@ -39,7 +31,7 @@ export default function ArcticBankScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
-      <View style={[styles.bg, { backgroundColor: '#e0f7fa' }]}>
+      <View style={[styles.bg, { backgroundColor: '#EAF4FF' }]}>
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('ArcticScreen')}>
           <Text style={styles.backButtonText}>⬅ В город</Text>
         </TouchableOpacity>
@@ -73,19 +65,19 @@ export default function ArcticBankScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#e0f7fa' },
+  container: { flex: 1, backgroundColor: '#EAF4FF' },
   bg: { flex: 1, alignItems: 'center' },
   backButton: {
     position: 'absolute',
     top: 50,
     left: 20,
-    backgroundColor: '#006064',
+    backgroundColor: '#0D47A1',
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 15,
     zIndex: 10,
   },
-  backButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 14 },
+  backButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 17 },
   walletContainer: {
     position: 'absolute',
     top: 50,
@@ -95,14 +87,14 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 15,
     borderWidth: 1.5,
-    borderColor: '#006064',
+    borderColor: '#0D47A1',
     zIndex: 10,
   },
-  walletText: { color: '#006064', fontWeight: 'bold', fontSize: 14, marginVertical: 1 },
+  walletText: { color: '#0D47A1', fontWeight: 'bold', fontSize: 17, marginVertical: 1 },
   title: {
     fontSize: 22,
     fontWeight: '900',
-    color: '#006064',
+    color: '#0D47A1',
     marginTop: 110,
     textShadowColor: '#fff',
     textShadowRadius: 4,
@@ -114,16 +106,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 15,
   },
-  boardTitle: { fontSize: 16, fontWeight: 'bold', color: '#004d40', marginBottom: 6 },
+  boardTitle: { fontSize: 17, fontWeight: 'bold', color: '#004d40', marginBottom: 6 },
   boardText: {
-    fontSize: 12,
+    fontSize: 17,
     fontWeight: '600',
-    color: '#006064',
+    color: '#0D47A1',
     textAlign: 'center',
     lineHeight: 16,
   },
   rateText: {
-    fontSize: 14,
+    fontSize: 17,
     fontWeight: 'bold',
     color: '#00838f',
     marginTop: 12,
@@ -147,14 +139,14 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     alignItems: 'center',
     borderWidth: 1.5,
-    borderColor: '#006064',
+    borderColor: '#0D47A1',
     elevation: 3,
     shadowColor: '#000',
     shadowOpacity: 0.08,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },
   },
-  buttonText: { fontSize: 16, fontWeight: 'bold', color: '#006064' },
+  buttonText: { fontSize: 17, fontWeight: 'bold', color: '#0D47A1' },
   // 🔧 ЦЕНТРИРОВАН (убран left: 10, добавлен alignSelf: 'center')
   bankerImage: {
     position: 'absolute',

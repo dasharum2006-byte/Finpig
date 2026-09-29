@@ -1,16 +1,6 @@
 import { useState } from 'react';
-import {
-  View,
-  Text,
-  Image,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  Dimensions,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-} from 'react-native';
+import { View, Text, Image, TextInput, StyleSheet, Dimensions, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { TouchableOpacity } from '../components/ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../theme';
 import { PETS_BY_EGG } from '../petsConfig';

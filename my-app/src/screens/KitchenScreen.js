@@ -1,16 +1,6 @@
 import { useState, useRef } from 'react';
-import {
-  View,
-  Text,
-  ImageBackground,
-  FlatList,
-  TouchableOpacity,
-  StyleSheet,
-  PanResponder,
-  Image,
-  Dimensions,
-  Alert,
-} from 'react-native';
+import { View, Text, ImageBackground, FlatList, StyleSheet, PanResponder, Image, Dimensions, Alert } from 'react-native';
+import { TouchableOpacity } from '../components/ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../theme';
 import { usePet } from '../context/PetContext';
@@ -250,7 +240,7 @@ export default function KitchenScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#d9c3a5' },
+  container: { flex: 1, backgroundColor: '#1E88E5' },
   bg: { flex: 1, position: 'relative', alignItems: 'center' },
 
   petImage: {
@@ -310,8 +300,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 50,
     textAlign: 'center',
-    fontSize: 12,
-    color: '#666',
+    fontSize: 17,
+    color: '#1976D2',
     fontStyle: 'italic',
     backgroundColor: 'rgba(255,255,255,0.7)',
     paddingHorizontal: 12,
@@ -323,13 +313,13 @@ const styles = StyleSheet.create({
     borderRadius: 12, width: 24, height: 24, justifyContent: 'center',
     alignItems: 'center', borderWidth: 2, borderColor: '#fff',
   },
-  quantityText: { color: '#fff', fontSize: 12, fontWeight: 'bold' },
-  foodName: { fontSize: 11, fontWeight: 'bold', color: '#333', textAlign: 'center', marginTop: 4, paddingHorizontal: 4 },
+  quantityText: { color: '#fff', fontSize: 17, fontWeight: 'bold' },
+  foodName: { fontSize: 17, fontWeight: 'bold', color: '#0D47A1', textAlign: 'center', marginTop: 4, paddingHorizontal: 4 },
   emptyFridge: { flex: 1, justifyContent: 'center', alignItems: 'center', width: width * 0.6 },
   emptyFridgeText: { fontSize: 18, fontWeight: 'bold', color: '#555', textAlign: 'center' },
-  emptyFridgeSubtext: { fontSize: 14, color: '#888', marginTop: 5, textAlign: 'center' },
+  emptyFridgeSubtext: { fontSize: 17, color: '#888', marginTop: 5, textAlign: 'center' },
   swipeHint: {
-    position: 'absolute', top: 50, textAlign: 'center', fontSize: 12, color: '#666',
+    position: 'absolute', top: 50, textAlign: 'center', fontSize: 17, color: '#1976D2',
     fontStyle: 'italic', backgroundColor: 'rgba(255,255,255,0.7)',
     paddingHorizontal: 12, paddingVertical: 4, borderRadius: 10,}
 });

@@ -1,14 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  Image,
-  Alert,
-} from 'react-native';
+import { StyleSheet, Text, View, Image, Alert } from 'react-native';
+import { TouchableOpacity } from '../components/ui';
 
 import { useBank } from '../context/BankContext';
+import { usePet } from '../context/PetContext';
+import { backToLivingRoom } from '../navigation';
 
 const CARDS_DATA = [
   // ЕГИПЕТ
@@ -104,6 +100,7 @@ const shuffleArray = (array) => {
 
 export default function MemoryGame1Screen({ navigation }) {
   const bank = useBank();
+  const petCtx = usePet();
 
   const [cards, setCards] = useState([]);
   const [selectedCards, setSelectedCards] = useState([]);
@@ -210,6 +207,7 @@ export default function MemoryGame1Screen({ navigation }) {
       if (bank && typeof bank.addCoins === 'function') {
         bank.addCoins(30);
       }
+      if (petCtx?.boostHappiness) petCtx.boostHappiness();
     } catch (error) {
       console.error('Ошибка при начислении монет:', error);
     }
@@ -224,6 +222,10 @@ export default function MemoryGame1Screen({ navigation }) {
           {
             text: 'Играть снова',
             onPress: startNewGame,
+          },
+          {
+            text: 'В гостиную',
+            onPress: () => backToLivingRoom(navigation),
           },
         ],
         {
@@ -240,7 +242,7 @@ export default function MemoryGame1Screen({ navigation }) {
       <View style={styles.topBar}>
         <TouchableOpacity
           style={styles.backButtonTop}
-          onPress={() => navigation.goBack()}
+          onPress={() => backToLivingRoom(navigation)}
         >
           <Text style={styles.backButtonText}>Назад</Text>
         </TouchableOpacity>
@@ -249,7 +251,7 @@ export default function MemoryGame1Screen({ navigation }) {
 
         <View style={styles.bankBadge}>
           <Text style={styles.bankText}>
-            🪙 {bank?.coins ?? 0}
+            🪙 {bank?.balance != null ? Math.floor(bank.balance) : 0}
           </Text>
         </View>
       </View>
@@ -317,7 +319,7 @@ export default function MemoryGame1Screen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f4f6f9',
+    backgroundColor: '#EAF4FF',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -344,14 +346,14 @@ const styles = StyleSheet.create({
 
   backButtonText: {
     color: '#FFF',
-    fontSize: 14,
+    fontSize: 17,
     fontWeight: 'bold',
   },
 
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#2c3e50',
+    color: '#0D47A1',
   },
 
   bankBadge: {
@@ -366,14 +368,14 @@ const styles = StyleSheet.create({
   },
 
   bankText: {
-    fontSize: 14,
+    fontSize: 17,
     fontWeight: 'bold',
-    color: '#2c3e50',
+    color: '#0D47A1',
   },
 
   subtitle: {
     fontSize: 18,
-    color: '#666',
+    color: '#1976D2',
     marginBottom: 20,
   },
 
@@ -406,10 +408,10 @@ const styles = StyleSheet.create({
   },
 
   cardText: {
-    fontSize: 10,
+    fontSize: 17,
     textAlign: 'center',
     fontWeight: 'bold',
-    color: '#2c3e50',
+    color: '#0D47A1',
     lineHeight: 14,
   },
 
@@ -444,7 +446,7 @@ const styles = StyleSheet.create({
 
   buttonText: {
     color: '#FFF',
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: 'bold',
   },
 });

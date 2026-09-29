@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import {
-  StyleSheet, Text, View, TouchableOpacity, ScrollView, Image, Alert, Dimensions,
-} from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Image, Alert, Dimensions } from 'react-native';
+import { TouchableOpacity } from '../components/ui';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useBank } from '../context/BankContext';
+import { usePet } from '../context/PetContext';
 
 const { width } = Dimensions.get('window');
 
@@ -101,6 +101,7 @@ export default function LevelOneScreen({ navigation, route }) {
   const startIndex = route.params?.startIndex ?? 0;
   const reviewMode = route.params?.reviewMode ?? false;
   const bank = useBank();
+  const petCtx = usePet();
 
   const [currentStepIndex, setCurrentStepIndex] = useState(startIndex);
   const [selectedOption, setSelectedOption] = useState(null);
@@ -122,6 +123,7 @@ export default function LevelOneScreen({ navigation, route }) {
   // ─── Сохранение прогресса ───
   const saveProgress = async (stepId) => {
     if (reviewMode) return;
+    petCtx.boostHappiness();
     try {
       const savedStep = await AsyncStorage.getItem(STORAGE_KEY);
       const currentSaved = savedStep ? parseInt(savedStep, 10) : 0;
@@ -183,8 +185,7 @@ const handleOptionPress = async (option) => {
 
   if (option.isCorrect) {
     setScore(prev => prev + 1);
-    if (bank?.addCoins) bank.addCoins(20);
-    Alert.alert('🎉 +20 монет', explanationText);
+    Alert.alert('🎉 Верно!', explanationText);
   } else {
     Alert.alert('⚠️ Не совсем', explanationText);
   }
@@ -204,10 +205,9 @@ const handleTap = async (item) => {
       setScore(prev => prev + 1);
       if (!reviewMode) {
         await saveProgress(currentStepIndex + 1);
-        if (bank?.addCoins) bank.addCoins(20);
       }
       Alert.alert(
-        '🎉 Верно! +20 монет',
+        '🎉 Верно!',
         step.successText || 'Отлично!'
       );
     }
@@ -246,9 +246,8 @@ const handleTap = async (item) => {
   if (isCorrect) {
     setIsSortCorrect(true);
     setScore(prev => prev + 1);
-    if (bank?.addCoins) bank.addCoins(20);
     Alert.alert(
-      '🎉 +20 монет',
+      '🎉 Правильно!',
       step.explanation || 'Порядок правильный!'
     );
   } else {
@@ -284,7 +283,7 @@ const handleTap = async (item) => {
 
         Alert.alert(
           'Отлично 🎉',
-          `Все ${LEVEL_STEPS.length} вопросов пройдены! Тебе начислено ещё 20 монет.\n\n🐣 Твой питомец вырос!`,
+          `Все ${LEVEL_STEPS.length} вопросов пройдены! За пройденный блок тебе начислено 20 монет.\n\n🐣 Твой питомец вырос!`,
           [{ text: 'Круто!', onPress: () => navigation.navigate('BlockOneScreen') }]
         );
       } else {
@@ -464,7 +463,7 @@ const handleTap = async (item) => {
 
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fcfcfc75', paddingTop: 30 },
+  container: { flex: 1, backgroundColor: '#EAF4FF75', paddingTop: 30 },
 
   topBar: {
     flexDirection: 'row',
@@ -481,7 +480,7 @@ const styles = StyleSheet.create({
     minHeight: 48,
     justifyContent: 'center',
   },
-  backText: { color: '#FFF', fontWeight: 'bold', fontSize: 16 },
+  backText: { color: '#FFF', fontWeight: 'bold', fontSize: 17 },
   mainTitle: {
     fontSize: 22,
     fontWeight: 'bold',
@@ -503,7 +502,7 @@ const styles = StyleSheet.create({
   },
   subTitle: { fontSize: 20, fontWeight: 'bold', color: '#020202', marginBottom: 8 },
   storyImage: { width: '100%', height: 160, borderRadius: 12, marginBottom: 10 },
-  storyText: { fontSize: 18, color: '#333', lineHeight: 24, textAlign: 'justify' },
+  storyText: { fontSize: 18, color: '#0D47A1', lineHeight: 24, textAlign: 'justify' },
 
   questionCard: {
     backgroundColor: '#4f926b3a',
@@ -529,7 +528,7 @@ const styles = StyleSheet.create({
     minHeight: 48,
     justifyContent: 'center',
   },
-  optionText: { fontSize: 17, color: '#333', fontWeight: '500' },
+  optionText: { fontSize: 17, color: '#0D47A1', fontWeight: '500' },
 
   // Интерактив (tap)
   itemsRow: {
@@ -553,7 +552,7 @@ const styles = StyleSheet.create({
   tapItemCorrect: { backgroundColor: '#C8E6C9', borderColor: '#4CAF50' },
   tapItemWrong: { backgroundColor: '#FFCDD2', borderColor: '#F44336' },
   tapEmoji: { fontSize: 38, marginBottom: 4 },
-  tapLabel: { fontSize: 13, color: '#333', fontWeight: '600', textAlign: 'center' },
+  tapLabel: { fontSize: 17, color: '#0D47A1', fontWeight: '600', textAlign: 'center' },
   tapCheck: { position: 'absolute', top: 4, right: 6, fontSize: 18 },
 
   // Сортировка
@@ -564,13 +563,13 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginBottom: 10,
     borderWidth: 2,
-    borderColor: '#E0D4B7',
+    borderColor: '#90CAF9',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     minHeight: 48,
   },
-  sortCardText: { fontSize: 16, color: '#333', fontWeight: '500', flex: 1, paddingRight: 10 },
+  sortCardText: { fontSize: 17, color: '#0D47A1', fontWeight: '500', flex: 1, paddingRight: 10 },
   sortButtons: { flexDirection: 'row' },
   arrowBtn: { padding: 8, marginLeft: 4, minHeight: 48, justifyContent: 'center' },
   arrowText: { fontSize: 20 },

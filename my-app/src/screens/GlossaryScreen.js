@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import {
-  View, Text, TouchableOpacity, StyleSheet, ScrollView,Image} from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
+import { TouchableOpacity } from '../components/ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../theme';
 

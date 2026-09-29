@@ -1,12 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-  Image,
-} from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
+import { TouchableOpacity } from '../components/ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../theme';
 import { useBank } from '../context/BankContext';
@@ -16,7 +10,7 @@ import { getEggImage, getPetImage } from '../petsConfig';
 const STEP = 50;
 
 
-export default function BudgetPlanScreen({ onFinish, mode = 'plan' }) {
+export default function BudgetPlanScreen({ onFinish, mode = 'plan', navigation }) {
   const bank = useBank();
   const budgetPlanCtx = useBudgetPlan();
    const petCtx = usePet();  
@@ -28,7 +22,7 @@ export default function BudgetPlanScreen({ onFinish, mode = 'plan' }) {
         : getPetImage(myPet.speciesId, myPet.variationId, currentStage - 1))
     : null;
   const petName = myPet?.name ?? 'Питомец';
-  const budget = bank.balance > 0 ? bank.balance : 500;
+  const budget = Math.floor(bank.balance > 0 ? bank.balance : 100);
 
   const [needs, setNeeds] = useState(0);
   const [wants, setWants] = useState(0);
@@ -57,19 +51,25 @@ export default function BudgetPlanScreen({ onFinish, mode = 'plan' }) {
 
   const increase = (setter, value) => {
     if (remaining <= 0) return;
-    setter(value + STEP);
+    // Последний шаг может быть меньше STEP, чтобы точно добить до нуля
+    setter(value + Math.min(STEP, remaining));
   };
 
   const decrease = (setter, value) => {
     if (value <= 0) return;
-    setter(value - STEP);
+    setter(Math.max(0, value - Math.min(STEP, value)));
   };
 
   const onConfirm = () => {
     if (!canConfirm) return;
     budgetPlanCtx.confirmPlan({ budget, needs, wants, savings });
     console.log('✅ План сохранён:', { budget, needs, wants, savings });
-    onFinish?.();
+    if (typeof onFinish === 'function') {
+      onFinish();
+    } else if (navigation?.goBack) {
+      // экран открыт как отдельный маршрут — возвращаемся назад
+      navigation.goBack();
+    }
   };
 
   const getRemainingText = () => {
@@ -321,12 +321,12 @@ function CategoryResult({ emoji, title, plan, fact, feedback, match }) {
         </View>
         <View style={styles.resultCol}>
           <Text style={styles.resultLabel}>Совпадение</Text>
-          <Text style={[styles.resultNumber, { color: isGood ? '#4caf50' : '#e8a87c' }]}>
+          <Text style={[styles.resultNumber, { color: isGood ? '#4caf50' : '#1E88E5' }]}>
             {match}%
           </Text>
         </View>
       </View>
-      <Text style={[styles.resultFeedback, { color: isGood ? '#4caf50' : '#e8a87c' }]}>
+      <Text style={[styles.resultFeedback, { color: isGood ? '#4caf50' : '#1E88E5' }]}>
         {feedback}
       </Text>
     </View>
@@ -391,7 +391,7 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 6,
   },
-  budgetLabel: { color: '#E3F2FD', fontSize: 14, opacity: 0.95, marginBottom: 4 },
+  budgetLabel: { color: '#E3F2FD', fontSize: 17, opacity: 0.95, marginBottom: 4 },
   budgetValue: { color: '#FFF', fontSize: 36, fontWeight: '900', letterSpacing: 1 },
 
   // ─── Section ───
@@ -459,7 +459,7 @@ const styles = StyleSheet.create({
   progressFill: { height: '100%', borderRadius: 8 },
   remainingText: {
     marginTop: 6,
-    fontSize: 15,
+    fontSize: 17,
     fontWeight: '700',
     textAlign: 'center',
   },
@@ -473,7 +473,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#81D4FA',
   },
-  petHintText: { fontSize: 14, color: '#01579B', lineHeight: 20 },
+  petHintText: { fontSize: 17, color: '#01579B', lineHeight: 20 },
 
   // ─── Кнопка «Подтвердить» ───
   confirmButton: {
@@ -499,7 +499,7 @@ const styles = StyleSheet.create({
 
   // ─── ResultView (итоги) ───
   emptyWrap: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
-  emptyText: { fontSize: 16, color: '#1976D2' },
+  emptyText: { fontSize: 17, color: '#1976D2' },
 
   overallCard: {
     backgroundColor: '#42A5F5',
@@ -513,7 +513,7 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 6,
   },
-  overallLabel: { color: '#E3F2FD', fontSize: 14, opacity: 0.95, marginBottom: 4 },
+  overallLabel: { color: '#E3F2FD', fontSize: 17, opacity: 0.95, marginBottom: 4 },
   overallValue: { color: '#FFF', fontSize: 22, fontWeight: '900', marginBottom: 12 },
   overallTrack: {
     width: '100%',
@@ -534,12 +534,12 @@ const styles = StyleSheet.create({
   },
   resultHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
   resultEmoji: { fontSize: 24, marginRight: 10 },
-  resultTitle: { fontSize: 16, fontWeight: '800', color: '#0D47A1' },
+  resultTitle: { fontSize: 17, fontWeight: '800', color: '#0D47A1' },
   resultValues: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
   resultCol: { flex: 1, alignItems: 'center' },
-  resultLabel: { fontSize: 12, color: '#1976D2', marginBottom: 4 },
+  resultLabel: { fontSize: 17, color: '#1976D2', marginBottom: 4 },
   resultNumber: { fontSize: 18, fontWeight: '900', color: '#0D47A1' },
-  resultFeedback: { fontSize: 13, fontWeight: '700', textAlign: 'center' },
+  resultFeedback: { fontSize: 17, fontWeight: '700', textAlign: 'center' },
 
   petFeedback: {
     backgroundColor: '#E1F5FE',
@@ -549,7 +549,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#81D4FA',
   },
-  petFeedbackText: { fontSize: 15, color: '#01579B', lineHeight: 22 },
+  petFeedbackText: { fontSize: 17, color: '#01579B', lineHeight: 22 },
   petBlock: {
   alignItems: 'center',
   marginBottom: 16,
@@ -560,7 +560,7 @@ petImageBudget: {
   marginBottom: 8,
 },
 petNameBudget: {
-  fontSize: 16,
+  fontSize: 17,
   fontWeight: '700',
   color: '#0D47A1',
   textAlign: 'center',

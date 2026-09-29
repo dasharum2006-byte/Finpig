@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
-import {
-  StyleSheet, Text, View, Modal, ScrollView,
-  ImageBackground, TouchableOpacity, Dimensions,
-} from 'react-native';
+import { StyleSheet, Text, View, Modal, ScrollView, ImageBackground, Dimensions } from 'react-native';
+import { TouchableOpacity } from '../components/ui';
 import { usePet } from '../context/PetContext';
 import { useBank } from '../context/BankContext';
 import { useBudgetPlan } from '../context/BudgetPlanContext';
@@ -90,6 +88,7 @@ export default function ToyShopScreen({ navigation }) {
     bank.setBalance(bank.balance - totalCost);
 
     budgetPlanCtx.updateFact('wants', totalCost);
+    petCtx.boostHappiness();
     petCtx.addFoodToInventory(cart.map((item) => ({
     ...item,
     type: 'toy',   
@@ -231,47 +230,47 @@ const styles = StyleSheet.create({
   rightInfoColumn: { flexDirection: 'column', alignItems: 'flex-end' },
   coinContainer: { backgroundColor: 'rgba(0,0,0,0.6)', paddingHorizontal: 15, paddingVertical: 8, borderRadius: 20, borderWidth: 1, borderColor: '#5a5957', marginBottom: 10 },
   coinText: { color: '#FFF', fontSize: 18, fontWeight: 'bold' },
-  cartButton: { backgroundColor: '#5D4037', padding: 10, borderRadius: 50, borderWidth: 2, borderColor: '#8D6E63', position: 'relative' },
+  cartButton: { backgroundColor: '#1976D2', padding: 10, borderRadius: 50, borderWidth: 2, borderColor: '#42A5F5', position: 'relative' },
   cartEmoji: { fontSize: 24 },
   cartBadge: { position: 'absolute', top: -5, right: -5, backgroundColor: '#00a5e6', borderRadius: 10, width: 20, height: 20, justifyContent: 'center', alignItems: 'center' },
-  cartBadgeText: { color: '#FFF', fontSize: 11, fontWeight: 'bold' },
+  cartBadgeText: { color: '#FFF', fontSize: 17, fontWeight: 'bold' },
   showcase: { width: width * 0.9, borderRadius: 20, paddingVertical: 20, paddingHorizontal: 10 },
   shelfContainer: { marginBottom: 25, width: '100%' },
   productsRow: { flexDirection: 'row', justifyContent: 'space-around', paddingBottom: 5, zIndex: 2 },
-  productCard: { backgroundColor: '#e1fffdc4', width: '45%', borderRadius: 12, padding: 19, alignItems: 'center', borderWidth: 2, borderColor: '#5e8d8bd7' },
+  productCard: { backgroundColor: '#FFFFFFc4', width: '45%', borderRadius: 12, padding: 19, alignItems: 'center', borderWidth: 2, borderColor: '#42A5F5d7' },
   productEmoji: { fontSize: 40, marginBottom: 6 },
-  productName: { fontSize: 14, fontWeight: 'bold', color: '#1d1b1b', flex: 1, marginRight: 4 },
+  productName: { fontSize: 17, fontWeight: 'bold', color: '#1d1b1b', flex: 1, marginRight: 4 },
   productFooterRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%' },
   productPriceContainer: { flexDirection: 'row', alignItems: 'center' },
-  productPrice: { fontSize: 13, color: '#E65100', fontWeight: 'bold', marginTop: 2 },
-  coinMiniEmoji: { fontSize: 12, marginLeft: 2 },
+  productPrice: { fontSize: 17, color: '#E65100', fontWeight: 'bold', marginTop: 2 },
+  coinMiniEmoji: { fontSize: 17, marginLeft: 2 },
   shelfLine: { height: 12, backgroundColor: '#3d88aaea', borderRadius: 6, width: '100%', borderWidth: 1, borderColor: '#474443', marginTop: -5 },
-  headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: width * 0.9, marginBottom: 30, backgroundColor: '#7abcc581', borderRadius: 15, padding: 5, borderWidth: 2, borderColor: '#85bdbd' },
+  headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: width * 0.9, marginBottom: 30, backgroundColor: '#90CAF981', borderRadius: 15, padding: 5, borderWidth: 2, borderColor: '#90CAF9' },
   arrowButton: { paddingHorizontal: 15, paddingVertical: 10 },
   arrowText: { fontSize: 24, color: '#FFF', fontWeight: 'bold' },
   titleContainer: { flex: 1, alignItems: 'center' },
   categoryTitle: { fontSize: 20, color: '#FFF', fontWeight: 'bold', textAlign: 'center' },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' },
   modalContent: { backgroundColor: '#FFF8E1', borderTopLeftRadius: 25, borderTopRightRadius: 25, padding: 20, maxHeight: '75%', borderTopWidth: 5, borderColor: '#47b7bb9d' },
-  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15, borderBottomWidth: 1, borderColor: '#E0D4B7', paddingBottom: 10 },
-  modalTitle: { fontSize: 22, fontWeight: 'bold', color: '#5D4037' },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15, borderBottomWidth: 1, borderColor: '#90CAF9', paddingBottom: 10 },
+  modalTitle: { fontSize: 22, fontWeight: 'bold', color: '#1976D2' },
   closeModalText: { fontSize: 18 },
   cartList: { marginVertical: 10 },
-  emptyCartText: { textAlign: 'center', color: '#8D6E63', fontSize: 16, marginVertical: 30, fontStyle: 'italic' },
+  emptyCartText: { textAlign: 'center', color: '#42A5F5', fontSize: 17, marginVertical: 30, fontStyle: 'italic' },
   cartItemRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFF', padding: 12, borderRadius: 15, marginBottom: 10, borderWidth: 1, borderColor: '#FFE082' },
   cartItemEmoji: { fontSize: 30, marginRight: 12 },
   cartItemInfo: { flex: 1 },
-  cartItemName: { fontSize: 16, fontWeight: 'bold', color: '#5D4037' },
-  cartItemDescription: { fontSize: 13, color: '#8D6E63', marginTop: 2 },
+  cartItemName: { fontSize: 17, fontWeight: 'bold', color: '#1976D2' },
+  cartItemDescription: { fontSize: 17, color: '#42A5F5', marginTop: 2 },
   quantityControls: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F5F5F5', borderRadius: 10, borderWidth: 1, borderColor: '#E0E0E0' },
   controlButton: { paddingHorizontal: 12, paddingVertical: 6 },
   controlButtonText: { fontSize: 18, fontWeight: 'bold', color: '#E65100' },
-  quantityText: { fontSize: 16, fontWeight: 'bold', color: '#333', paddingHorizontal: 5 },
-  modalFooter: { borderTopWidth: 2, borderColor: '#E0D4B7', paddingTop: 15, marginTop: 10 },
+  quantityText: { fontSize: 17, fontWeight: 'bold', color: '#0D47A1', paddingHorizontal: 5 },
+  modalFooter: { borderTopWidth: 2, borderColor: '#90CAF9', paddingTop: 15, marginTop: 10 },
   totalRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-  totalLabel: { fontSize: 18, fontWeight: 'bold', color: '#5D4037' },
+  totalLabel: { fontSize: 18, fontWeight: 'bold', color: '#1976D2' },
   totalPriceText: { fontSize: 22, fontWeight: 'bold', color: '#E65100' },
-  errorText: { color: '#D32F2F', fontSize: 14, fontWeight: 'bold', textAlign: 'center', marginBottom: 12, backgroundColor: '#FFEBEE', padding: 8, borderRadius: 8 },
-  payButton: { backgroundColor: '#69b9b9fb', paddingVertical: 14, borderRadius: 15, alignItems: 'center' },
+  errorText: { color: '#D32F2F', fontSize: 17, fontWeight: 'bold', textAlign: 'center', marginBottom: 12, backgroundColor: '#FFEBEE', padding: 8, borderRadius: 8 },
+  payButton: { backgroundColor: '#1E88E5fb', paddingVertical: 14, borderRadius: 15, alignItems: 'center' },
   payButtonText: { color: '#FFF', fontSize: 18, fontWeight: 'bold' },
 });

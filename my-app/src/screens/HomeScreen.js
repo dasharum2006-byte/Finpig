@@ -1,22 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {
-  View,
-  Text,
-  Image,
-  ImageBackground,
-  TouchableOpacity,
-  StyleSheet,
-  Modal,
-  Pressable,
-  Animated,
-  Dimensions,
-  ScrollView,
-  PanResponder,
-  ActivityIndicator,
-  Alert,
-} from 'react-native';
+import { View, Text, Image, ImageBackground, StyleSheet, Modal, Animated, Dimensions, ScrollView, PanResponder, ActivityIndicator, Alert } from 'react-native';
+import { TouchableOpacity, Pressable } from '../components/ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { colors } from '../theme';
 import { useBank } from '../context/BankContext';
 import { usePet } from '../context/PetContext';
@@ -24,6 +11,8 @@ import { getEggImage, getPetImage } from '../petsConfig';
 import BudgetPlanScreen from './BudgetPlanScreen';
 import { useBudgetPlan } from '../context/BudgetPlanContext';
 import { useDemo } from '../context/DemoContext';
+import DemoPanel from '../components/DemoPanel';
+
 
 const { width } = Dimensions.get('window');
 
@@ -163,7 +152,7 @@ function StartBudgetScreen({ onNext }) {
 
   const handleNext = () => {
     if (bank.balance === 0) {
-      bank.addCoins(500);
+      bank.addCoins(100);
     }
     onNext();
   };
@@ -182,7 +171,7 @@ function StartBudgetScreen({ onNext }) {
         <Text style={styles.introTitle}>Вот твои первые монеты!</Text>
 
         <View style={styles.amountCard}>
-          <Text style={styles.amountValue}>500</Text>
+          <Text style={styles.amountValue}>100</Text>
           <Text style={styles.amountLabel}>монет на первый период</Text>
         </View>
 
@@ -211,9 +200,9 @@ function GoalScreen({ onNext }) {
   const budgetPlanCtx = useBudgetPlan();
 
   const GOALS = [
-    { id: 'bike', emoji: '🚲', title: 'Велосипед', cost: 500, color: '#42a4f5b6' },
-    { id: 'scooter', emoji: '🛴', title: 'Самокат', cost: 300, color: '#66bb6ac2' },
-    { id: 'gift', emoji: '🎁', title: 'Подарок', cost: 200, color: '#ff6f43b0' },
+    { id: 'g1', emoji: '🚲', title: 'Велосипед', cost: 500, color: '#42a4f5b6' },
+    { id: 'g2', emoji: '🛴', title: 'Самокат', cost: 300, color: '#66bb6ac2' },
+    { id: 'g3', emoji: '🎁', title: 'Подарок', cost: 200, color: '#ff6f43b0' },
   ];
 
   const handleSelect = (goal) => setSelectedGoal(goal);
@@ -303,6 +292,8 @@ function HomeScreenInner({ route, navigation }) {
   const [onboardingDone, setOnboardingDone] = useState(petCtx.isOnboardingDone ?? false);
   const [showBudgetResult, setShowBudgetResult] = useState(false);
   const [showNewPlan, setShowNewPlan] = useState(false);
+  const [showSwipeHints, setShowSwipeHints] = useState(false);
+  const [showTaskBadge, setShowTaskBadge] = useState(true);
 
   const scale = useRef(new Animated.Value(1)).current;
   const translateX = useRef(new Animated.Value(0)).current;
@@ -342,6 +333,13 @@ function HomeScreenInner({ route, navigation }) {
     budgetPlanCtx.currentFact.savings > 0
   );
 
+  // Накоплено по цели из регистрации (связь с копилками/банком)
+  const goalId = budgetPlanCtx.goal?.id;
+  const goalAlias = { bike: 'g1', scooter: 'g2', gift: 'g3' }[goalId] ?? goalId;
+  const goalSaved = (bank.envelopes ?? [])
+    .filter((e) => e.goal === goalAlias)
+    .reduce((s, e) => s + e.amount, 0);
+
   useEffect(() => {
     if (incomingPet) {
       petCtx.setNewPet(incomingPet);
@@ -350,6 +348,33 @@ function HomeScreenInner({ route, navigation }) {
       }
     }
   }, [incomingPet]);
+
+  // Подсказки про свайпы показываем только один раз — после первого выбора питомца
+  useEffect(() => {
+    if (!onboardingDone) return;
+    let active = true;
+    (async () => {
+      try {
+        const seen = await AsyncStorage.getItem('@swipe_hint_seen_v1');
+        if (seen !== 'true' && active) {
+          setShowSwipeHints(true);
+          await AsyncStorage.setItem('@swipe_hint_seen_v1', 'true');
+        }
+      } catch (e) {
+        // не критично
+      }
+    })();
+    return () => { active = false; };
+  }, [onboardingDone]);
+
+  // Кнопка «Продолжить задания» видна 3 секунды после входа на экран
+  useFocusEffect(
+    React.useCallback(() => {
+      setShowTaskBadge(true);
+      const t = setTimeout(() => setShowTaskBadge(false), 3000);
+      return () => clearTimeout(t);
+    }, [])
+  );
 
   const panResponder = useRef(
     PanResponder.create({
@@ -492,7 +517,10 @@ function HomeScreenInner({ route, navigation }) {
   }
 
   const hungerDisplay = Math.round(petCtx.hunger);
+  const happinessDisplay = Math.round(petCtx.happiness ?? 100);
   const isHungry = hungerDisplay <= 25;
+  const isSad = happinessDisplay <= 25;
+  const clamp = (v) => Math.max(0, Math.min(100, v));
   const features = LEVEL_FEATURES[bank.level] ?? [];
 
   return (
@@ -505,71 +533,81 @@ function HomeScreenInner({ route, navigation }) {
             resizeMode="cover"
           >
             <View style={styles.topBar}>
-              <View style={styles.namePlate}>
-                <Text style={styles.petName}>{petName}</Text>
-              </View>
-
-              <TouchableOpacity
-                style={styles.settingsBadge}
-                onPress={() => navigation.navigate('Settings')}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.settingsBadgeText}>⚙️</Text>
-              </TouchableOpacity>
-
-              <View style={styles.rightColumn}>
-                <View style={styles.rightTopRow}>
-                  <TouchableOpacity
-                    style={styles.levelBadge}
-                    onPress={() => setLevelMenuOpen(true)}
-                    activeOpacity={0.7}
-                  >
-                    <Text style={styles.levelBadgeText}>Lv.{bank.level} ▾</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    style={styles.plusBtn}
-                    onPress={() => bank.levelUp()}
-                    activeOpacity={0.7}
-                  >
-                    <Text style={styles.plusBtnText}>+1</Text>
-                  </TouchableOpacity>
-
-                  <View style={styles.heartsRow}>
-                    {[0, 1, 2].map((i) => (
-                      <Text key={i} style={[styles.heart, i >= hearts && styles.heartEmpty]}>
-                        {i < hearts ? '❤️' : '🤍'}
-                      </Text>
-                    ))}
-                  </View>
+              {/* Верхняя строка: имя, сердечки, «Мой план», монеты, настройки */}
+              <View style={styles.topRow}>
+                <View style={styles.namePlate}>
+                  <Text style={styles.petName} numberOfLines={1}>{petName}</Text>
                 </View>
 
-                <View
-                  style={[
-                    styles.hungerBadge,
-                    isHungry && styles.hungerBadgeDanger,
-                  ]}
-                >
-                  <Text style={styles.hungerEmoji}>🍽️</Text>
-                  <Text
-                    style={[
-                      styles.hungerText,
-                      isHungry && styles.hungerTextDanger,
-                    ]}
-                  >
-                    {hungerDisplay}%
-                  </Text>
+                <View style={styles.heartsRow}>
+                  {[0, 1, 2].map((i) => (
+                    <Text key={i} style={[styles.heart, i >= hearts && styles.heartEmpty]}>
+                      {i < hearts ? '❤️' : '🤍'}
+                    </Text>
+                  ))}
                 </View>
 
                 <TouchableOpacity
-                  style={styles.balanceBadge}
-                  onPress={() => navigation.navigate('Bank')}
-                  activeOpacity={0.7}
+                  style={styles.planChip}
+                  onPress={() => navigation.navigate('BudgetPlanScreen')}
+                  activeOpacity={0.8}
                 >
-                  <Text style={styles.balanceBadgeText}>
-                    🪙 {bank.balance.toFixed(0)}
-                  </Text>
+                  <Text style={styles.planChipText} numberOfLines={1}>Мой план</Text>
                 </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.coinChip}
+                  onPress={() => navigation.navigate('Bank')}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.coinChipText} numberOfLines={1}>🪙 {Math.floor(bank.balance)}</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.iconSquare}
+                  onPress={() => navigation.navigate('Settings')}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.iconSquareEmoji}>⚙️</Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* Вторая строка: копилка слева, цель справа */}
+              <View style={styles.topBarBottom}>
+                <TouchableOpacity
+                  style={styles.infoChip}
+                  onPress={() => navigation.navigate('Bank')}
+                  activeOpacity={0.8}
+                >
+                  <View style={styles.chipIconBox}>
+                    <Text style={styles.chipEmoji}>🏦</Text>
+                  </View>
+                  <View style={styles.chipTextWrap}>
+                    <Text style={styles.chipLabel}>Копилка</Text>
+                    <Text style={styles.chipValue}>
+                      {(bank.envelopes ?? []).reduce((s, e) => s + e.amount, 0)} 🪙
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+
+                {/* 🎯 Цель — открывает экран целей (копилки связаны с банком) */}
+                {budgetPlanCtx.goal && (
+                  <TouchableOpacity
+                    style={styles.goalChipTop}
+                    onPress={() => navigation.navigate('GoalsScreen')}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.goalChipTopEmoji}>{budgetPlanCtx.goal.emoji}</Text>
+                    <View style={styles.goalChipTopInfo}>
+                      <Text style={styles.goalChipTopText} numberOfLines={1}>
+                        {budgetPlanCtx.goal.title}
+                      </Text>
+                      <Text style={styles.goalChipTopSub}>
+                        {Math.floor(goalSaved)} / {budgetPlanCtx.goal.cost}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                )}
               </View>
             </View>
 
@@ -586,75 +624,131 @@ function HomeScreenInner({ route, navigation }) {
                 />
               </TouchableOpacity>
 
-              {currentStage >= 1 && (
-                <View style={styles.stageIndicator}>
-                  {[1, 2, 3].map((s) => (
-                    <View
-                      key={s}
-                      style={[
-                        styles.stageDot,
-                        s <= currentStage && styles.stageDotFilled,
-                      ]}
-                    />
-                  ))}
+              {showTaskBadge && (
+                <TouchableOpacity
+                  style={styles.taskBadge}
+                  onPress={() => navigation.navigate('Tasks')}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.taskBadgeText}>Продолжить задания</Text>
+                </TouchableOpacity>
+              )}
+              {showSwipeHints && (
+                <View style={styles.swipeHintsRow}>
+                  <Text style={styles.swipeHint}>← свайп влево: гостиная</Text>
+                  <Text style={styles.swipeHint}>свайп вправо: кухня →</Text>
                 </View>
               )}
+            </View>
 
-              <View style={styles.swipeHintsRow}>
-                <Text style={styles.swipeHint}>← свайп влево: гостиная</Text>
-                <Text style={styles.swipeHint}>свайп вправо: кухня →</Text>
+            {/* ─── Счастье и Еда над меню ─── */}
+            <View style={styles.bottomHud}>
+              <View style={styles.miniStatus}>
+                <Text style={styles.miniStatusIcon}>😊</Text>
+                <View style={styles.statusBarBg}>
+                  <View
+                    style={[
+                      styles.statusBarFill,
+                      {
+                        width: `${clamp(happinessDisplay)}%`,
+                        backgroundColor: isSad ? '#EF5350' : '#4FC3F7',
+                      },
+                    ]}
+                  />
+                </View>
+                <Text style={[styles.miniStatusValue, isSad && styles.statusValueDanger]}>
+                  {happinessDisplay}%
+                </Text>
+              </View>
+
+              <View style={styles.miniStatus}>
+                <Text style={styles.miniStatusIcon}>🍽️</Text>
+                <View style={styles.statusBarBg}>
+                  <View
+                    style={[
+                      styles.statusBarFill,
+                      {
+                        width: `${clamp(hungerDisplay)}%`,
+                        backgroundColor: isHungry ? '#EF5350' : '#1976D2',
+                      },
+                    ]}
+                  />
+                </View>
+                <Text style={[styles.miniStatusValue, isHungry && styles.statusValueDanger]}>
+                  {hungerDisplay}%
+                </Text>
               </View>
             </View>
 
             <View style={styles.bottomBar}>
-              <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('Tasks')}>
-                <Text style={styles.actionEmoji}>📋</Text>
-                <Text style={styles.actionText}>Задания</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={() => navigation.navigate('Town')}
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.bottomBarContent}
               >
-                <Text style={styles.actionEmoji}>🏙️</Text>
-                <Text style={styles.actionText}>Город</Text>
-              </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.actionButton, styles.levelAction]}
+                  onPress={() => setLevelMenuOpen(true)}
+                  activeOpacity={0.85}
+                >
+                  <View style={[styles.actionIconBox, styles.levelIconBox]}>
+                    <Text style={styles.levelIconText}>{bank.level}</Text>
+                  </View>
+                  <Text style={styles.actionText}>Уровень</Text>
+                </TouchableOpacity>
 
-              <TouchableOpacity style={styles.actionButton} onPress={() => setOpenMenu('room')}>
-                <Text style={styles.actionEmoji}>🏠</Text>
-                <Text style={styles.actionText}>Комната</Text>
-              </TouchableOpacity>
+                <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('Tasks')}>
+                  <View style={styles.actionIconBox}>
+                    <Text style={styles.actionEmoji}>📋</Text>
+                  </View>
+                  <Text style={styles.actionText}>Задания</Text>
+                </TouchableOpacity>
 
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={() => navigation.navigate('ParentGateScreen')}
-              >
-                <Text style={styles.actionEmoji}>👨‍👩‍👧</Text>
-                <Text style={styles.actionText}>Родителю</Text>
-              </TouchableOpacity>
+                <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('Town')}>
+                  <View style={styles.actionIconBox}>
+                    <Text style={styles.actionEmoji}>🏙️</Text>
+                  </View>
+                  <Text style={styles.actionText}>Город</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('History')}>
+                  <View style={styles.actionIconBox}>
+                    <Text style={styles.actionEmoji}>📅</Text>
+                  </View>
+                  <Text style={styles.actionText}>История</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.actionButton} onPress={() => setOpenMenu('room')}>
+                  <View style={styles.actionIconBox}>
+                    <Text style={styles.actionEmoji}>🏠</Text>
+                  </View>
+                  <Text style={styles.actionText}>Комната</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('MiniGamesScreen')}>
+                  <View style={styles.actionIconBox}>
+                    <Text style={styles.actionEmoji}>🎮</Text>
+                  </View>
+                  <Text style={styles.actionText}>Игры</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('ParentGateScreen')}>
+                  <View style={styles.actionIconBox}>
+                    <Text style={styles.actionEmoji}>👨‍👩‍👧</Text>
+                  </View>
+                  <Text style={styles.actionText}>Родителю</Text>
+                </TouchableOpacity>
+              </ScrollView>
             </View>
           </ImageBackground>
         </Animated.View>
       </View>
 
       {demoMode && (
-        <TouchableOpacity
-          onPress={() => setShowBudgetResult(true)}
-          style={{
-            position: 'absolute',
-            top: 100,
-            right: 20,
-            paddingHorizontal: 16,
-            paddingVertical: 10,
-            backgroundColor: '#4caf50',
-            borderRadius: 12,
-            zIndex: 100,
-          }}
-        >
-          <Text style={{ color: '#fff', fontWeight: '700', fontSize: 13 }}>
-            🧪 ДЕМО: Итоги
-          </Text>
-        </TouchableOpacity>
+        <DemoPanel
+          navigation={navigation}
+          onShowResult={() => setShowBudgetResult(true)}
+        />
       )}
 
       {!demoMode && currentStage >= MAX_STAGE && hasSpending && !budgetPlanCtx.periodCompleted && (
@@ -666,12 +760,12 @@ function HomeScreenInner({ route, navigation }) {
             right: 20,
             paddingHorizontal: 14,
             paddingVertical: 10,
-            backgroundColor: '#e8a87c',
+            backgroundColor: '#1E88E5',
             borderRadius: 12,
             zIndex: 100,
           }}
         >
-          <Text style={{ color: '#fff', fontWeight: '700', fontSize: 12 }}>
+          <Text style={{ color: '#fff', fontWeight: '700', fontSize: 17 }}>
             📊 Итоги периода
           </Text>
         </TouchableOpacity>
@@ -784,25 +878,139 @@ const styles = StyleSheet.create({
   room: { flex: 1, justifyContent: 'space-between' },
 
   emptyState: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
-  emptyText: { fontSize: 18, color: colors.text, marginBottom: 8, fontWeight: '600' },
-  emptySubText: { fontSize: 14, color: colors.textSecondary, marginBottom: 16 },
-  emptyButton: { backgroundColor: colors.accent, paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12 },
-  emptyButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  emptyText: { fontSize: 18, color: '#0D47A1', marginBottom: 8, fontWeight: '800' },
+  emptySubText: { fontSize: 17, color: '#1976D2', marginBottom: 16 },
+  emptyButton: { backgroundColor: '#1976D2', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12 },
+  emptyButtonText: { color: '#fff', fontSize: 17, fontWeight: '800' },
 
   topBar: {
+    paddingHorizontal: 10,
+    paddingTop: 10,
+    zIndex: 10,
+    gap: 6,
+  },
+  topRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    paddingHorizontal: 16,
-    paddingTop: 12,
+    alignItems: 'center',
+    gap: 4,
   },
+  topLeftGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    flexShrink: 1,
+  },
+  topRightGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    flexShrink: 1,
+  },
+  topBarBottom: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+  },
+  leftColumn: { alignItems: 'flex-start', gap: 6, maxWidth: '58%' },
+  nameRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  coinChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(227,242,253,0.95)',
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: '#42A5F5',
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+    flexShrink: 1,
+  },
+  coinChipText: { fontSize: 17, fontWeight: '900', color: '#0D47A1' },
   namePlate: {
-    backgroundColor: colors.accent,
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 24,
+    backgroundColor: 'rgba(227,242,253,0.95)',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 14,
+    borderWidth: 2,
+    borderColor: '#42A5F5',
+    maxWidth: 92,
+    flexShrink: 1,
   },
-  petName: { color: '#fff', fontSize: 18, fontWeight: '700' },
+  petName: { color: '#0D47A1', fontSize: 17, fontWeight: '900' },
+  planChip: {
+    backgroundColor: 'rgba(227,242,253,0.95)',
+    borderRadius: 14,
+    borderWidth: 2,
+    borderColor: '#42A5F5',
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    flexShrink: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  planChipText: { fontSize: 17, fontWeight: '900', color: '#0D47A1' },
+  goalChipTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(227,242,253,0.95)',
+    borderRadius: 14,
+    borderWidth: 2,
+    borderColor: '#42A5F5',
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    maxWidth: 140,
+    flexShrink: 1,
+  },
+  goalChipTopEmoji: { fontSize: 18, marginRight: 5 },
+  goalChipTopInfo: { flexShrink: 1 },
+  goalChipTopText: { fontSize: 17, fontWeight: '900', color: '#0D47A1', flexShrink: 1 },
+  goalChipTopSub: { fontSize: 17, fontWeight: '700', color: '#1976D2' },
+
+  infoChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(227,242,253,0.92)',
+    borderRadius: 14,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    borderWidth: 2,
+    borderColor: '#90CAF9',
+    minWidth: 118,
+  },
+  goalChip: { minWidth: 0, width: 140 },
+  chipIconBox: {
+    width: 30,
+    height: 30,
+    borderRadius: 10,
+    backgroundColor: 'rgba(66,165,245,0.18)',
+    borderWidth: 1.5,
+    borderColor: '#42A5F5',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 8,
+  },
+  chipEmoji: { fontSize: 20 },
+  chipTextWrap: { flex: 1 },
+  chipLabel: {
+    fontSize: 17,
+    fontWeight: '800',
+    color: '#1976D2',
+    letterSpacing: 0.4,
+  },
+  chipValue: { fontSize: 17, fontWeight: '900', color: '#0D47A1' },
+  chipSub: { fontSize: 17, color: '#1976D2', fontWeight: '700', marginTop: 1 },
+
+  iconSquare: {
+    width: 40,
+    height: 40,
+    borderRadius: 14,
+    backgroundColor: 'rgba(227,242,253,0.95)',
+    borderWidth: 2,
+    borderColor: '#42A5F5',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconSquareEmoji: { fontSize: 22 },
 
   rightColumn: { alignItems: 'flex-end', gap: 10 },
   rightTopRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
@@ -813,7 +1021,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 20,
   },
-  levelBadgeText: { fontSize: 14, fontWeight: '700', color: '#fff' },
+  levelBadgeText: { fontSize: 17, fontWeight: '800', color: '#fff' },
 
   plusBtn: {
     backgroundColor: '#2ecc71',
@@ -823,39 +1031,75 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  plusBtnText: { fontSize: 14, fontWeight: '900', color: '#fff' },
+  plusBtnText: { fontSize: 17, fontWeight: '900', color: '#fff' },
 
   heartsRow: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(255,255,255,0.85)',
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderRadius: 24,
+    backgroundColor: 'rgba(227,242,253,0.95)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 14,
+    borderWidth: 2,
+    borderColor: '#42A5F5',
+    gap: 3,
+    flexShrink: 1,
   },
-  heart: { fontSize: 20, marginHorizontal: 1 },
-  heartEmpty: { opacity: 0.5 },
+  heart: { fontSize: 18 },
+  heartEmpty: { opacity: 0.35 },
 
   hungerBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#e0e0e0',
+    backgroundColor: '#BBDEFB',
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 20,
     gap: 6,
   },
-  hungerBadgeDanger: { backgroundColor: '#ff4d4d' },
+  hungerBadgeDanger: { backgroundColor: '#EF5350' },
   hungerEmoji: { fontSize: 18 },
-  hungerText: { fontSize: 16, fontWeight: '700', color: '#333' },
+  hungerText: { fontSize: 17, fontWeight: '800', color: '#0D47A1' },
   hungerTextDanger: { color: '#fff' },
 
+  // ─── Еда / Счастье над меню (вертикально, без подписей) ───
+  bottomHud: {
+    paddingHorizontal: 14,
+    marginBottom: 8,
+    gap: 8,
+  },
+  miniStatus: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  miniStatusIcon: { fontSize: 20 },
+  miniStatusValue: {
+    fontSize: 17,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    minWidth: 48,
+    textAlign: 'right',
+    textShadowColor: 'rgba(0,0,0,0.5)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+  },
+  statusValueDanger: { color: '#D32F2F' },
+  statusBarBg: {
+    flex: 1,
+    height: 14,
+    borderRadius: 7,
+    backgroundColor: 'rgba(255,255,255,0.85)',
+    borderWidth: 1.5,
+    borderColor: '#90CAF9',
+    overflow: 'hidden',
+  },
+  statusBarFill: {
+    height: '100%',
+    borderRadius: 7,
+  },
   balanceBadge: {
-    backgroundColor: colors.accent,
+    backgroundColor: '#42A5F5',
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 20,
   },
-  balanceBadgeText: { fontSize: 18, fontWeight: '700', color: '#fff' },
+  balanceBadgeText: { fontSize: 18, fontWeight: '800', color: '#fff' },
 
   petWrapper: {
     flex: 1,
@@ -876,11 +1120,11 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     backgroundColor: 'rgba(255,255,255,0.6)',
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: '#90CAF9',
   },
   stageDotFilled: {
-    backgroundColor: colors.accent,
-    borderColor: colors.accent,
+    backgroundColor: '#0D47A1',
+    borderColor: '#0D47A1',
   },
 
   swipeHintsRow: {
@@ -891,29 +1135,79 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   swipeHint: {
-    fontSize: 12,
-    color: colors.textSecondary,
+    fontSize: 17,
+    color: '#FFFFFF',
     fontStyle: 'italic',
+    fontWeight: '700',
+    textShadowColor: 'rgba(0,0,0,0.6)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
   },
 
+  taskBadge: {
+    backgroundColor: 'rgba(13,71,161,0.78)',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
+    marginTop: 10,
+  },
+  taskBadgeText: { color: '#FFFFFF', fontSize: 17, fontWeight: '900' },
   bottomBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-around',
-    paddingHorizontal: 8,
-    paddingVertical: 14,
-    backgroundColor: 'rgba(255,255,255,0.92)',
+    backgroundColor: 'rgba(227,242,253,0.96)',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
+    borderTopWidth: 2,
+    borderTopColor: '#90CAF9',
+    paddingVertical: 8,
   },
-  actionButton: { alignItems: 'center', paddingVertical: 8, paddingHorizontal: 12, minWidth: 70 },
-  actionEmoji: { fontSize: 20, marginBottom: 4 },
-  actionText: { fontSize: 13, color: colors.text, fontWeight: '600' },
+  bottomBarContent: {
+    paddingHorizontal: 12,
+    alignItems: 'flex-start',
+  },
+  actionButton: {
+    alignItems: 'center',
+    width: 70,
+    marginRight: 10,
+  },
+  actionIconBox: {
+    width: 46,
+    height: 46,
+    borderRadius: 16,
+    backgroundColor: 'rgba(66,165,245,0.15)',
+    borderWidth: 2,
+    borderColor: '#42A5F5',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 4,
+  },
+  actionEmoji: { fontSize: 24 },
+  actionText: { fontSize: 17, color: '#0D47A1', fontWeight: '800', textAlign: 'center' },
+
+  // Кнопка «Уровень» — первая в меню, на белом фоне
+  levelAction: {
+    width: 78,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 18,
+    borderWidth: 2,
+    borderColor: '#1E88E5',
+    paddingVertical: 4,
+    paddingHorizontal: 6,
+  },
+  levelIconBox: {
+    width: 50,
+    height: 50,
+    borderRadius: 16,
+    backgroundColor: '#EAF4FF',
+    borderWidth: 2,
+    borderColor: '#1E88E5',
+    marginBottom: 4,
+  },
+  levelIconText: { fontSize: 26, fontWeight: '900', color: '#0D47A1' },
 
   settingsBadge: {
-    backgroundColor: 'rgba(255,255,255,0.85)',
+    backgroundColor: 'rgba(255,255,255,0.95)',
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 20,
@@ -921,7 +1215,7 @@ const styles = StyleSheet.create({
   },
   settingsBadgeText: { fontSize: 20 },
 
-  // Intro / Onboarding
+  // ─── Intro / Onboarding ───
   introContainer: { flex: 1 },
   introScroll: {
     flexGrow: 1,
@@ -934,13 +1228,13 @@ const styles = StyleSheet.create({
   introTitle: {
     fontSize: 32,
     fontWeight: '900',
-    color: '#3179b4',
+    color: '#0D47A1',
     marginBottom: 8,
     textAlign: 'center',
   },
   introSubtitle: {
     fontSize: 18,
-    color: '#6D4C41',
+    color: '#1976D2',
     textAlign: 'center',
     lineHeight: 22,
     marginBottom: 28,
@@ -988,13 +1282,13 @@ const styles = StyleSheet.create({
   introCardTitle: {
     fontSize: 20,
     fontWeight: '800',
-    color: '#4E342E',
+    color: '#0D47A1',
     marginBottom: 2,
   },
   introCardText: {
     flex: 1,
     fontSize: 18,
-    color: '#8D6E63',
+    color: '#1976D2',
     textAlign: 'justify',
     lineHeight: 18,
   },
@@ -1007,17 +1301,18 @@ const styles = StyleSheet.create({
   introButtonDisabled: { backgroundColor: '#BBDEFB', shadowOpacity: 0.1 },
   introButtonTextDisabled: { color: '#E3F2FD' },
 
+  // ─── Монетка ───
   coinCircleBig: {
     width: 140,
     height: 140,
     borderRadius: 70,
-    backgroundColor: '#FFF3E0',
+    backgroundColor: '#E3F2FD',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 20,
     borderWidth: 4,
-    borderColor: '#FFB74D',
-    shadowColor: '#FFB74D',
+    borderColor: '#42A5F5',
+    shadowColor: '#42A5F5',
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.3,
     shadowRadius: 12,
@@ -1025,6 +1320,7 @@ const styles = StyleSheet.create({
   },
   coinEmojiBig: { fontSize: 80 },
 
+  // ─── Карточка 500 монет ───
   amountCard: {
     backgroundColor: '#42A5F5',
     borderRadius: 24,
@@ -1046,13 +1342,14 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
   },
   amountLabel: {
-    fontSize: 14,
+    fontSize: 17,
     fontWeight: '600',
     color: '#E3F2FD',
     marginTop: 4,
     textAlign: 'center',
   },
 
+  // ─── Цели ───
   goalList: { width: '100%', marginBottom: 24 },
   goalCard: {
     backgroundColor: '#FFFFFF',
@@ -1062,7 +1359,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 3,
-    borderColor: '#E3F2FD',
+    borderColor: '#90CAF9',
     shadowColor: '#42A5F5',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.1,
@@ -1082,10 +1379,10 @@ const styles = StyleSheet.create({
   goalTitle: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#2C3E50',
+    color: '#0D47A1',
     marginBottom: 2,
   },
-  goalCost: { fontSize: 14, color: '#7F8C8D' },
+  goalCost: { fontSize: 17, color: '#1976D2' },
   goalCheck: {
     width: 32,
     height: 32,
@@ -1096,14 +1393,14 @@ const styles = StyleSheet.create({
   },
   goalCheckText: { color: '#FFF', fontSize: 18, fontWeight: '900' },
 
-  // Модалки
+  // ─── Модалки ───
   modalBackdrop: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.45)',
     justifyContent: 'flex-end',
   },
   modalSheet: {
-    backgroundColor: colors.background,
+    backgroundColor: '#E3F2FD',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingHorizontal: 24,
@@ -1116,19 +1413,20 @@ const styles = StyleSheet.create({
     width: 44,
     height: 5,
     borderRadius: 3,
-    backgroundColor: colors.border,
+    backgroundColor: '#90CAF9',
     marginBottom: 16,
   },
-  modalTitle: { fontSize: 22, fontWeight: '700', color: colors.text, marginBottom: 12 },
+  modalTitle: { fontSize: 22, fontWeight: '800', color: '#0D47A1', marginBottom: 12 },
   modalButton: {
-    backgroundColor: colors.accent,
+    backgroundColor: '#42A5F5',
     paddingVertical: 14,
     borderRadius: 14,
     alignItems: 'center',
     marginTop: 16,
   },
-  modalButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  modalButtonText: { color: '#fff', fontSize: 17, fontWeight: '700' },
 
+  // ─── Комнаты ───
   roomScroll: { paddingVertical: 4, paddingRight: 8 },
   roomOption: {
     width: 110,
@@ -1137,11 +1435,11 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderWidth: 2,
     borderColor: 'transparent',
-    backgroundColor: colors.cardBg,
+    backgroundColor: '#FFFFFF',
   },
-  roomOptionActive: { borderColor: colors.accent },
+  roomOptionActive: { borderColor: '#42A5F5' },
   roomThumb: { width: '100%', height: 110 },
-  roomLabel: { fontSize: 12, textAlign: 'center', paddingVertical: 6, color: colors.text, fontWeight: '600' },
+  roomLabel: { fontSize: 17, textAlign: 'center', paddingVertical: 6, color: '#0D47A1', fontWeight: '700' },
   roomCheck: {
     position: 'absolute',
     top: 6,
@@ -1149,15 +1447,15 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: colors.accent,
+    backgroundColor: '#42A5F5',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  roomCheckText: { color: '#fff', fontSize: 13, fontWeight: '700' },
+  roomCheckText: { color: '#fff', fontSize: 17, fontWeight: '700' },
 
-  // Мини-меню уровня
+  // ─── Мини-меню уровня ───
   levelSheet: {
-    backgroundColor: colors.background,
+    backgroundColor: '#E3F2FD',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingHorizontal: 24,
@@ -1168,13 +1466,13 @@ const styles = StyleSheet.create({
   levelSheetTitle: {
     fontSize: 26,
     fontWeight: '900',
-    color: colors.text,
+    color: '#0D47A1',
     textAlign: 'center',
     marginBottom: 4,
   },
   levelSheetSubtitle: {
-    fontSize: 15,
-    color: colors.textSecondary,
+    fontSize: 17,
+    color: '#1976D2',
     textAlign: 'center',
     marginBottom: 20,
     fontStyle: 'italic',
@@ -1182,13 +1480,15 @@ const styles = StyleSheet.create({
   emptyFeatures: {
     padding: 24,
     alignItems: 'center',
-    backgroundColor: '#f8f8f8',
+    backgroundColor: '#FFFFFF',
     borderRadius: 14,
     marginBottom: 8,
+    borderWidth: 2,
+    borderColor: '#90CAF9',
   },
   emptyFeaturesText: {
-    fontSize: 15,
-    color: colors.textSecondary,
+    fontSize: 17,
+    color: '#1976D2',
     textAlign: 'center',
     lineHeight: 22,
   },
@@ -1196,20 +1496,22 @@ const styles = StyleSheet.create({
   featureRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFF',
     borderRadius: 14,
     padding: 14,
-    borderWidth: 1,
-    borderColor: colors.border,
+    borderWidth: 2,
+    borderColor: '#90CAF9',
   },
   featureRowLocked: {
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#E3F2FD',
     opacity: 0.7,
   },
   featureEmoji: { fontSize: 30, marginRight: 14 },
-  featureTitle: { fontSize: 16, fontWeight: '700', color: colors.text },
-  featureDesc: { fontSize: 12, color: colors.textSecondary, marginTop: 2 },
-  featureArrow: { fontSize: 16, color: '#bbb' },
+  featureTitle: { fontSize: 17, fontWeight: '800', color: '#0D47A1' },
+  featureDesc: { fontSize: 17, color: '#1976D2', marginTop: 2 },
+  featureArrow: { fontSize: 17, color: '#42A5F5' },
 });
 
 export default React.memo(HomeScreenInner);
+
+

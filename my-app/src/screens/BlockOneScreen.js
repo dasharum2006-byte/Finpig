@@ -1,7 +1,9 @@
 import React, { useState, useCallback } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Alert } from 'react-native';
+import { TouchableOpacity } from '../components/ui';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useDemo } from '../context/DemoContext';
 
 const BLOCK_ONE_ROUTINE = [
   { id: 1, type: 'quiz', title: 'Почему появились деньги?', subtitle: 'Акула и леденец' },
@@ -15,6 +17,7 @@ const BLOCK_ONE_ROUTINE = [
 const STORAGE_KEY = '@block_one_progress_v1';
 
 export default function BlockOneScreen({ navigation }) {
+  const { demoMode } = useDemo();
   const [completedStep, setCompletedStep] = useState(0);
 
   useFocusEffect(
@@ -48,7 +51,7 @@ export default function BlockOneScreen({ navigation }) {
       return;
     }
 
-    if (!isCurrent) {
+    if (!isCurrent && !demoMode) {
       Alert.alert('Заблокировано 🔒', 'Сначала пройди предыдущий шаг');
       return;
     }
@@ -79,7 +82,7 @@ export default function BlockOneScreen({ navigation }) {
         {BLOCK_ONE_ROUTINE.map((item) => {
           const isCompleted = item.id <= completedStep;
           const isCurrent = item.id === completedStep + 1;
-          const isLocked = item.id > completedStep + 1;
+          const isLocked = !demoMode && item.id > completedStep + 1;
 
           return (
             <TouchableOpacity
@@ -136,7 +139,7 @@ export default function BlockOneScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: { 
     flex: 1, 
-    backgroundColor: '#F4F7F9', // Чистый аккуратный светлый фон
+    backgroundColor: '#EAF4FF', // Чистый аккуратный светлый фон
     paddingTop: 50, // Выровняли верхний отступ под остальные экраны
   },
   header: { 
@@ -157,12 +160,12 @@ const styles = StyleSheet.create({
   backButtonText: { 
     color: '#FFF', // Белый текст на стальном фоне читается гораздо лучше
     fontWeight: 'bold',
-    fontSize: 13,
+    fontSize: 17,
   },
   headerTitle: { 
     fontSize: 22, 
     fontWeight: 'bold', 
-    color: '#2C3E50',
+    color: '#0D47A1',
     textAlign: 'center',
     flex: 1,
   },
@@ -183,21 +186,21 @@ const styles = StyleSheet.create({
   },
   quizCard: { 
     backgroundColor: '#FFFFFF', 
-    borderColor: '#CFD8DC' // Спокойный базовый серый контур
+    borderColor: '#90CAF9' // Спокойный базовый серый контур
   },
   cardInfo: { 
     flex: 1,            
     alignItems: 'flex-start', 
   },
   cardTitle: { 
-    fontSize: 16, 
+    fontSize: 17, 
     fontWeight: 'bold', 
-    color: '#2C3E50',
+    color: '#0D47A1',
   },
   
   // КНИЖНЫЙ СТИЛЬ ПОДЗАГОЛОВКА 📖
   cardSubtitle: { 
-    fontSize: 13, 
+    fontSize: 17, 
     color: '#7F8C8D', 
     marginTop: 4,
     textAlign: 'justify', // Текст распределяется ровно по краям
@@ -206,8 +209,8 @@ const styles = StyleSheet.create({
   
   // ЗАКРЫТАЯ КАРТОЧКА
   lockedCard: { 
-    backgroundColor: '#ECEFF1', 
-    borderColor: '#B0BEC5', 
+    backgroundColor: '#E3F2FD', 
+    borderColor: '#90CAF9', 
     opacity: 0.6 
   },
   lockedText: { 
@@ -224,7 +227,7 @@ const styles = StyleSheet.create({
   },
 
   arrow: { 
-    fontSize: 16, 
+    fontSize: 17, 
     color: '#78909C', 
     marginLeft: 10,      
   },
@@ -246,7 +249,7 @@ const styles = StyleSheet.create({
   },
   nextBlockBtnText: {
     color: '#2e7d329c', // Глубокий темно-зеленый текст
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: 'bold',
     textTransform: 'uppercase', // Геймерский заглавный стиль текста
     letterSpacing: 0.5,

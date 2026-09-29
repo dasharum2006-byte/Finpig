@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Alert } from 'react-native';
+import { TouchableOpacity } from '../components/ui';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useDemo } from '../context/DemoContext';
 
 const BLOCK_FOUR_ROUTINE = [
   { id: 1, type: 'quiz', title: 'Права шпиона-потребителя', subtitle: 'Защита качества покупок' },
@@ -15,6 +17,7 @@ const BLOCK_FOUR_ROUTINE = [
 const STORAGE_KEY = '@block_four_progress_v1';
 
 export default function BlockFourScreen({ navigation, route }) {
+  const { demoMode } = useDemo();
   const [completedStep, setCompletedStep] = useState(0);
 
     useFocusEffect(
@@ -50,7 +53,7 @@ export default function BlockFourScreen({ navigation, route }) {
         });
       }
       return;}
-    if (!isCurrent) {
+    if (!isCurrent && !demoMode) {
       Alert.alert('Заблокировано 🔒', 'Сначала пройди предыдущий шаг');
       return;
     }
@@ -72,7 +75,7 @@ export default function BlockFourScreen({ navigation, route }) {
         {BLOCK_FOUR_ROUTINE.map((item) => {
           const isCompleted = item.id <= completedStep;
           const isCurrent = item.id === completedStep + 1;
-          const isLocked = item.id > completedStep + 1;
+          const isLocked = !demoMode && item.id > completedStep + 1;
           return (
             <TouchableOpacity
               key={item.id}
@@ -113,7 +116,7 @@ export default function BlockFourScreen({ navigation, route }) {
 const styles = StyleSheet.create({
   container: { 
     flex: 1, 
-    backgroundColor: '#F5F7FA', 
+    backgroundColor: '#EAF4FF', 
     paddingTop: 25, 
   },
   header: { 
@@ -138,7 +141,7 @@ const styles = StyleSheet.create({
     fontSize: 26, 
     marginLeft: 35,
     fontWeight: 'bold', 
-    color: '#333',
+    color: '#0D47A1',
     textAlign: 'center', 
     flex: 1,            
     textAlignVertical: 'center',
@@ -160,7 +163,7 @@ const styles = StyleSheet.create({
   },
   quizCard: { 
     backgroundColor: '#FFF', 
-    borderColor: '#E2E8F0' 
+    borderColor: '#EAF4FF' 
   },
   gameCard: { 
     backgroundColor: '#EBF8FF', 
@@ -171,29 +174,43 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start', 
   },
   cardTitle: { 
-    fontSize: 16, 
+    fontSize: 17, 
     fontWeight: 'bold', 
     color: '#2D3748',
     textAlign: 'left'    
   },
   lockedText: { 
-    color: '#A0AEC0' 
+    color: '#7BA7D4' 
   },
   cardSubtitle: { 
-    fontSize: 13, 
-    color: '#718096', 
+    fontSize: 17, 
+    color: '#1976D2', 
     marginTop: 4,
     textAlign: 'left'    
   },
   arrow: { 
-    fontSize: 16, 
-    color: '#A0AEC0', 
+    fontSize: 17, 
+    color: '#7BA7D4', 
     marginLeft: 10,      
     marginTop: 0 
   },
   lockedCard: { 
-    backgroundColor: '#E2E8F0', 
-    borderColor: '#CBD5E0', 
+    backgroundColor: '#EAF4FF', 
+    borderColor: '#90CAF9', 
     opacity: 0.6 
+  },
+  completedCard: {
+    backgroundColor: '#E8F5E9',
+    borderColor: '#81C784',
+  },
+  completedText: {
+    color: '#2E7D32',
+  },
+  completedSubText: {
+    color: '#2E7D32',
+  },
+  checkMark: {
+    fontSize: 18,
+    marginLeft: 10,
   },
 });

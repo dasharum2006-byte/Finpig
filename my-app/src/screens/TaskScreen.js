@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Dimensions, ScrollView, Alert } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, ScrollView, Alert } from 'react-native';
+import { TouchableOpacity } from '../components/ui';
 import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useDemo } from '../context/DemoContext';
 const { width } = Dimensions.get('window');
 
 const TASKS_DATA = [
@@ -27,6 +29,7 @@ const STORAGE_KEYS = {
 };
 
 export default function TasksScreen({ navigation }) {
+  const { demoMode } = useDemo();
   const [progress, setProgress] = useState({
     block1: 0,
     block2: 0,
@@ -64,6 +67,7 @@ export default function TasksScreen({ navigation }) {
 
   // Блок N открыт, если все шаги блока N-1 пройдены
   const isLevelUnlocked = (levelId) => {
+    if (demoMode) return true;
     if (levelId === 1) return true;
     if (levelId === 2) return progress.block1 >= TOTAL_STEPS[1] || isBlockOneFinishedFlag;
     if (levelId === 3) return progress.block2 >= TOTAL_STEPS[2];
@@ -201,16 +205,34 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   glossaryBtn: {
-    backgroundColor: '#f8f8f8',
+    backgroundColor: '#EAF4FF',
     padding: 8,
     borderRadius: 12,
     borderWidth: 1.5,
-    borderColor: '#CFD8DC',
+    borderColor: '#90CAF9',
     alignItems: 'center',
     justifyContent: 'center',
   },
   glossaryBtnText: {
     fontSize: 18,
+  },
+  glossaryBigBtn: {
+    backgroundColor: '#1E88E5',
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 20,
+    marginBottom: 10,
+    minHeight: 48,
+    borderWidth: 2,
+    borderColor: '#0D47A1',
+  },
+  glossaryBigBtnText: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: '900',
   },
   tasksList: {
     width: width * 0.9,
@@ -228,15 +250,15 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     marginBottom: 12,
     borderWidth: 2,
-    borderColor: '#CFD8DC', 
+    borderColor: '#90CAF9', 
   },
   completedCard: {
     backgroundColor: '#E8F5E9',
     borderColor: '#81C784', 
   },
   lockedCard: {
-    backgroundColor: '#ECEFF1',
-    borderColor: '#B0BEC5', 
+    backgroundColor: '#E3F2FD',
+    borderColor: '#90CAF9', 
     opacity: 0.6,
   },
   
@@ -245,9 +267,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   taskTitle: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: 'bold',
-    color: '#2C3E50',
+    color: '#0D47A1',
   },
   completedText: {
     color: '#2E7D32',
@@ -257,14 +279,14 @@ const styles = StyleSheet.create({
   },
   
   taskDescription: {
-    fontSize: 13,
+    fontSize: 17,
     color: '#7F8C8D',
     marginTop: 4,
     textAlign: 'justify', 
     lineHeight: 18,       
   },
   arrowIcon: {
-    fontSize: 16,
+    fontSize: 17,
     marginLeft: 10,
   },
 });

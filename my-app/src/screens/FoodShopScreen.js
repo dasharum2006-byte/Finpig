@@ -1,5 +1,6 @@
 import React, {useState} from 'react'
-import { StyleSheet,Text,View,Image,Modal,ScrollView,ImageBackground,TouchableOpacity,Dimensions} from 'react-native';
+import { StyleSheet, Text, View, Image, Modal, ScrollView, ImageBackground, Dimensions } from 'react-native';
+import { TouchableOpacity } from '../components/ui';
 
 const {width} = Dimensions.get('window');
 import backgroundImage from '../../assets/fonshop.png';
@@ -335,11 +336,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     width: width * 0.9,
     marginBottom: 30,
-    backgroundColor: '#7abcc581',
+    backgroundColor: '#90CAF981',
     borderRadius: 15,
     padding: 5,
     borderWidth: 2,
-    borderColor: '#85bdbd',
+    borderColor: '#90CAF9',
   },
   arrowButton: {
     paddingHorizontal: 15,
@@ -380,13 +381,13 @@ const styles = StyleSheet.create({
     zIndex: 2, 
   },
   productCard: {
-    backgroundColor: '#e1fffdc4',
+    backgroundColor: '#FFFFFFc4',
     width: '45%',
     borderRadius: 12,
     padding: 19,
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#5e8d8bd7',
+    borderColor: '#42A5F5d7',
     shadowColor: '#c4c4c4',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
@@ -398,7 +399,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   productName: {
-    fontSize: 14,
+    fontSize: 17,
     fontWeight: 'bold',
     color: '#1d1b1b',
     textAlign: 'left',
@@ -420,7 +421,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   productPrice: {
-    fontSize: 13,
+    fontSize: 17,
     color: '#E65100',
     fontWeight: 'bold',
     marginTop: 2,
@@ -483,11 +484,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   cartButton: {
-    backgroundColor: '#5D4037',
+    backgroundColor: '#1976D2',
     padding: 10,
     borderRadius: 50,
     borderWidth: 2,
-    borderColor: '#8D6E63',
+    borderColor: '#42A5F5',
     position: 'relative',
   },
   cartEmoji: {
@@ -506,7 +507,7 @@ const styles = StyleSheet.create({
   },
   cartBadgeText: {
     color: '#FFF',
-    fontSize: 11,
+    fontSize: 17,
     fontWeight: 'bold',
   },
   // Стили для модального окна корзины
@@ -530,13 +531,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 15,
     borderBottomWidth: 1,
-    borderColor: '#E0D4B7',
+    borderColor: '#90CAF9',
     paddingBottom: 10,
   },
   modalTitle: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#5D4037',
+    color: '#1976D2',
   },
   closeModalButton: {
     padding: 5,
@@ -549,8 +550,8 @@ const styles = StyleSheet.create({
   },
   emptyCartText: {
     textAlign: 'center',
-    color: '#8D6E63',
-    fontSize: 16,
+    color: '#42A5F5',
+    fontSize: 17,
     marginVertical: 30,
     fontStyle: 'italic',
   },
@@ -572,13 +573,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   cartItemName: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: 'bold',
-    color: '#5D4037',
+    color: '#1976D2',
   },
   cartItemDescription: {
-    fontSize: 13,
-    color: '#8D6E63',
+    fontSize: 17,
+    color: '#42A5F5',
     marginTop: 2,
   },
   quantityControls: {
@@ -601,14 +602,14 @@ const styles = StyleSheet.create({
     color: '#E65100',
   },
   quantityText: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#0D47A1',
     paddingHorizontal: 5,
   },
   modalFooter: {
     borderTopWidth: 2,
-    borderColor: '#E0D4B7',
+    borderColor: '#90CAF9',
     paddingTop: 15,
     marginTop: 10,
   },
@@ -621,7 +622,7 @@ const styles = StyleSheet.create({
   totalLabel: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#5D4037',
+    color: '#1976D2',
   },
   totalPriceText: {
     fontSize: 22,
@@ -635,7 +636,7 @@ const styles = StyleSheet.create({
 },
   errorText: {
     color: '#D32F2F', 
-    fontSize: 14,
+    fontSize: 17,
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 12,
@@ -646,7 +647,7 @@ const styles = StyleSheet.create({
     borderColor: '#FFCDD2',
   },
   payButton: {
-    backgroundColor: '#69b9b9fb', 
+    backgroundColor: '#1E88E5fb', 
     paddingVertical: 14,
     borderRadius: 15,
     alignItems: 'center',

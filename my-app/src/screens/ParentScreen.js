@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import {View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert} from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
+import { TouchableOpacity } from '../components/ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../theme';
 import { useBank } from '../context/BankContext';
@@ -127,7 +128,7 @@ export default function ParentScreen({ navigation }) {
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                 <View style={{ flex: 1 }}>
                 <Text style={styles.cardTitle}>🧪 Демо-режим</Text>
-                <Text style={{ fontSize: 17, color: '#999', marginTop: 4 }}>
+                <Text style={{ fontSize: 17, color: '#7BA7D4', marginTop: 4 }}>
                     Для  проверки. Все периоды подряд, без ожидания.
                 </Text>
                 </View>
@@ -157,12 +158,12 @@ const styles = StyleSheet.create({
   header: { marginBottom: 20 },
   backBtn: { fontSize: 20, color: colors.accent, fontWeight: '600', marginBottom: 8 },
   title: { fontSize: 24, fontWeight: '700', color: colors.text },
-  subtitle: { fontSize: 14, color: colors.textSecondary, marginTop: 6, lineHeight: 20 },
+  subtitle: { fontSize: 17, color: colors.textSecondary, marginTop: 6, lineHeight: 20 },
 
   card: {
     backgroundColor: '#fff', borderRadius: 16,
     padding: 16, marginBottom: 14,
-    borderWidth: 1, borderColor: '#eee',
+    borderWidth: 1, borderColor: '#E3F2FD',
   },
   cardTitle: { fontSize: 20, fontWeight: '700', color: colors.text, marginBottom: 12 },
 
@@ -172,7 +173,7 @@ const styles = StyleSheet.create({
 
   statRow: {
     flexDirection: 'row', justifyContent: 'space-between',
-    paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#f0f0f0',
+    paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#E3F2FD',
   },
   statLabel: { fontSize: 18, color: colors.textSecondary, flex: 1 },
   statValue: { fontSize: 18, fontWeight: '700', color: colors.text },

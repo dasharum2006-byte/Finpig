@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Dimensions, ScrollView, Image, Alert } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, ScrollView, Image, Alert } from 'react-native';
+import { TouchableOpacity } from '../components/ui';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useBank } from '../context/BankContext';
+import { usePet } from '../context/PetContext';
 const { width } = Dimensions.get('window');
 
 const LEVEL_FOUR_STEPS = [
@@ -80,6 +82,7 @@ export default function LevelFourScreen({ navigation, route }) {
   const [isSortCorrect, setIsSortCorrect] = useState(false);
   const [showCorrectHint, setShowCorrectHint] = useState(false);
   const bank = useBank();
+  const petCtx = usePet();
   const step = LEVEL_FOUR_STEPS[currentStepIndex];
 
  useEffect(() => {
@@ -112,7 +115,8 @@ export default function LevelFourScreen({ navigation, route }) {
 
 
  const saveProgress = async (stepId) => {
-    if (reviewMode) return; 
+    if (reviewMode) return;
+    petCtx.boostHappiness();
     try {
       const savedStep = await AsyncStorage.getItem(STORAGE_KEY);
       const currentSaved = savedStep ? parseInt(savedStep, 10) : 0;
@@ -133,10 +137,7 @@ export default function LevelFourScreen({ navigation, route }) {
     }
       if (option.isCorrect) {
         setScore(prev => prev + 1);
-        if (bank && typeof bank.addCoins === 'function') {
-          bank.addCoins(20);
-        }
-        Alert.alert("+20 монет летят в твой кошелёк");
+        Alert.alert("🎉 Верно!");
       }
     };
 
@@ -167,10 +168,7 @@ export default function LevelFourScreen({ navigation, route }) {
     if (isCorrect) {
       setIsSortCorrect(true);
       setScore(prev => prev + 1);
-      if (bank && typeof bank.addCoins === 'function') {
-        bank.addCoins(20);
-      }
-      Alert.alert("Отлично! 🧩", "+20 монет за правильный порядок!");
+      Alert.alert("Отлично! 🧩", step.explanation || "Правильный порядок!");
     } else {
       setIsSortCorrect(false);
       setTimeout(() => {
@@ -196,10 +194,9 @@ export default function LevelFourScreen({ navigation, route }) {
       if (reviewMode) {
         navigation.navigate('BlockFourScreen');
       } else {
-        // ⭐ +1 уровень (максимум 4)
-        if (bank?.levelUp && bank.level < 4) {
-          bank.levelUp();
-        }
+        // ⭐ Награда за пройденный блок (один раз)
+        if (bank?.addCoins) bank.addCoins(20);
+        // Рост завершён на блоке 3 — блок 4 уровень не повышает
         navigation.navigate('BlockFourScreen', { completedStep: LEVEL_FOUR_STEPS.length });
       }
     }
@@ -310,7 +307,7 @@ export default function LevelFourScreen({ navigation, route }) {
 const styles = StyleSheet.create({
   container: { 
     flex: 1, 
-    backgroundColor: '#fcfcfc75', 
+    backgroundColor: '#EAF4FF75', 
     paddingTop: 30 
   },
   topBar: { 
@@ -371,7 +368,7 @@ const styles = StyleSheet.create({
   },
   storyText: { 
     fontSize: 20, 
-    color: '#333', 
+    color: '#0D47A1', 
     lineHeight: 22,
     textAlign: 'justify',
   },
@@ -399,7 +396,7 @@ const styles = StyleSheet.create({
   },
   optionText: { 
     fontSize: 20, 
-    color: '#333', 
+    color: '#0D47A1', 
     fontWeight: '500' 
   },
 
@@ -412,14 +409,14 @@ const styles = StyleSheet.create({
     borderRadius: 12, 
     marginBottom: 10, 
     borderWidth: 2, 
-    borderColor: '#E0D4B7', 
+    borderColor: '#90CAF9', 
     flexDirection: 'row', 
     justifyContent: 'space-between', 
     alignItems: 'center' 
   },
   sortCardText: { 
     fontSize: 20, 
-    color: '#333', 
+    color: '#0D47A1', 
     fontWeight: '500', 
     flex: 1, 
     paddingRight: 10 
@@ -468,8 +465,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold' 
   },
   savedIndicator: {
-    fontSize: 11,
-    color: '#666',
+    fontSize: 17,
+    color: '#1976D2',
     fontStyle: 'italic',
     marginTop: 4,
     textAlign: 'center',

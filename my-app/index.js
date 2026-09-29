@@ -1,3 +1,7 @@
+// ВАЖНО: этот импорт должен идти первым — он настраивает глобальный стиль
+// (минимальный размер шрифта) до загрузки экранов.
+import './src/globalSetup';
+
 import { registerRootComponent } from 'expo';
 
 import App from './App';

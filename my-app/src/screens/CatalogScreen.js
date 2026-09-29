@@ -1,13 +1,6 @@
 import { useState, useCallback } from 'react';
-import {
-  View,
-  Text,
-  Image,
-  FlatList,
-  TouchableOpacity,
-  StyleSheet,
-  Dimensions,
-} from 'react-native';
+import { View, Text, Image, FlatList, StyleSheet, Dimensions } from 'react-native';
+import { TouchableOpacity } from '../components/ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
@@ -112,7 +105,7 @@ export default function CatalogScreen({ navigation }) {
           zIndex: 100,
         }}
       > */} 
-        {/* <Text style={{ color: '#fff', fontWeight: '700', fontSize: 12 }}>СБРОС ВСЁ</Text>
+        {/* <Text style={{ color: '#fff', fontWeight: '700', fontSize: 17 }}>СБРОС ВСЁ</Text>
       </TouchableOpacity> */}
       </View>
     </SafeAreaView>
@@ -165,7 +158,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  checkText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+  checkText: { color: '#fff', fontSize: 17, fontWeight: 'bold' },
   footer: {
     paddingHorizontal: PADDING,
     paddingTop: 12,

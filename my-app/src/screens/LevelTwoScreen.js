@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Dimensions, ScrollView, Image, Alert } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, ScrollView, Image, Alert } from 'react-native';
+import { TouchableOpacity } from '../components/ui';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useBank } from '../context/BankContext';
+import { usePet } from '../context/PetContext';
 const { width } = Dimensions.get('window');
 
 const LEVEL_TWO_STEPS = [
@@ -98,6 +100,7 @@ const STORAGE_KEY = '@block_two_progress_v1';
 export default function LevelTwoScreen({ navigation, route }) {
   const startIndex = route.params?.startIndex ?? 0;
   const bank = useBank();
+  const petCtx = usePet();
   const reviewMode = route.params?.reviewMode ?? false;
   const [currentStepIndex, setCurrentStepIndex] = useState(startIndex);
   const [selectedOption, setSelectedOption] = useState(null);
@@ -144,6 +147,7 @@ export default function LevelTwoScreen({ navigation, route }) {
 
   const saveProgress = async (stepId) => {
      if (reviewMode) return;
+    petCtx.boostHappiness();
     try {
       const savedStep = await AsyncStorage.getItem(STORAGE_KEY);
       const currentSaved = savedStep ? parseInt(savedStep, 10) : 0;
@@ -169,8 +173,7 @@ export default function LevelTwoScreen({ navigation, route }) {
 
   if (option.isCorrect) {
     setScore(prev => prev + 1);
-    if (bank?.addCoins) bank.addCoins(20);
-    Alert.alert('🎉 +20 монет!', text);
+    Alert.alert('🎉 Верно!', text);
   } else {
     Alert.alert('⚠️ Не совсем', text);
   }
@@ -190,10 +193,9 @@ const handleTap = async (item) => {
       setScore(prev => prev + 1);
       if (!reviewMode) {
         await saveProgress(currentStepIndex + 1);
-        if (bank?.addCoins) bank.addCoins(20);
       }
       Alert.alert(
-        '🎉 Верно! +20 монет',
+        '🎉 Верно!',
         step.successText || 'Отлично!'
       );
     }
@@ -231,9 +233,8 @@ const handleTap = async (item) => {
   if (isCorrect) {
     setIsSortCorrect(true);
     setScore(prev => prev + 1);
-    if (bank?.addCoins) bank.addCoins(20);
     Alert.alert(
-      '🎉 +20 монет',
+      '🎉 Правильно!',
       step.explanation || 'Порядок правильный!'
     );
   } else {
@@ -260,6 +261,8 @@ const handleTap = async (item) => {
       if (reviewMode) {
         navigation.navigate('BlockTwoScreen');
       } else {
+        // ⭐ Награда за пройденный блок (один раз)
+        if (bank?.addCoins) bank.addCoins(20);
         // ⭐ +1 уровень
         if (bank?.levelUp && bank.level < 3) {
           bank.levelUp();
@@ -374,7 +377,7 @@ const handleTap = async (item) => {
 const styles = StyleSheet.create({
   container: { 
     flex: 1, 
-    backgroundColor: '#fcfcfc75', 
+    backgroundColor: '#EAF4FF75', 
     paddingTop: 30 
   },
   topBar: { 
@@ -435,7 +438,7 @@ const styles = StyleSheet.create({
   },
   storyText: { 
     fontSize: 20, 
-    color: '#333', 
+    color: '#0D47A1', 
     lineHeight: 22,
     textAlign: 'justify',
   },
@@ -463,7 +466,7 @@ const styles = StyleSheet.create({
   },
   optionText: { 
     fontSize: 20, 
-    color: '#333', 
+    color: '#0D47A1', 
     fontWeight: '500' 
   },
 
@@ -476,14 +479,14 @@ const styles = StyleSheet.create({
     borderRadius: 12, 
     marginBottom: 10, 
     borderWidth: 2, 
-    borderColor: '#E0D4B7', 
+    borderColor: '#90CAF9', 
     flexDirection: 'row', 
     justifyContent: 'space-between', 
     alignItems: 'center' 
   },
   sortCardText: { 
     fontSize: 20, 
-    color: '#333', 
+    color: '#0D47A1', 
     fontWeight: '500', 
     flex: 1, 
     paddingRight: 10 
@@ -532,8 +535,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold' 
   },
   savedIndicator: {
-    fontSize: 11,
-    color: '#666',
+    fontSize: 17,
+    color: '#1976D2',
     fontStyle: 'italic',
     marginTop: 4,
     textAlign: 'center',
@@ -559,6 +562,6 @@ tapItem: {
 tapItemCorrect: { backgroundColor: '#C8E6C9', borderColor: '#4CAF50' },
 tapItemWrong: { backgroundColor: '#FFCDD2', borderColor: '#F44336' },
 tapEmoji: { fontSize: 38, marginBottom: 4 },
-tapLabel: { fontSize: 13, color: '#333', fontWeight: '600', textAlign: 'center' },
+tapLabel: { fontSize: 17, color: '#0D47A1', fontWeight: '600', textAlign: 'center' },
 tapCheck: { position: 'absolute', top: 4, right: 6, fontSize: 18 },
 });

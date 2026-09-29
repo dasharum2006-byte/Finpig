@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useMusic } from './MusicContext';
 
 const BankContext = createContext(null);
 
@@ -23,6 +24,7 @@ const generateAccountNumber = () => {
 };
 
 export function BankProvider({ children }) {
+  const { playCoin } = useMusic();
   const [isLoaded, setIsLoaded] = useState(false);
 
   const [balance, setBalance] = useState(0);
@@ -36,6 +38,7 @@ export function BankProvider({ children }) {
 
   const [lastDailyBonus, setLastDailyBonus] = useState(null);
   const [notification, setNotification] = useState(null);
+  const [customGoals, setCustomGoals] = useState([]);
 
   useEffect(() => {
     (async () => {
@@ -51,6 +54,7 @@ export function BankProvider({ children }) {
           setLoan(s.loan ?? null);
           setWallets(s.wallets ?? { rub: 0, cny: 0, egp: 0, ant: 0 });
           setLastDailyBonus(s.lastDailyBonus ?? null);
+          setCustomGoals(s.customGoals ?? []);
         }
       } catch (e) {
         console.error('Bank load error:', e);
@@ -65,10 +69,10 @@ export function BankProvider({ children }) {
     AsyncStorage.setItem(
       STORAGE_KEY,
       JSON.stringify({
-        balance, cardNumber, level, envelopes, deposit, loan, wallets, lastDailyBonus,
+        balance, cardNumber, level, envelopes, deposit, loan, wallets, lastDailyBonus, customGoals,
       })
     ).catch((e) => console.error('Bank save error:', e));
-  }, [isLoaded, balance, cardNumber, level, envelopes, deposit, loan, wallets, lastDailyBonus]);
+  }, [isLoaded, balance, cardNumber, level, envelopes, deposit, loan, wallets, lastDailyBonus, customGoals]);
 
   const createCard = useCallback(() => {
     if (!cardNumber) {
@@ -81,16 +85,27 @@ export function BankProvider({ children }) {
     setLevel((prev) => Math.min(4, prev + 1));
   }, []);
 
-  // Автоматический пересчёт уровня (можно использовать где угодно)
+  // Автоматический пересчёт уровня по прогрессу блоков.
+  // Уровень не понижается, только растёт до максимума.
+  //   блок 1 → Lv.2, блок 2 → Lv.3, блок 3 → Lv.4 (финальная стадия).
+  //   Блок 4 уровень не меняет — питомец уже взрослый.
   const checkLevelUp = useCallback(async () => {
     try {
-      const b1 = await AsyncStorage.getItem('@block_one_progress_v1');
-      const blockOneDone = (b1 ? parseInt(b1, 10) : 0) >= 6;
+      const [b1, b2, b3] = await Promise.all([
+        AsyncStorage.getItem('@block_one_progress_v1'),
+        AsyncStorage.getItem('@block_two_progress_v1'),
+        AsyncStorage.getItem('@block_three_progress_v1'),
+      ]);
+      const n1 = parseInt(b1 ?? '0', 10) || 0;
+      const n2 = parseInt(b2 ?? '0', 10) || 0;
+      const n3 = parseInt(b3 ?? '0', 10) || 0;
 
-      let newLevel = 0;
-      if (blockOneDone) newLevel = 1;
+      let target = 1;
+      if (n1 >= 6) target = Math.max(target, 2);
+      if (n2 >= 6) target = Math.max(target, 3);
+      if (n3 >= 5) target = Math.max(target, 4);
 
-      setLevel((prev) => (newLevel > prev ? newLevel : prev));
+      setLevel((prev) => Math.max(prev, target));
     } catch (e) {
       console.error('Level check error:', e);
     }
@@ -214,6 +229,24 @@ export function BankProvider({ children }) {
   const addCoins = useCallback((amount) => {
     setBalance((b) => b + amount);
     setWallets((w) => ({ ...w, rub: w.rub + amount }));
+    // 🔊 Звон монеток при каждом начислении
+    if (amount > 0 && playCoin) playCoin();
+  }, [playCoin]);
+
+  // ─── Свои цели (их можно добавлять/удалять) ───
+  const addCustomGoal = useCallback((goal) => {
+    const newGoal = {
+      id: `cg_${Date.now()}`,
+      title: (goal.title || '').trim() || 'Моя цель',
+      emoji: (goal.emoji || '').trim() || '⭐',
+      cost: Math.max(1, parseInt(goal.cost, 10) || 100),
+    };
+    setCustomGoals((prev) => [...prev, newGoal]);
+    return newGoal;
+  }, []);
+
+  const removeCustomGoal = useCallback((id) => {
+    setCustomGoals((prev) => prev.filter((g) => g.id !== id));
   }, []);
 
   const resetBank = useCallback(() => {
@@ -226,6 +259,7 @@ export function BankProvider({ children }) {
     setWallets({ rub: 0, cny: 0, egp: 0, ant: 0 });
     setLastDailyBonus(null);
     setNotification(null);
+    setCustomGoals([]);
   }, []);
 
   const value = {
@@ -239,6 +273,7 @@ export function BankProvider({ children }) {
     wallets, exchangeCurrency,
     notification, setNotification,
     addCoins,
+    customGoals, addCustomGoal, removeCustomGoal,
     resetBank,
   };
 

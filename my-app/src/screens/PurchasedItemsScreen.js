@@ -1,7 +1,6 @@
 import React from 'react';
-import {
-  View, Text, TouchableOpacity, StyleSheet, ScrollView, Image,
-} from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
+import { TouchableOpacity } from '../components/ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { usePet } from '../context/PetContext';
 
@@ -69,9 +68,9 @@ export default function PurchasedItemsScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#E3F2FD' },
   scroll: { padding: 20, paddingBottom: 40 },
-  backBtn: { fontSize: 16, color: '#42A5F5', fontWeight: '600', marginBottom: 12 },
+  backBtn: { fontSize: 17, color: '#42A5F5', fontWeight: '600', marginBottom: 12 },
   title: { fontSize: 26, fontWeight: '900', color: '#0D47A1', marginBottom: 6 },
-  subtitle: { fontSize: 14, color: '#1976D2', marginBottom: 20 },
+  subtitle: { fontSize: 17, color: '#1976D2', marginBottom: 20 },
 
   card: {
     backgroundColor: '#FFFFFF',
@@ -91,14 +90,14 @@ const styles = StyleSheet.create({
     borderBottomColor: '#E3F2FD',
   },
   itemEmoji: { fontSize: 32, marginRight: 12 },
-  itemName: { flex: 1, fontSize: 15, color: '#0D47A1', fontWeight: '600' },
-  itemQty: { fontSize: 14, color: '#1976D2', fontWeight: '800' },
+  itemName: { flex: 1, fontSize: 17, color: '#0D47A1', fontWeight: '600' },
+  itemQty: { fontSize: 17, color: '#1976D2', fontWeight: '800' },
 
-  emptyText: { fontSize: 13, color: '#1976D2', fontStyle: 'italic' },
+  emptyText: { fontSize: 17, color: '#1976D2', fontStyle: 'italic' },
 
   footerHint: {
     marginTop: 12,
-    fontSize: 13,
+    fontSize: 17,
     color: '#1976D2',
     textAlign: 'center',
     fontStyle: 'italic',

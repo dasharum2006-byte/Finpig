@@ -1,7 +1,6 @@
 import React, { useState, useRef } from 'react';
-import {
-  View, Text, TouchableOpacity, StyleSheet,
-} from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { TouchableOpacity } from '../components/ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../theme';
 
@@ -87,8 +86,8 @@ const styles = StyleSheet.create({
     width: 220, paddingVertical: 20, borderRadius: 16,
     backgroundColor: colors.accent, alignItems: 'center',
   },
-  holdBtnActive: { backgroundColor: '#e8a87c' },
-  holdBtnText: { color: '#fff', fontSize: 16, fontWeight: '700', marginBottom: 10 },
+  holdBtnActive: { backgroundColor: '#1E88E5' },
+  holdBtnText: { color: '#fff', fontSize: 17, fontWeight: '700', marginBottom: 10 },
   progressTrack: {
     width: '80%', height: 6, borderRadius: 3,
     backgroundColor: 'rgba(255,255,255,0.3)', overflow: 'hidden',

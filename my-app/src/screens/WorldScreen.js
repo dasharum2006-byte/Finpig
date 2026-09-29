@@ -1,15 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import {
-  StyleSheet,
-  View,
-  ImageBackground,
-  Animated,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  Dimensions,
-  Image,
-} from 'react-native';
+import { StyleSheet, View, ImageBackground, Animated, ScrollView, Text, Dimensions, Image } from 'react-native';
+import { TouchableOpacity } from '../components/ui';
 
 const PLANET_SIZE = 330;
 
@@ -157,7 +148,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.4)',
   },
-  zoomButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  zoomButtonText: { color: '#fff', fontSize: 17, fontWeight: '600' },
   bottomBar: {
     position: 'absolute',
     bottom: 0,
@@ -173,7 +164,7 @@ const styles = StyleSheet.create({
   },
   actionButton: { alignItems: 'center', minWidth: 80 },
   actionEmoji: { fontSize: 26 },
-  actionText: { fontSize: 13, color: '#000', marginTop: 4 },
+  actionText: { fontSize: 17, color: '#000', marginTop: 4 },
   mapWrapper: {
     position: 'relative',
     width: PLANET_SIZE * 2.5,
@@ -199,7 +190,7 @@ const styles = StyleSheet.create({
   },
   cityText: {
     color: '#fff',
-    fontSize: 11,
+    fontSize: 17,
     fontWeight: 'bold',
     backgroundColor: 'rgba(35, 34, 41, 0.71)',
     paddingVertical: 3,

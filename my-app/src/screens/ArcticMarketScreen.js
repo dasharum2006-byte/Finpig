@@ -1,14 +1,6 @@
 import React, { useState } from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  Image,
-  TouchableOpacity,
-  SafeAreaView,
-  Dimensions,
-  Alert,
-} from 'react-native';
+import { StyleSheet, Text, View, Image, SafeAreaView, Dimensions, Alert } from 'react-native';
+import { TouchableOpacity } from '../components/ui';
 import { usePet } from '../context/PetContext';
 import { getEggImage, getPetImage } from '../petsConfig';
 
@@ -123,17 +115,17 @@ export default function ArcticMarketScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#e0f7fa',
+    backgroundColor: '#EAF4FF',
   },
   bg: {
     flex: 1,
-    backgroundColor: '#e0f7fa',
+    backgroundColor: '#EAF4FF',
   },
   backButton: {
     position: 'absolute',
     top: 50,
     left: 20,
-    backgroundColor: '#006064',
+    backgroundColor: '#0D47A1',
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 15,
@@ -142,7 +134,7 @@ const styles = StyleSheet.create({
   backButtonText: {
     color: '#fff',
     fontWeight: 'bold',
-    fontSize: 14,
+    fontSize: 17,
   },
   coinsContainer: {
     position: 'absolute',
@@ -153,13 +145,13 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 15,
     borderWidth: 1.5,
-    borderColor: '#006064',
+    borderColor: '#0D47A1',
     zIndex: 10,
   },
   coinsText: {
-    color: '#006064',
+    color: '#0D47A1',
     fontWeight: 'bold',
-    fontSize: 16,
+    fontSize: 17,
   },
   headerContainer: {
     width: '100%',
@@ -170,7 +162,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: '900',
     color: '#fff',
-    backgroundColor: '#006064',
+    backgroundColor: '#0D47A1',
     paddingHorizontal: 25,
     paddingVertical: 8,
     borderRadius: 20,
@@ -201,13 +193,13 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   itemName: {
-    fontSize: 12,
+    fontSize: 17,
     fontWeight: 'bold',
-    color: '#006064',
+    color: '#0D47A1',
     textAlign: 'center',
   },
   priceTag: {
-    backgroundColor: '#e0f7fa',
+    backgroundColor: '#EAF4FF',
     paddingHorizontal: 10,
     paddingVertical: 3,
     borderRadius: 10,
@@ -216,13 +208,13 @@ const styles = StyleSheet.create({
     borderColor: '#b2ebf2',
   },
   priceText: {
-    fontSize: 11,
+    fontSize: 17,
     fontWeight: 'bold',
-    color: '#006064',
+    color: '#0D47A1',
   },
   countText: {
-    fontSize: 10,
-    color: '#666',
+    fontSize: 17,
+    color: '#1976D2',
     marginTop: 4,
   },
 

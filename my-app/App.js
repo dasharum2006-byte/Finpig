@@ -5,7 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Asset } from 'expo-asset';
 
 //Навигация
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
@@ -14,6 +14,7 @@ import { BankProvider } from './src/context/BankContext';
 import { PetProvider, usePet } from './src/context/PetContext';
 import { BudgetPlanProvider } from './src/context/BudgetPlanContext';
 import { DemoProvider } from './src/context/DemoContext';
+import { MusicProvider } from './src/context/MusicContext';
 // Экраны
 import CatalogScreen from './src/screens/CatalogScreen';
 import WorldScreen from './src/screens/WorldScreen';
@@ -45,6 +46,7 @@ import LivingRoomScreen from './src/screens/LivingRoomScreen';
 import { colors } from './src/theme';
 import MiniGamesScreen from './src/screens/MiniGamesScreen';
 import GamePriceGuesser from './src/screens/GamePriceGuesser';
+import IncomeExpenseGameScreen from './src/screens/IncomeExpenseGameScreen';
 import MemoryGame1Screen from './src/screens/MemoryGame1Screen';
 import ScamGameScreen from './src/screens/ScamGameScreen';
 import BudgetPlanScreen from './src/screens/BudgetPlanScreen';
@@ -60,6 +62,20 @@ import HistoryScreen from './src/screens/HistoryScreen';
 import PurchasedItemsScreen from './src/screens/PurchasedItemsScreen';
 
 const Stack = createNativeStackNavigator();
+
+// Единая тема навигации: нежно-голубой · синий · белый
+const navTheme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    background: colors.bg,
+    card: colors.white,
+    text: colors.text,
+    primary: colors.primary,
+    border: colors.border,
+    notification: colors.primary,
+  },
+};
 
 
     function RootNavigator() {
@@ -228,6 +244,9 @@ const Stack = createNativeStackNavigator();
               <Stack.Screen name="MemoryGame1Screen" 
               component={MemoryGame1Screen} 
               options={{ headerShown: false }} />
+              <Stack.Screen name="IncomeExpenseGameScreen" 
+              component={IncomeExpenseGameScreen} 
+              options={{ headerShown: false }} />
               <Stack.Screen
                 name="BlockTwoScreen"
                 component={BlockTwoScreen}
@@ -357,19 +376,21 @@ export default function App() {
   }
 
  return (
-    <BankProvider>
-      <PetProvider>
-        <BudgetPlanProvider>
-          <DemoProvider>
-            <SafeAreaProvider>
-              <NavigationContainer>
-                <RootNavigator />
-              </NavigationContainer>
-            </SafeAreaProvider>
-          </DemoProvider>
-        </BudgetPlanProvider>
-      </PetProvider>
-    </BankProvider>
+    <MusicProvider>
+      <BankProvider>
+        <PetProvider>
+          <BudgetPlanProvider>
+            <DemoProvider>
+              <SafeAreaProvider>
+                <NavigationContainer theme={navTheme}>
+                  <RootNavigator />
+                </NavigationContainer>
+              </SafeAreaProvider>
+            </DemoProvider>
+          </BudgetPlanProvider>
+        </PetProvider>
+      </BankProvider>
+    </MusicProvider>
   );
 }
 const styles = StyleSheet.create({
@@ -389,7 +410,7 @@ const styles = StyleSheet.create({
   appTitle: {
     fontSize: 38,
     fontWeight: 'bold',
-    color: '#000',
+    color: colors.text,
     top: 90,
     position: 'absolute',
   },
@@ -418,7 +439,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   coinText: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: '900',
     color: 'black',
   },

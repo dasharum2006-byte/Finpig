@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
-import {View, Text, TouchableOpacity, StyleSheet, ScrollView, Switch,Alert} from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Switch, Alert } from 'react-native';
+import Slider from '@react-native-community/slider';
+import { TouchableOpacity } from '../components/ui';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../theme';
 import { useDemo } from '../context/DemoContext';
+import { useMusic } from '../context/MusicContext';
 import { useBank } from '../context/BankContext';
 import { usePet } from '../context/PetContext';
 import { useBudgetPlan } from '../context/BudgetPlanContext';
@@ -11,10 +14,9 @@ const MAX_STAGE = 3;
 
 
 export default function SettingsScreen({ navigation }) {
-  const [sound, setSound] = useState(true);
   const { demoMode, toggleDemo } = useDemo();
   const bank = useBank();
-  const [music, setMusic] = useState(true);
+  const { musicOn, setMusicOn, volume, setVolume, sfxOn, setSfxOn } = useMusic();
 const budgetPlanCtx = useBudgetPlan();
 const petCtx = usePet();
 const currentStage = petCtx.pet?.stage ?? 0;
@@ -63,12 +65,26 @@ const handleResetProfile = () => {
         <View style={styles.card}>
           <View style={styles.row}>
             <Text style={styles.rowLabel}>🔊 Звуки</Text>
-            <Switch value={sound} onValueChange={setSound} />
+            <Switch value={sfxOn} onValueChange={setSfxOn} />
           </View>
 
           <View style={styles.row}>
             <Text style={styles.rowLabel}>🎵 Музыка</Text>
-            <Switch value={music} onValueChange={setMusic} />
+            <Switch value={musicOn} onValueChange={setMusicOn} />
+          </View>
+
+          <View style={styles.row}>
+            <Text style={styles.rowLabel}>🎚️ Громкость</Text>
+            <Slider
+              style={{ flex: 1, marginLeft: 12 }}
+              minimumValue={0}
+              maximumValue={1}
+              value={volume}
+              onValueChange={setVolume}
+              minimumTrackTintColor="#1E88E5"
+              maximumTrackTintColor="#CFE4F7"
+              thumbTintColor="#1E88E5"
+            />
           </View>
         </View>
         <TouchableOpacity
@@ -84,7 +100,7 @@ const handleResetProfile = () => {
             <View style={{ flex: 1 }}>
             <Text style={styles.rowLabel}>🧪 Демо-режим</Text>
             <Text style={styles.rowHint}>
-                Для проверки. Периоды проходятся подряд.
+                Для проверки. На главном экране появится панель быстрых действий.
             </Text>
             </View>
             <Switch value={demoMode} onValueChange={toggleDemo} />
@@ -166,12 +182,12 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: '#fff', borderRadius: 16,
     paddingHorizontal: 16, marginBottom: 14,
-    borderWidth: 1, borderColor: '#eee',
+    borderWidth: 1, borderColor: '#E3F2FD',
   },
   row: {
     flexDirection: 'row', justifyContent: 'space-between',
     alignItems: 'center', paddingVertical: 14,
-    borderBottomWidth: 1, borderBottomColor: '#f0f0f0',
+    borderBottomWidth: 1, borderBottomColor: '#E3F2FD',
   },
   rowLabel: { fontSize: 18, color: colors.text },
 
@@ -179,9 +195,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center',
     backgroundColor: '#fff', borderRadius: 16,
     padding: 16, marginBottom: 10,
-    borderWidth: 1, borderColor: '#eee',
+    borderWidth: 1, borderColor: '#E3F2FD',
   },
-  rowHint: { fontSize: 17, color: '#999', marginTop: 2 },
+  rowHint: { fontSize: 17, color: '#7BA7D4', marginTop: 2 },
   menuEmoji: { fontSize: 22, marginRight: 12 },
   menuText: { flex: 1, fontSize: 18, fontWeight: '600', color: colors.text },
   menuArrow: { fontSize: 22, color: '#bbb' },
