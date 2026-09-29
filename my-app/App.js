@@ -354,13 +354,6 @@ export default function App() {
         <View style={styles.splashContent}>
           <Text style={styles.appTitle}>Финпиг</Text>
           <View style={styles.piggyBankContainer}>
-            {/* <Animated.View
-              style={[styles.cssCoinLoading, { top: coinTop, opacity: coinOpacity }]}
-            >
-              <View style={styles.coinInner}>
-                <Text style={styles.coinText}>1</Text>
-              </View>
-            </Animated.View> */}
             <Image source={require('./assets/piggy_bank.png')} style={styles.pig} />
           </View>
           <View style={styles.loadingSection}>

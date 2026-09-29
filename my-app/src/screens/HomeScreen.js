@@ -291,7 +291,9 @@ function HomeScreenInner({ route, navigation }) {
   const [showTaskBadge, setShowTaskBadge] = useState(true);
 
   const scale = useRef(new Animated.Value(1)).current;
-  const translateX = useRef(new Animated.Value(0)).current;
+
+  // 🔧 ФИКС: флаг, чтобы во время навигации не было двойных нажатий
+  const isNavigatingRef = useRef(false);
 
   const myPet = petCtx.pet;
 
@@ -306,10 +308,13 @@ function HomeScreenInner({ route, navigation }) {
     }
   }, [currentStage, myPet?.stage]);
 
+  // 🔧 ФИКС: снимаем блокировку навигации при возврате на экран
   useFocusEffect(
     React.useCallback(() => {
       bank.checkLevelUp();
-    }, [bank])
+      scale.setValue(1);
+      isNavigatingRef.current = false;
+    }, [bank, scale])
   );
 
   const petImage = myPet
@@ -326,7 +331,6 @@ function HomeScreenInner({ route, navigation }) {
     budgetPlanCtx.currentFact.savings > 0
   );
 
-  // Накоплено по цели из регистрации (связь с копилками/банком)
   const goalId = budgetPlanCtx.goal?.id;
   const goalAlias = { bike: 'g1', scooter: 'g2', gift: 'g3' }[goalId] ?? goalId;
   const goalSaved = (bank.envelopes ?? [])
@@ -342,7 +346,6 @@ function HomeScreenInner({ route, navigation }) {
     }
   }, [incomingPet]);
 
-  // Подсказки про свайпы показываем только один раз — после первого выбора питомца
   useEffect(() => {
     if (!onboardingDone) return;
     let active = true;
@@ -360,7 +363,6 @@ function HomeScreenInner({ route, navigation }) {
     return () => { active = false; };
   }, [onboardingDone]);
 
-  // Кнопка «Продолжить задания» видна 3 секунды после входа на экран
   useFocusEffect(
     React.useCallback(() => {
       setShowTaskBadge(true);
@@ -369,36 +371,37 @@ function HomeScreenInner({ route, navigation }) {
     }, [])
   );
 
+  // 🔧 ФИКС: PanResponder без Animated.View — не перехватывает тапы
   const panResponder = useRef(
     PanResponder.create({
-      onMoveShouldSetPanResponder: (_, g) =>
-        Math.abs(g.dx) > SWIPE_ACTIVATE &&
-        Math.abs(g.dx) > Math.abs(g.dy) * 1.5,
-      onPanResponderMove: (_, g) => {
-        translateX.setValue(g.dx);
+      onStartShouldSetPanResponder: () => false,
+      onStartShouldSetPanResponderCapture: () => false,
+
+      onMoveShouldSetPanResponder: (_, g) => {
+        if (isNavigatingRef.current) return false;
+        return (
+          Math.abs(g.dx) > SWIPE_ACTIVATE &&
+          Math.abs(g.dx) > Math.abs(g.dy) * 1.5
+        );
       },
+      onMoveShouldSetPanResponderCapture: () => false,
+
+      onPanResponderTerminationRequest: () => false,
+
       onPanResponderRelease: (_, g) => {
+        if (isNavigatingRef.current) return;
+
         if (g.dx > SWIPE_THRESHOLD) {
-          Animated.timing(translateX, {
-            toValue: width,
-            duration: 200,
-            useNativeDriver: true,
-          }).start(() => {
-            translateX.setValue(0);
-            navigation.navigate('Kitchen');
-          });
+          isNavigatingRef.current = true;
+          navigation.navigate('Kitchen');
         } else if (g.dx < -SWIPE_THRESHOLD) {
-          Animated.timing(translateX, {
-            toValue: -width,
-            duration: 200,
-            useNativeDriver: true,
-          }).start(() => {
-            translateX.setValue(0);
-            navigation.navigate('LivingRoomScreen');
-          });
-        } else {
-          Animated.spring(translateX, { toValue: 0, useNativeDriver: true }).start();
+          isNavigatingRef.current = true;
+          navigation.navigate('LivingRoomScreen');
         }
+      },
+
+      onPanResponderTerminate: () => {
+        // ничего не делаем — состояние не сломано
       },
     })
   ).current;
@@ -517,222 +520,216 @@ function HomeScreenInner({ route, navigation }) {
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
       <View style={{ flex: 1 }} {...panResponder.panHandlers}>
-        <Animated.View style={{ flex: 1, transform: [{ translateX }] }}>
-          <ImageBackground
-            source={ROOMS[roomIndex].source}
-            style={styles.room}
-            resizeMode="cover"
-          >
-            <View style={styles.topBar}>
-              {/* Верхняя строка: имя, сердечки, «Мой план», монеты, настройки */}
-              <View style={styles.topRow}>
-                <View style={styles.namePlate}>
-                  <Text style={styles.petName} numberOfLines={1}>{petName}</Text>
-                </View>
-
-                <View style={styles.heartsRow}>
-                  {[0, 1, 2].map((i) => (
-                    <Text key={i} style={[styles.heart, i >= hearts && styles.heartEmpty]}>
-                      {i < hearts ? '❤️' : '🤍'}
-                    </Text>
-                  ))}
-                </View>
-
-                <TouchableOpacity
-                  style={styles.planChip}
-                  onPress={() => navigation.navigate('BudgetPlanScreen')}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.planChipText} numberOfLines={1}>Мой план</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={styles.coinChip}
-                  onPress={() => navigation.navigate('Bank')}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.coinChipText} numberOfLines={1}>🪙 {Math.floor(bank.balance)}</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={styles.iconSquare}
-                  onPress={() => navigation.navigate('Settings')}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.iconSquareEmoji}>⚙️</Text>
-                </TouchableOpacity>
+        <ImageBackground
+          source={ROOMS[roomIndex].source}
+          style={styles.room}
+          resizeMode="cover"
+        >
+          <View style={styles.topBar}>
+            <View style={styles.topRow}>
+              <View style={styles.namePlate}>
+                <Text style={styles.petName} numberOfLines={1}>{petName}</Text>
               </View>
 
-              {/* Вторая строка: копилка слева, цель справа */}
-              <View style={styles.topBarBottom}>
-                <TouchableOpacity
-                  style={styles.infoChip}
-                  onPress={() => navigation.navigate('Bank')}
-                  activeOpacity={0.8}
-                >
-                  <View style={styles.chipIconBox}>
-                    <Text style={styles.chipEmoji}>🏦</Text>
-                  </View>
-                  <View style={styles.chipTextWrap}>
-                    <Text style={styles.chipLabel}>Копилка</Text>
-                    <Text style={styles.chipValue}>
-                      {(bank.envelopes ?? []).reduce((s, e) => s + e.amount, 0)} 🪙
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-
-                {/* 🎯 Цель — открывает экран целей (копилки связаны с банком) */}
-                {budgetPlanCtx.goal && (
-                  <TouchableOpacity
-                    style={styles.goalChipTop}
-                    onPress={() => navigation.navigate('GoalsScreen')}
-                    activeOpacity={0.8}
-                  >
-                    <Text style={styles.goalChipTopEmoji}>{budgetPlanCtx.goal.emoji}</Text>
-                    <View style={styles.goalChipTopInfo}>
-                      <Text style={styles.goalChipTopText} numberOfLines={1}>
-                        {budgetPlanCtx.goal.title}
-                      </Text>
-                      <Text style={styles.goalChipTopSub}>
-                        {Math.floor(goalSaved)} / {budgetPlanCtx.goal.cost}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                )}
+              <View style={styles.heartsRow}>
+                {[0, 1, 2].map((i) => (
+                  <Text key={i} style={[styles.heart, i >= hearts && styles.heartEmpty]}>
+                    {i < hearts ? '❤️' : '🤍'}
+                  </Text>
+                ))}
               </View>
-            </View>
 
-            <View style={styles.petWrapper}>
-              <TouchableOpacity activeOpacity={0.9} onPress={handlePetClick}>
-                <Animated.Image
-                  source={petImage}
-                  style={[
-                    styles.petImage,
-                    { width: petSize, height: petSize },
-                    { transform: [{ scale }] },
-                  ]}
-                  resizeMode="contain"
-                />
+              <TouchableOpacity
+                style={styles.planChip}
+                onPress={() => navigation.navigate('BudgetPlanScreen')}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.planChipText} numberOfLines={1}>Мой план</Text>
               </TouchableOpacity>
 
-              {showTaskBadge && (
+              <TouchableOpacity
+                style={styles.coinChip}
+                onPress={() => navigation.navigate('Bank')}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.coinChipText} numberOfLines={1}>🪙 {Math.floor(bank.balance)}</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.iconSquare}
+                onPress={() => navigation.navigate('Settings')}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.iconSquareEmoji}>⚙️</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.topBarBottom}>
+              <TouchableOpacity
+                style={styles.infoChip}
+                onPress={() => navigation.navigate('Bank')}
+                activeOpacity={0.8}
+              >
+                <View style={styles.chipIconBox}>
+                  <Text style={styles.chipEmoji}>🏦</Text>
+                </View>
+                <View style={styles.chipTextWrap}>
+                  <Text style={styles.chipLabel}>Копилка</Text>
+                  <Text style={styles.chipValue}>
+                    {(bank.envelopes ?? []).reduce((s, e) => s + e.amount, 0)} 🪙
+                  </Text>
+                </View>
+              </TouchableOpacity>
+
+              {budgetPlanCtx.goal && (
                 <TouchableOpacity
-                  style={styles.taskBadge}
-                  onPress={() => navigation.navigate('Tasks')}
+                  style={styles.goalChipTop}
+                  onPress={() => navigation.navigate('GoalsScreen')}
                   activeOpacity={0.8}
                 >
-                  <Text style={styles.taskBadgeText}>Продолжить задания</Text>
+                  <Text style={styles.goalChipTopEmoji}>{budgetPlanCtx.goal.emoji}</Text>
+                  <View style={styles.goalChipTopInfo}>
+                    <Text style={styles.goalChipTopText} numberOfLines={1}>
+                      {budgetPlanCtx.goal.title}
+                    </Text>
+                    <Text style={styles.goalChipTopSub}>
+                      {Math.floor(goalSaved)} / {budgetPlanCtx.goal.cost}
+                    </Text>
+                  </View>
                 </TouchableOpacity>
               )}
-              {showSwipeHints && (
-                <View style={styles.swipeHintsRow}>
-                  <Text style={styles.swipeHint}>← свайп влево: гостиная</Text>
-                  <Text style={styles.swipeHint}>свайп вправо: кухня →</Text>
-                </View>
-              )}
             </View>
+          </View>
 
-            {/* ─── Счастье и Еда над меню ─── */}
-            <View style={styles.bottomHud}>
-              <View style={styles.miniStatus}>
-                <Text style={styles.miniStatusIcon}>😊</Text>
-                <View style={styles.statusBarBg}>
-                  <View
-                    style={[
-                      styles.statusBarFill,
-                      {
-                        width: `${clamp(happinessDisplay)}%`,
-                        backgroundColor: isSad ? '#EF5350' : '#4FC3F7',
-                      },
-                    ]}
-                  />
-                </View>
-                <Text style={[styles.miniStatusValue, isSad && styles.statusValueDanger]}>
-                  {happinessDisplay}%
-                </Text>
-              </View>
+          <View style={styles.petWrapper}>
+            <TouchableOpacity activeOpacity={0.9} onPress={handlePetClick}>
+              <Animated.Image
+                source={petImage}
+                style={[
+                  styles.petImage,
+                  { width: petSize, height: petSize },
+                  { transform: [{ scale }] },
+                ]}
+                resizeMode="contain"
+              />
+            </TouchableOpacity>
 
-              <View style={styles.miniStatus}>
-                <Text style={styles.miniStatusIcon}>🍽️</Text>
-                <View style={styles.statusBarBg}>
-                  <View
-                    style={[
-                      styles.statusBarFill,
-                      {
-                        width: `${clamp(hungerDisplay)}%`,
-                        backgroundColor: isHungry ? '#EF5350' : '#1976D2',
-                      },
-                    ]}
-                  />
-                </View>
-                <Text style={[styles.miniStatusValue, isHungry && styles.statusValueDanger]}>
-                  {hungerDisplay}%
-                </Text>
-              </View>
-            </View>
-
-            <View style={styles.bottomBar}>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.bottomBarContent}
+            {showTaskBadge && (
+              <TouchableOpacity
+                style={styles.taskBadge}
+                onPress={() => navigation.navigate('Tasks')}
+                activeOpacity={0.8}
               >
-                <TouchableOpacity
-                  style={[styles.actionButton, styles.levelAction]}
-                  onPress={() => setLevelMenuOpen(true)}
-                  activeOpacity={0.85}
-                >
-                  <View style={[styles.actionIconBox, styles.levelIconBox]}>
-                    <Text style={styles.levelIconText}>{bank.level}</Text>
-                  </View>
-                  <Text style={styles.actionText}>Уровень</Text>
-                </TouchableOpacity>
+                <Text style={styles.taskBadgeText}>Продолжить задания</Text>
+              </TouchableOpacity>
+            )}
+            {showSwipeHints && (
+              <View style={styles.swipeHintsRow}>
+                <Text style={styles.swipeHint}>← свайп влево: гостиная</Text>
+                <Text style={styles.swipeHint}>свайп вправо: кухня →</Text>
+              </View>
+            )}
+          </View>
 
-                <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('Tasks')}>
-                  <View style={styles.actionIconBox}>
-                    <Text style={styles.actionEmoji}>📋</Text>
-                  </View>
-                  <Text style={styles.actionText}>Задания</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('Town')}>
-                  <View style={styles.actionIconBox}>
-                    <Text style={styles.actionEmoji}>🏙️</Text>
-                  </View>
-                  <Text style={styles.actionText}>Город</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('History')}>
-                  <View style={styles.actionIconBox}>
-                    <Text style={styles.actionEmoji}>📅</Text>
-                  </View>
-                  <Text style={styles.actionText}>История</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.actionButton} onPress={() => setOpenMenu('room')}>
-                  <View style={styles.actionIconBox}>
-                    <Text style={styles.actionEmoji}>🏠</Text>
-                  </View>
-                  <Text style={styles.actionText}>Комната</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('MiniGamesScreen')}>
-                  <View style={styles.actionIconBox}>
-                    <Text style={styles.actionEmoji}>🎮</Text>
-                  </View>
-                  <Text style={styles.actionText}>Игры</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('ParentGateScreen')}>
-                  <View style={styles.actionIconBox}>
-                    <Text style={styles.actionEmoji}>👨‍👩‍👧</Text>
-                  </View>
-                  <Text style={styles.actionText}>Родителю</Text>
-                </TouchableOpacity>
-              </ScrollView>
+          <View style={styles.bottomHud}>
+            <View style={styles.miniStatus}>
+              <Text style={styles.miniStatusIcon}>😊</Text>
+              <View style={styles.statusBarBg}>
+                <View
+                  style={[
+                    styles.statusBarFill,
+                    {
+                      width: `${clamp(happinessDisplay)}%`,
+                      backgroundColor: isSad ? '#EF5350' : '#4FC3F7',
+                    },
+                  ]}
+                />
+              </View>
+              <Text style={[styles.miniStatusValue, isSad && styles.statusValueDanger]}>
+                {happinessDisplay}%
+              </Text>
             </View>
-          </ImageBackground>
-        </Animated.View>
+
+            <View style={styles.miniStatus}>
+              <Text style={styles.miniStatusIcon}>🍽️</Text>
+              <View style={styles.statusBarBg}>
+                <View
+                  style={[
+                    styles.statusBarFill,
+                    {
+                      width: `${clamp(hungerDisplay)}%`,
+                      backgroundColor: isHungry ? '#EF5350' : '#1976D2',
+                    },
+                  ]}
+                />
+              </View>
+              <Text style={[styles.miniStatusValue, isHungry && styles.statusValueDanger]}>
+                {hungerDisplay}%
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.bottomBar}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.bottomBarContent}
+            >
+              <TouchableOpacity
+                style={[styles.actionButton, styles.levelAction]}
+                onPress={() => setLevelMenuOpen(true)}
+                activeOpacity={0.85}
+              >
+                <View style={[styles.actionIconBox, styles.levelIconBox]}>
+                  <Text style={styles.levelIconText}>{bank.level}</Text>
+                </View>
+                <Text style={styles.actionText}>Уровень</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('Tasks')}>
+                <View style={styles.actionIconBox}>
+                  <Text style={styles.actionEmoji}>📋</Text>
+                </View>
+                <Text style={styles.actionText}>Задания</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('Town')}>
+                <View style={styles.actionIconBox}>
+                  <Text style={styles.actionEmoji}>🏙️</Text>
+                </View>
+                <Text style={styles.actionText}>Город</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('History')}>
+                <View style={styles.actionIconBox}>
+                  <Text style={styles.actionEmoji}>📅</Text>
+                </View>
+                <Text style={styles.actionText}>История</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.actionButton} onPress={() => setOpenMenu('room')}>
+                <View style={styles.actionIconBox}>
+                  <Text style={styles.actionEmoji}>🏠</Text>
+                </View>
+                <Text style={styles.actionText}>Комната</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('MiniGamesScreen')}>
+                <View style={styles.actionIconBox}>
+                  <Text style={styles.actionEmoji}>🎮</Text>
+                </View>
+                <Text style={styles.actionText}>Игры</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('ParentGateScreen')}>
+                <View style={styles.actionIconBox}>
+                  <Text style={styles.actionEmoji}>👨‍👩‍👧</Text>
+                </View>
+                <Text style={styles.actionText}>Родителю</Text>
+              </TouchableOpacity>
+            </ScrollView>
+          </View>
+        </ImageBackground>
       </View>
 
       {demoMode && (
@@ -762,7 +759,6 @@ function HomeScreenInner({ route, navigation }) {
         </TouchableOpacity>
       )}
 
-      {/* Модалка выбора комнаты */}
       <Modal
         visible={openMenu !== null}
         transparent
@@ -801,7 +797,6 @@ function HomeScreenInner({ route, navigation }) {
         </Pressable>
       </Modal>
 
-      {/* Мини-меню уровня */}
       <Modal
         visible={levelMenuOpen}
         transparent
@@ -886,25 +881,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 4,
   },
-  topLeftGroup: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    flexShrink: 1,
-  },
-  topRightGroup: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    flexShrink: 1,
-  },
   topBarBottom: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
   },
-  leftColumn: { alignItems: 'flex-start', gap: 6, maxWidth: '58%' },
-  nameRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   coinChip: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -968,7 +949,6 @@ const styles = StyleSheet.create({
     borderColor: '#90CAF9',
     minWidth: 118,
   },
-  goalChip: { minWidth: 0, width: 140 },
   chipIconBox: {
     width: 30,
     height: 30,
@@ -989,7 +969,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.4,
   },
   chipValue: { fontSize: 17, fontWeight: '900', color: '#0D47A1' },
-  chipSub: { fontSize: 17, color: '#1976D2', fontWeight: '700', marginTop: 1 },
 
   iconSquare: {
     width: 40,
@@ -1002,27 +981,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   iconSquareEmoji: { fontSize: 22 },
-
-  rightColumn: { alignItems: 'flex-end', gap: 10 },
-  rightTopRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-
-  levelBadge: {
-    backgroundColor: '#42A5F5',
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 20,
-  },
-  levelBadgeText: { fontSize: 17, fontWeight: '800', color: '#fff' },
-
-  plusBtn: {
-    backgroundColor: '#2ecc71',
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  plusBtnText: { fontSize: 17, fontWeight: '900', color: '#fff' },
 
   heartsRow: {
     flexDirection: 'row',
@@ -1038,42 +996,6 @@ const styles = StyleSheet.create({
   heart: { fontSize: 18 },
   heartEmpty: { opacity: 0.35 },
 
-  // ─── Строка голода + кнопка −10% ───
-  hungerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  minusHungerBtn: {
-    backgroundColor: '#e74c3c',
-    paddingHorizontal: 8,
-    paddingVertical: 10,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    minWidth: 50,
-  },
-  minusHungerText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '900',
-  },
-
-  hungerBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#BBDEFB',
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 20,
-    gap: 6,
-  },
-  hungerBadgeDanger: { backgroundColor: '#EF5350' },
-  hungerEmoji: { fontSize: 18 },
-  hungerText: { fontSize: 17, fontWeight: '800', color: '#0D47A1' },
-  hungerTextDanger: { color: '#fff' },
-
-  // ─── Еда / Счастье над меню (вертикально, без подписей) ───
   bottomHud: {
     paddingHorizontal: 14,
     marginBottom: 8,
@@ -1105,13 +1027,6 @@ const styles = StyleSheet.create({
     height: '100%',
     borderRadius: 7,
   },
-  balanceBadge: {
-    backgroundColor: '#42A5F5',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 20,
-  },
-  balanceBadgeText: { fontSize: 18, fontWeight: '800', color: '#fff' },
 
   petWrapper: {
     flex: 1,
@@ -1120,24 +1035,6 @@ const styles = StyleSheet.create({
     paddingTop: 20,
   },
   petImage: {},
-
-  stageIndicator: {
-    flexDirection: 'row',
-    marginTop: 10,
-    gap: 8,
-  },
-  stageDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: 'rgba(255,255,255,0.6)',
-    borderWidth: 1,
-    borderColor: '#90CAF9',
-  },
-  stageDotFilled: {
-    backgroundColor: '#0D47A1',
-    borderColor: '#0D47A1',
-  },
 
   swipeHintsRow: {
     flexDirection: 'row',
@@ -1197,7 +1094,6 @@ const styles = StyleSheet.create({
   actionEmoji: { fontSize: 24 },
   actionText: { fontSize: 17, color: '#0D47A1', fontWeight: '800', textAlign: 'center' },
 
-  // Кнопка «Уровень» — первая в меню, на белом фоне
   levelAction: {
     width: 78,
     backgroundColor: '#FFFFFF',
@@ -1217,18 +1113,6 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   levelIconText: { fontSize: 26, fontWeight: '900', color: '#0D47A1' },
-
-  settingsBadge: {
-    backgroundColor: 'rgba(255,255,255,0.95)',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    marginTop: 8,
-  },
-  settingsBadgeText: {
-    fontSize: 20,
-  },
-  settingsBadgeText: { fontSize: 20 },
 
   // ─── Intro / Onboarding ───
   introContainer: { flex: 1 },
@@ -1316,7 +1200,6 @@ const styles = StyleSheet.create({
   introButtonDisabled: { backgroundColor: '#BBDEFB', shadowOpacity: 0.1 },
   introButtonTextDisabled: { color: '#E3F2FD' },
 
-  // ─── Монетка ───
   coinCircleBig: {
     width: 140,
     height: 140,
@@ -1335,7 +1218,6 @@ const styles = StyleSheet.create({
   },
   coinEmojiBig: { fontSize: 80 },
 
-  // ─── Карточка 500 монет ───
   amountCard: {
     backgroundColor: '#42A5F5',
     borderRadius: 24,
@@ -1364,7 +1246,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 
-  // ─── Цели ───
   goalList: { width: '100%', marginBottom: 24 },
   goalCard: {
     backgroundColor: '#FFFFFF',
@@ -1408,7 +1289,6 @@ const styles = StyleSheet.create({
   },
   goalCheckText: { color: '#FFF', fontSize: 18, fontWeight: '900' },
 
-  // ─── Модалки ───
   modalBackdrop: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.45)',
@@ -1441,7 +1321,6 @@ const styles = StyleSheet.create({
   },
   modalButtonText: { color: '#fff', fontSize: 17, fontWeight: '700' },
 
-  // ─── Комнаты ───
   roomScroll: { paddingVertical: 4, paddingRight: 8 },
   roomOption: {
     width: 110,
@@ -1468,7 +1347,6 @@ const styles = StyleSheet.create({
   },
   roomCheckText: { color: '#fff', fontSize: 17, fontWeight: '700' },
 
-  // ─── Мини-меню уровня ───
   levelSheet: {
     backgroundColor: '#E3F2FD',
     borderTopLeftRadius: 24,
@@ -1528,5 +1406,3 @@ const styles = StyleSheet.create({
 });
 
 export default React.memo(HomeScreenInner);
-
-
