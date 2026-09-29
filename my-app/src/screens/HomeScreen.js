@@ -46,7 +46,6 @@ const ROOMS = [
   { id: 'room3', source: require('../../assets/Rooms/room3.png'), label: 'Комната 3' },
 ];
 
-// ─── Что открывается на каждом уровне ───
 const LEVEL_FEATURES = {
   1: [
     { id: 'tasks', emoji: '📋', title: 'Задания', desc: 'Пройди блок 1' },
@@ -305,12 +304,10 @@ function HomeScreenInner({ route, navigation }) {
 
   const myPet = petCtx.pet;
 
-  // ⭐ Стадия = уровень - 1 (Lv.1 = яйцо / stage 0)
   const currentStage = Math.max(0, bank.level - 1);
   const isMaxStage = currentStage >= MAX_STAGE;
   const petSize = PET_SIZES[currentStage] ?? PET_SIZES[0];
 
-  // Синхронизируем stage в PetContext
   useEffect(() => {
     if (!myPet) return;
     if (myPet.stage !== currentStage) {
@@ -396,11 +393,9 @@ function HomeScreenInner({ route, navigation }) {
     room: { title: '🏠 Комната', isRoomPicker: true },
   };
 
-  // Переход из мини-меню уровня
   const handleFeaturePress = (featureId) => {
     setLevelMenuOpen(false);
 
-    // Блокировка Мира и Целей до Lv.3
     if (bank.level < 3 && (featureId === 'world' || featureId === 'goals')) {
       setTimeout(() => {
         Alert.alert('🔒 Заблокировано', 'Откроется на Lv.3');
@@ -500,9 +495,8 @@ function HomeScreenInner({ route, navigation }) {
             style={styles.room}
             resizeMode="cover"
           >
-            {/* ⭐ Верхняя панель: имя + ⚙️ слева, уровень/сердечки/голод/баланс справа */}
             <View style={styles.topBar}>
-              {/* ЛЕВАЯ КОЛОНКА: имя питомца + кнопка настроек под ним */}
+              {/* Левая колонка — имя + ⚙️ под ним */}
               <View style={styles.leftColumn}>
                 <View style={styles.namePlate}>
                   <Text style={styles.petName}>{petName}</Text>
@@ -517,7 +511,7 @@ function HomeScreenInner({ route, navigation }) {
                 </TouchableOpacity>
               </View>
 
-              {/* ПРАВАЯ КОЛОНКА */}
+              {/* Правая колонка — LvL, сердечки, голод, баланс */}
               <View style={styles.rightColumn}>
                 <View style={styles.rightTopRow}>
                   <TouchableOpacity
@@ -547,21 +541,34 @@ function HomeScreenInner({ route, navigation }) {
                   </View>
                 </View>
 
-                <View
-                  style={[
-                    styles.hungerBadge,
-                    isHungry && styles.hungerBadgeDanger,
-                  ]}
-                >
-                  <Text style={styles.hungerEmoji}>🍽️</Text>
-                  <Text
+                {/* ─── Плашка голода + кнопка −10% в демо ─── */}
+                <View style={styles.hungerRow}>
+                  {demoMode && (
+                    <TouchableOpacity
+                      style={styles.minusHungerBtn}
+                      onPress={() => petCtx.decreaseHunger(10)}
+                      activeOpacity={0.7}
+                    >
+                      <Text style={styles.minusHungerText}>−10%</Text>
+                    </TouchableOpacity>
+                  )}
+
+                  <View
                     style={[
-                      styles.hungerText,
-                      isHungry && styles.hungerTextDanger,
+                      styles.hungerBadge,
+                      isHungry && styles.hungerBadgeDanger,
                     ]}
                   >
-                    {hungerDisplay}%
-                  </Text>
+                    <Text style={styles.hungerEmoji}>🍽️</Text>
+                    <Text
+                      style={[
+                        styles.hungerText,
+                        isHungry && styles.hungerTextDanger,
+                      ]}
+                    >
+                      {hungerDisplay}%
+                    </Text>
+                  </View>
                 </View>
 
                 <TouchableOpacity
@@ -576,7 +583,6 @@ function HomeScreenInner({ route, navigation }) {
               </View>
             </View>
 
-            {/* Питомец */}
             <View style={styles.petWrapper}>
               <TouchableOpacity activeOpacity={0.9} onPress={handlePetClick}>
                 <Animated.Image
@@ -610,7 +616,6 @@ function HomeScreenInner({ route, navigation }) {
               </View>
             </View>
 
-            {/* Нижняя панель */}
             <View style={styles.bottomBar}>
               <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('Tasks')}>
                 <Text style={styles.actionEmoji}>📋</Text>
@@ -642,7 +647,6 @@ function HomeScreenInner({ route, navigation }) {
         </Animated.View>
       </View>
 
-      {/* Демо-кнопка Итоги */}
       {demoMode && (
         <TouchableOpacity
           onPress={() => setShowBudgetResult(true)}
@@ -683,7 +687,7 @@ function HomeScreenInner({ route, navigation }) {
         </TouchableOpacity>
       )}
 
-      {/* Модалка комнаты */}
+      {/* Модалка выбора комнаты */}
       <Modal
         visible={openMenu !== null}
         transparent
@@ -802,13 +806,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 12,
   },
-
-  // ✅ НОВАЯ ЛЕВАЯ КОЛОНКА: имя + кнопка ⚙️ под ним
-  leftColumn: {
-    alignItems: 'flex-start',
-    gap: 8,
-  },
-
   namePlate: {
     backgroundColor: colors.accent,
     paddingHorizontal: 20,
@@ -847,6 +844,27 @@ const styles = StyleSheet.create({
   },
   heart: { fontSize: 20, marginHorizontal: 1 },
   heartEmpty: { opacity: 0.5 },
+
+  // ─── Строка голода + кнопка −10% ───
+  hungerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  minusHungerBtn: {
+    backgroundColor: '#e74c3c',
+    paddingHorizontal: 8,
+    paddingVertical: 10,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 50,
+  },
+  minusHungerText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '900',
+  },
 
   hungerBadge: {
     flexDirection: 'row',
@@ -925,25 +943,17 @@ const styles = StyleSheet.create({
   actionEmoji: { fontSize: 20, marginBottom: 4 },
   actionText: { fontSize: 13, color: colors.text, fontWeight: '600' },
 
-  // ✅ ОБНОВЛЁННЫЙ STYLE: круглая кнопка 50×50, шрифт 26
   settingsBadge: {
-    backgroundColor: 'rgba(255,255,255,0.9)',
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.08)',
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 3,
+    backgroundColor: 'rgba(255,255,255,0.85)',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginTop: 8,
   },
   settingsBadgeText: {
-    fontSize: 26,
+    fontSize: 20,
   },
+  settingsBadgeText: { fontSize: 20 },
 
   // Intro / Onboarding
   introContainer: { flex: 1 },
@@ -1234,6 +1244,16 @@ const styles = StyleSheet.create({
   featureTitle: { fontSize: 16, fontWeight: '700', color: colors.text },
   featureDesc: { fontSize: 12, color: colors.textSecondary, marginTop: 2 },
   featureArrow: { fontSize: 16, color: '#bbb' },
+  
+  leftColumn: {
+    alignItems: 'flex-start',
+    gap: 10,
+  },
+
+
+
+
+
 });
 
 export default React.memo(HomeScreenInner);

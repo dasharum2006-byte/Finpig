@@ -77,7 +77,6 @@ export function PetProvider({ children }) {
     setHunger(HUNGER_MAX);
   }, []);
 
-  // Установить стадию (0..3). Вызывается HomeScreen по bank.level
   const setStage = useCallback((newStage) => {
     setPet((p) => {
       if (!p) return p;
@@ -87,12 +86,26 @@ export function PetProvider({ children }) {
     });
   }, []);
 
+  // ─── Покормить ───
   const feedPet = useCallback((amount = 100) => {
     const now = Date.now();
     const currentHunger = computeHunger(lastFed);
     const newHunger = Math.min(HUNGER_MAX, currentHunger + amount);
     const remainingDrop = ((HUNGER_MAX - newHunger) / 100) * HUNGER_CYCLE_MS;
     const newLastFed = now - remainingDrop;
+    setLastFed(newLastFed);
+    setHunger(newHunger);
+  }, [lastFed]);
+
+  // ─── Уменьшить сытость вручную (для демо) ───
+  const decreaseHunger = useCallback((amount = 10) => {
+    const now = Date.now();
+    const currentHunger = computeHunger(lastFed);
+    const newHunger = Math.max(0, currentHunger - amount);
+
+    const remainingDrop = ((HUNGER_MAX - newHunger) / 100) * HUNGER_CYCLE_MS;
+    const newLastFed = now - remainingDrop;
+
     setLastFed(newLastFed);
     setHunger(newHunger);
   }, [lastFed]);
@@ -148,6 +161,7 @@ export function PetProvider({ children }) {
         setNewPet,
         setStage,
         feedPet,
+        decreaseHunger,
         clearPet,
         addFoodToInventory,
         isOnboardingDone,
