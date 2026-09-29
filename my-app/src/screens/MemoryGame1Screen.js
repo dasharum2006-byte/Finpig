@@ -93,6 +93,7 @@ const CARDS_DATA = [
 ];
 
 const TOTAL_PAIRS = CARDS_DATA.length / 2;
+const REWARD = 30;
 
 const shuffleArray = (array) => {
   return [...array].sort(() => Math.random() - 0.5);
@@ -102,7 +103,9 @@ export default function MemoryGame1Screen({ navigation }) {
   const bank = useBank();
   const petCtx = usePet();
 
-  const [cards, setCards] = useState([]);
+  const [cards, setCards] = useState(() => shuffleArray(CARDS_DATA));
+  const [showVictory, setShowVictory] = useState(false);
+  const mismatchTimerRef = useRef(null);
   const [selectedCards, setSelectedCards] = useState([]);
   const [matchedCards, setMatchedCards] = useState([]);
   const [moves, setMoves] = useState(0);
@@ -114,12 +117,12 @@ export default function MemoryGame1Screen({ navigation }) {
   // Защита от повторного запуска победного useEffect.
   const victoryHandledRef = useRef(false);
 
-  useEffect(() => {
-    startNewGame();
-  }, []);
+  useEffect(() => () => clearTimeout(mismatchTimerRef.current), []);
 
   const startNewGame = () => {
+    clearTimeout(mismatchTimerRef.current);
     victoryHandledRef.current = false;
+    setShowVictory(false);
 
     setCards(shuffleArray(CARDS_DATA));
     setSelectedCards([]);
@@ -129,7 +132,7 @@ export default function MemoryGame1Screen({ navigation }) {
   };
 
   const handleCardPress = (index) => {
-    if (isChecking) {
+    if (!isLoaded || isChecking || victoryHandledRef.current) {
       return;
     }
 
@@ -185,7 +188,7 @@ export default function MemoryGame1Screen({ navigation }) {
     // Пара неправильная.
     setIsChecking(true);
 
-    setTimeout(() => {
+    mismatchTimerRef.current = setTimeout(() => {
       setSelectedCards([]);
       setIsChecking(false);
     }, 1000);
@@ -193,13 +196,15 @@ export default function MemoryGame1Screen({ navigation }) {
 
   useEffect(() => {
     if (
-      cards.length === 0 ||
+      !isLoaded ||
       matchedCards.length !== TOTAL_PAIRS ||
       victoryHandledRef.current
     ) {
       return;
     }
 
+    // Только одно начисление за партию,
+    // даже при обновлении контекста банка.
     victoryHandledRef.current = true;
 
     // Начисляем награду.
@@ -247,14 +252,19 @@ export default function MemoryGame1Screen({ navigation }) {
           <Text style={styles.backButtonText}>Назад</Text>
         </TouchableOpacity>
 
-        <Text style={styles.title}>Валюты стран</Text>
-
-        <View style={styles.bankBadge}>
+        <TouchableOpacity
+          style={styles.bankBadge}
+          onPress={() => navigation.navigate('Bank')}
+          accessibilityRole="button"
+          accessibilityLabel="Открыть банковский счёт"
+        >
           <Text style={styles.bankText}>
             🪙 {bank?.balance != null ? Math.floor(bank.balance) : 0}
           </Text>
-        </View>
+        </TouchableOpacity>
       </View>
+
+      <Text style={styles.title}>Валюты стран</Text>
 
       <Text style={styles.subtitle}>
         Ходов: {moves}
@@ -271,14 +281,13 @@ export default function MemoryGame1Screen({ navigation }) {
               key={card.id}
               activeOpacity={0.8}
               disabled={
+                !isLoaded ||
                 isChecking ||
                 matchedCards.includes(card.pairId)
               }
               style={[
                 styles.card,
-                isOpened
-                  ? styles.cardOpened
-                  : styles.cardClosed,
+                isOpened ? styles.cardOpened : styles.cardClosed,
               ]}
               onPress={() => handleCardPress(index)}
             >
@@ -295,9 +304,7 @@ export default function MemoryGame1Screen({ navigation }) {
                   </Text>
                 )
               ) : (
-                <Text style={styles.shirtText}>
-                  ?
-                </Text>
+                <Text style={styles.shirtText}>?</Text>
               )}
             </TouchableOpacity>
           );
@@ -312,11 +319,72 @@ export default function MemoryGame1Screen({ navigation }) {
           Начать заново
         </Text>
       </TouchableOpacity>
+
+      <Modal
+        visible={showVictory}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowVictory(false)}
+      >
+        <View style={styles.modalBackdrop}>
+          <View style={styles.modalContent}>
+            <Text style={styles.title}>Молодец! 🎉</Text>
+
+            <Text style={styles.victoryText}>
+              Ты прошёл игру! Все пары найдены за {moves} ходов.
+              {'\n\n'}+{REWARD} монет начислено на твой банковский счёт 🪙
+            </Text>
+
+            <TouchableOpacity
+              style={styles.button}
+              onPress={startNewGame}
+            >
+              <Text style={styles.buttonText}>Играть снова</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setShowVictory(false)}
+            >
+              <Text style={styles.bankText}>Закрыть</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.45)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 24,
+  },
+
+  modalContent: {
+    width: '100%',
+    maxWidth: 380,
+    padding: 24,
+    borderRadius: 20,
+    backgroundColor: '#FFF',
+    alignItems: 'center',
+  },
+
+  victoryText: {
+    marginTop: 16,
+    fontSize: 18,
+    textAlign: 'center',
+    color: '#2c3e50',
+  },
+
+  closeButton: {
+    marginTop: 16,
+    padding: 12,
+  },
+
   container: {
     flex: 1,
     backgroundColor: '#EAF4FF',
@@ -327,17 +395,16 @@ const styles = StyleSheet.create({
   topBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     width: '100%',
     paddingHorizontal: 20,
-    marginTop: 40,
-    position: 'relative',
+    position: 'absolute',
+    top: 40,
+    left: 0,
     height: 50,
   },
 
   backButtonTop: {
-    position: 'absolute',
-    left: 20,
     paddingVertical: 8,
     paddingHorizontal: 12,
     backgroundColor: '#e74c3c',
@@ -357,8 +424,6 @@ const styles = StyleSheet.create({
   },
 
   bankBadge: {
-    position: 'absolute',
-    right: 20,
     backgroundColor: '#FFF',
     paddingVertical: 7,
     paddingHorizontal: 12,
@@ -395,9 +460,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 4,
-
     elevation: 3,
-
     shadowColor: '#000',
     shadowOffset: {
       width: 0,

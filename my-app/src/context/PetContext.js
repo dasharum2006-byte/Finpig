@@ -110,7 +110,6 @@ export function PetProvider({ children }) {
     setHappiness(HAPPINESS_MAX);
   }, []);
 
-  // Установить стадию (0..3). Вызывается HomeScreen по bank.level
   const setStage = useCallback((newStage) => {
     setPet((p) => {
       if (!p) return p;
@@ -120,6 +119,7 @@ export function PetProvider({ children }) {
     });
   }, []);
 
+  // ─── Покормить ───
   const feedPet = useCallback((amount = 100) => {
     const now = Date.now();
     const currentHunger = computeHunger(lastFed);
@@ -130,6 +130,7 @@ export function PetProvider({ children }) {
     setHunger(newHunger);
   }, [lastFed]);
 
+<<<<<<< HEAD
   // Поднять счастье (по умолчанию — до 100%).
   const boostHappiness = useCallback((amount = HAPPINESS_MAX) => {
     const now = Date.now();
@@ -140,6 +141,20 @@ export function PetProvider({ children }) {
     setLastHappinessBoost(now - remainingDrop);
     setHappiness(newHappiness);
   }, [lastHappinessBoost]);
+=======
+  // ─── Уменьшить сытость вручную (для демо) ───
+  const decreaseHunger = useCallback((amount = 10) => {
+    const now = Date.now();
+    const currentHunger = computeHunger(lastFed);
+    const newHunger = Math.max(0, currentHunger - amount);
+
+    const remainingDrop = ((HUNGER_MAX - newHunger) / 100) * HUNGER_CYCLE_MS;
+    const newLastFed = now - remainingDrop;
+
+    setLastFed(newLastFed);
+    setHunger(newHunger);
+  }, [lastFed]);
+>>>>>>> 9db3bceedbe4e7b1e213e8e64fffbef21bad0221
 
   const clearPet = useCallback(() => {
     setPet(null);
@@ -196,7 +211,11 @@ export function PetProvider({ children }) {
         setNewPet,
         setStage,
         feedPet,
+<<<<<<< HEAD
         boostHappiness,
+=======
+        decreaseHunger,
+>>>>>>> 9db3bceedbe4e7b1e213e8e64fffbef21bad0221
         clearPet,
         addFoodToInventory,
         isOnboardingDone,

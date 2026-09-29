@@ -13,13 +13,22 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.oalapuper.finpig"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
+<<<<<<< HEAD
     "plugins": [
       "expo-audio"
     ]
+=======
+    "extra": {
+      "eas": {
+        "projectId": "0db401e7-a1c4-4dcf-906d-8664f2793cbc"
+      }
+    }
+>>>>>>> 9db3bceedbe4e7b1e213e8e64fffbef21bad0221
   }
 }

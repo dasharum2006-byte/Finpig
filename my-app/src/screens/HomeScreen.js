@@ -35,11 +35,6 @@ const ROOMS = [
   { id: 'room3', source: require('../../assets/Rooms/room3.png'), label: 'Комната 3' },
 ];
 
-// ─── Что открывается на каждом уровне ───
-// Lv.1 — яйцо: всё, КРОМЕ Мира и Целей
-// Lv.2 — малыш: то же (Мир и Цели закрыты)
-// Lv.3 — подросток: открываются Мир и Цели
-// Lv.4 — взрослый: + Кредит
 const LEVEL_FEATURES = {
   1: [
     { id: 'tasks', emoji: '📋', title: 'Задания', desc: 'Пройди блок 1' },
@@ -300,12 +295,10 @@ function HomeScreenInner({ route, navigation }) {
 
   const myPet = petCtx.pet;
 
-  // ⭐ Стадия = уровень - 1 (Lv.1 = яйцо / stage 0)
   const currentStage = Math.max(0, bank.level - 1);
   const isMaxStage = currentStage >= MAX_STAGE;
   const petSize = PET_SIZES[currentStage] ?? PET_SIZES[0];
 
-  // Синхронизируем stage в PetContext
   useEffect(() => {
     if (!myPet) return;
     if (myPet.stage !== currentStage) {
@@ -425,11 +418,9 @@ function HomeScreenInner({ route, navigation }) {
     room: { title: '🏠 Комната', isRoomPicker: true },
   };
 
-  // ⭐ Переход из мини-меню уровня
   const handleFeaturePress = (featureId) => {
     setLevelMenuOpen(false);
 
-    // Блокировка Мира и Целей до Lv.3
     if (bank.level < 3 && (featureId === 'world' || featureId === 'goals')) {
       setTimeout(() => {
         Alert.alert('🔒 Заблокировано', 'Откроется на Lv.3');
@@ -1047,6 +1038,27 @@ const styles = StyleSheet.create({
   heart: { fontSize: 18 },
   heartEmpty: { opacity: 0.35 },
 
+  // ─── Строка голода + кнопка −10% ───
+  hungerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  minusHungerBtn: {
+    backgroundColor: '#e74c3c',
+    paddingHorizontal: 8,
+    paddingVertical: 10,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 50,
+  },
+  minusHungerText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '900',
+  },
+
   hungerBadge: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1212,6 +1224,9 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 20,
     marginTop: 8,
+  },
+  settingsBadgeText: {
+    fontSize: 20,
   },
   settingsBadgeText: { fontSize: 20 },
 

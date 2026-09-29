@@ -14,7 +14,7 @@ const GAME_EVENTS = [
   { id: 'e5', text: 'Карманные деньги от дедушки 🪙', target: 'savings', desc: 'Отправляем в сбережения!', points: 10 },
   { id: 'e6', text: 'Огромное ведро попкорна в кино 🍿', target: 'wants', desc: 'Развлечения — это мимолетные хотелки.', points: 10 },
   { id: 'salary', text: '💰 ЗАРПЛАТА! 💰', target: 'double', desc: 'Зарплату нужно распределить и в Обязательное, и в Копилку!', points: 20 },
-  { id: 'cashback', text: '✨ КЭШБЭК В БАНКЕ ✨', target: 'savings', desc: 'Ура! Проценты за то, что ты хранила деньги на карте.', points: 15 },
+  { id: 'cashback', text: '✨ КЭШБЭК В БАНКЕ ✨', target: 'savings', desc: 'Кэшбэк — это возврат части денег за покупки. Отложим его в копилку!', points: 15 },
   { id: 'emergency_tooth', text: '🚨 СЛОМАЛСЯ ЗУБ! 🚨', target: 'emergency', desc: 'Экстренная ситуация! Нужны деньги из копилки!', points: 30 },
   { id: 'emergency_flood', text: '🌊 ПОТОП У СОСЕДЕЙ! 🌊', target: 'emergency', desc: 'Треснула труба, нужно срочно оплатить ремонт соседям!', points: 40 },
   { id: 'emergency_phone', text: '📱 РАЗБИЛСЯ ТЕЛЕФОН! 📱', target: 'emergency', desc: 'Экран вдребезги! Нужен срочный ремонт в сервисе!', points: 30 },
@@ -24,109 +24,119 @@ export default function GameSortExpenses({ navigation }) {
   const bank = useBank(); // Подключили твой банк!
   const petCtx = usePet();
   const [gameState, setGameState] = useState('instruction');
-  const [currentEventIndex, setCurrentTaskIndex] = useState(0);
+  const [currentEventIndex, setCurrentEventIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [savings, setSavings] = useState(0);
   const [salaryStep, setSalaryStep] = useState(1);
-
+  const [feedback, setFeedback] = useState(null);
+  const answerLockedRef = useRef(false);
+  const rewardGrantedRef = useRef(false);
   const fallAnimation = useRef(new Animated.Value(-100)).current;
+  const remainingTimeRef = useRef(6000);
   const currentEvent = GAME_EVENTS[currentEventIndex];
+  const reward = Math.floor(score / 2);
 
-  const startFalling = () => {
-    fallAnimation.setValue(-100);
-    Animated.timing(fallAnimation, {
-      toValue: height * 0.40, // Падает до уровня ведер
-      duration: 6000, // 6 секунд на подумать ребенку
-      useNativeDriver: false, // false, так как анимируем свойство top
-    }).start(({ finished }) => {
-      if (finished) handleTimeout();
-    });
-  };
+  // Новый таймер только для нового события или второго этапа зарплаты.
+  useEffect(() => {
+    if (salaryStep === 1) fallAnimation.setValue(-100);
+    remainingTimeRef.current = salaryStep === 2 ? 3000 : 6000;
+    answerLockedRef.current = false;
+  }, [currentEventIndex, salaryStep, gameState, fallAnimation]);
 
   useEffect(() => {
-    if (gameState === 'playing') startFalling();
-    return () => fallAnimation.stopAnimation();
-  }, [currentEventIndex, gameState]);
+    if (gameState !== 'playing' || !isFocused || feedback) return;
+    let active = true;
+    const startedAt = Date.now();
+    const animation = Animated.timing(fallAnimation, {
+      toValue: height * 0.40,
+      duration: remainingTimeRef.current,
+      useNativeDriver: false,
+    });
+    animation.start(({ finished }) => {
+      if (!active || !finished || answerLockedRef.current) return;
+      answerLockedRef.current = true;
+      setSavings(prev => Math.max(0, prev - 1));
+      setFeedback({
+        title: 'Время вышло! ⏱️',
+        message: 'Монстр Хотюн украл это событие. Копилка потеряла 1 монету!',
+      });
+    });
+    return () => {
+      active = false;
+      remainingTimeRef.current = Math.max(0, remainingTimeRef.current - (Date.now() - startedAt));
+      animation.stop();
+    };
+  }, [currentEventIndex, salaryStep, gameState, isFocused, feedback, fallAnimation]);
 
-  const handleTimeout = () => {
-    fallAnimation.stopAnimation();
-    setSavings(prev => Math.max(0, prev - 1));
-    Alert.alert('Время вышло! ⏱️', 'Монстр Хотюн украл это событие. Копилка пустеет!', [
-      { text: 'Дальше', onPress: nextEvent }
-    ]);
-  };
+  useEffect(() => {
+    if (gameState !== 'win' || !isLoaded || rewardGrantedRef.current) return;
+    rewardGrantedRef.current = true;
+    if (reward > 0) addCoins(reward);
+  }, [gameState, isLoaded, reward, addCoins]);
 
   const nextEvent = () => {
+    if (!feedback || !answerLockedRef.current) return;
+    // Блокируем повторное нажатие кнопки «Дальше» в том же кадре.
+    answerLockedRef.current = false;
+    setFeedback(null);
     setSalaryStep(1);
     if (currentEventIndex < GAME_EVENTS.length - 1) {
-      setCurrentTaskIndex(prev => prev + 1);
+      setCurrentEventIndex(prev => prev + 1);
     } else {
-      fallAnimation.stopAnimation();
       setGameState('win');
     }
   };
 
   const handleBucketPress = (bucketType) => {
-    if (gameState !== 'playing') return;
+    if (gameState !== 'playing' || !isLoaded || !isFocused || answerLockedRef.current) return;
+    answerLockedRef.current = true;
     fallAnimation.stopAnimation();
 
-    // Логика Зарплаты (нужно нажать сначала Обязательное, потом Копилка)
     if (currentEvent.target === 'double') {
       if (salaryStep === 1 && bucketType === 'essential') {
         setSalaryStep(2);
-        setScore(prev => prev + 5);
-        // Запускаем допадение для второго шага
-        Animated.timing(fallAnimation, { toValue: height * 0.40, duration: 3000, useNativeDriver: false }).start();
-        return;
       } else if (salaryStep === 2 && bucketType === 'savings') {
         setSavings(prev => prev + 4);
-        setScore(prev => prev + 10);
-        Alert.alert('Отлично! 🎯', 'Зарплата успешно распределена!', [{ text: 'Ура', onPress: nextEvent }]);
-        return;
-      } else {
-        setGameState('gameover');
-        return;
-      }
-    }
-
-    // Логика Экстренных ситуаций (клиstandard только на Копилку и если есть заначка)
-    if (currentEvent.target === 'emergency') {
-      if (bucketType === 'savings') {
-        if (savings >= 2) {
-          setSavings(prev => prev - 2);
-          setScore(prev => prev + 15);
-          Alert.alert('Щит сработал! 🛡️', 'Ты оплатила лечение из копилки!', [{ text: 'Фух!', onPress: nextEvent }]);
-        } else {
-          Alert.alert('Банкрот! 😭', 'В копилке нет денег на экстренную ситуацию!');
-          setGameState('gameover');
-        }
+        setScore(prev => prev + currentEvent.points);
+        setFeedback({ title: 'Отлично! 🎯', message: 'Зарплата успешно распределена!' });
       } else {
         setGameState('gameover');
       }
       return;
     }
 
-    // Стандартная логика обычных ведер
-    if (bucketType === currentEvent.target) {
-      setScore(prev => prev + 10);
-      if (bucketType === 'savings') setSavings(prev => prev + 1);
-      Alert.alert('Правильно! ✅', currentEvent.desc, [{ text: 'Идем дальше', onPress: nextEvent }]);
-    } else {
-      if (bucketType === 'wants') {
-        Alert.alert('Ой! ❌', 'Ты потратила деньги на Хотелки вместо важного!', [{ text: 'Поняла', onPress: nextEvent }]);
-        setSavings(prev => Math.max(0, prev - 1));
+    if (currentEvent.target === 'emergency') {
+      if (bucketType === 'savings' && savings >= 2) {
+        setSavings(prev => prev - 2);
+        setScore(prev => prev + currentEvent.points);
+        setFeedback({ title: 'Щит сработал! 🛡️', message: 'Непредвиденный расход оплачен: из копилки потрачено 2 монеты.' });
       } else {
-        Alert.alert('Не туда! ❌', currentEvent.desc, [{ text: 'Понятно', onPress: nextEvent }]);
+        setGameState('gameover');
       }
+      return;
+    }
+
+    if (bucketType === currentEvent.target) {
+      setScore(prev => prev + currentEvent.points);
+      if (bucketType === 'savings') setSavings(prev => prev + 1);
+      setFeedback({ title: 'Правильно! ✅', message: currentEvent.desc });
+    } else {
+      if (bucketType === 'wants') setSavings(prev => Math.max(0, prev - 1));
+      setFeedback({ title: 'Не туда! ❌', message: currentEvent.desc });
     }
   };
 
   const handleStartGame = () => {
-    setGameState('playing');
-    setCurrentTaskIndex(0);
+    if (!isLoaded) return;
+    fallAnimation.stopAnimation();
+    answerLockedRef.current = false;
+    rewardGrantedRef.current = false;
+    setFeedback(null);
+    setCurrentEventIndex(0);
     setScore(0);
     setSavings(0);
     setSalaryStep(1);
+    setGameState('playing');
   };
 
   const handleWinFinish = () => {
@@ -160,7 +170,7 @@ export default function GameSortExpenses({ navigation }) {
             🚨 Экстренные ситуации требуют денег из Копилки (нужно минимум 2 🪙)!{'\n'}
             💰 Зарплату нужно отправить сначала в Обязательное, а потом в Копилку!
           </Text>
-          <TouchableOpacity style={styles.btn} onPress={handleStartGame}>
+          <TouchableOpacity style={styles.btn} disabled={!isLoaded} onPress={handleStartGame}>
             <Text style={styles.btnText}>Начать игру 🚀</Text>
           </TouchableOpacity>
         </View>
@@ -218,7 +228,7 @@ export default function GameSortExpenses({ navigation }) {
           <Text style={styles.desc}>Бюджет разрушен! Ты совершила ошибку в распределении или у тебя не хватило денег в копилке на экстренный случай.</Text>
           
           {/* Кнопка Попробовать снова */}
-          <TouchableOpacity style={styles.btn} onPress={handleStartGame}>
+          <TouchableOpacity style={styles.btn} disabled={!isLoaded} onPress={handleStartGame}>
             <Text style={styles.btnText}>Попробовать снова 🔄</Text>
           </TouchableOpacity>
           
@@ -231,11 +241,47 @@ export default function GameSortExpenses({ navigation }) {
           </TouchableOpacity>
         </View>
       )}
+      <Modal visible={Boolean(feedback) && isFocused} transparent animationType="fade" onRequestClose={nextEvent}>
+        <View style={styles.modalBackdrop}>
+          <View style={styles.modalContent}>
+            <Text style={styles.title}>{feedback?.title}</Text>
+            <Text style={styles.desc}>{feedback?.message}</Text>
+            <TouchableOpacity style={styles.btn} onPress={nextEvent}>
+              <Text style={styles.btnText}>Дальше</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  stats: { flexShrink: 1, gap: 6 },
+  bankButton: {
+    padding: 10,
+    marginLeft: 8,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#f1c40f',
+    flexShrink: 1,
+  },
+  rewardText: { color: '#f1c40f', fontSize: 18, textAlign: 'center', marginBottom: 24 },
+  modalBackdrop: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+  },
+  modalContent: {
+    width: '100%',
+    maxWidth: 420,
+    padding: 24,
+    borderRadius: 20,
+    backgroundColor: '#162447',
+    alignItems: 'center',
+  },
   container: {
     flex: 1,
     backgroundColor: '#0D47A1', // Глубокий космический фон
@@ -245,7 +291,8 @@ const styles = StyleSheet.create({
   // ШАПКА ИГРЫ
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
     alignItems: 'center',
     paddingVertical: 14,
     backgroundColor: '#0D47A1',
