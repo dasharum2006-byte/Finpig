@@ -8,32 +8,61 @@ import { useBank } from '../context/BankContext';
 import { useBudgetPlan } from '../context/BudgetPlanContext';
 //БД товаров
 const SHOP_FOOD_DATA = [
-    {
-    id: 'ready_food', title: 'готовая еда',
+  {
+    id: 'ready_food',
+    title: 'готовая еда',
     shelves: [
-        [{id:'b1',name:'борщ',price: 4,img:''},{id:'b2',name:'салат',price: 6,img:''}],
-        [{id:'b3',name:'паста',price: 3,img:''},{id:'b4',name:'каша',price: 7,img:''}],
-        [{id:'b5',name:'бутерброд',price: 5,img:''},{id:'b6',name:'бургер',price: 6,img:''}],
-        ]
-    },
-    {
-    id: 'vegetables_fruits', title: 'овощи и фрукты',
+      [
+        { id: '1', name: 'Борщ',      price: 4, image: require('../../assets/Food/borsh.png'),      feedValue: 22 },
+        { id: '9', name: 'Салат',     price: 6, image: require('../../assets/Food/salade.png'),     feedValue: 22 },
+      ],
+      [
+        { id: '5', name: 'Спагетти',  price: 3, image: require('../../assets/Food/pasta.png'),      feedValue: 22 },
+        { id: '14', name: 'Каша',     price: 7, image: require('../../assets/Food/porrige.png'),    feedValue: 22 },
+      ],
+      [
+        { id: '3', name: 'Бутерброд', price: 5, image: require('../../assets/Food/buterbrod.png'),  feedValue: 22 }
+    ],
+  ]
+  },
+  {
+    id: 'vegetables_fruits',
+    title: 'овощи и фрукты',
     shelves: [
-        [{id:'a1',name:'помидор',price: 4,img:''},{id:'a2',name:'салат',price: 6,img:''}],
-        [{id:'a3',name:'арбуз',price: 3,img:''},{id:'a4',name:'апельсин',price: 7,img:''}],
-        [{id:'a5',name:'яблоко',price: 5,img:''},{id:'a6',name:'морковь',price: 6,img:''}],
-        ]
-    },
-    {
-    id: 'other', title: 'остальное',
+      [
+         { id: '19', name: 'Апельсин',  price: 7, image: require('../../assets/Food/mandarin.png'),    feedValue: 22 }
+       
+      ],
+      [
+
+        { id: '2',  name: 'Яблоко',    price: 5, image: require('../../assets/Food/apple.png'),     feedValue: 22 }
+      ],
+      [
+        { id: '20', name: 'Морковь',   price: 6, image: require('../../assets/Food/carrot.png'),    feedValue: 22 }
+
+      ],
+    ],
+  },
+  {
+    id: 'other',
+    title: 'остальное',
     shelves: [
-        [{id:'c1',name:'йогурт',price: 4,img:''},{id:'c2',name:'морс с малиной',price: 6,img:''}],
-        [{id:'c3',name:'рыба',price: 3,img:''},{id:'c4',name:'сок',price: 7,img:''}],
-        [{id:'c5',name:'',price: 5,img:''},{id:'c6',name:'',price: 6,img:''}],
-        ]
-    }
+      [
+        { id: '16', name: 'Йогурт',         price: 4, image: require('../../assets/Food/yogurt.png'),   feedValue: 22 },
+        { id: '4',  name: 'Морс с малиной', price: 6, image: require('../../assets/Food/mors.png'),     feedValue: 10 },
+      ],
+      [
+        { id: '22', name: 'Рыба',           price: 3, image: require('../../assets/Food/fish.png'),     feedValue: 22 },
+        { id: '10', name: 'Сок',            price: 7, image: require('../../assets/Food/applejuice.png'), feedValue: 10 },
+      ],
+      [
+        { id: '6',  name: 'Печеньки',       price: 5, image: require('../../assets/Food/cookies.png'),  feedValue: 10 },
+        { id: '7',  name: 'Круасан',        price: 6, image: require('../../assets/Food/croissant.png'), feedValue: 10 },
+      ],
+    ],
+  },
 ];
-//Добавление ЛОгики для покупок - корзина и чек!!!!!!!!!!1
+
 export default function FoodShopScreen({navigation}) {
     const bank = useBank();
     const budgetPlanCtx = useBudgetPlan();
@@ -109,7 +138,7 @@ export default function FoodShopScreen({navigation}) {
         //Если денег хватаем, то списываем всю сумму,затем очищаем корзину и закрываем ее
         // setCoins(prev => prev - totalCost);
         bank.setBalance(bank.balance - totalCost);
-        pet.addFoodToInventory(cart); 
+        // pet.addFoodToInventory(cart); 
         budgetPlanCtx.updateFact('needs', totalCost);
         petCtx.addFoodToInventory(cart.map((item) => ({
           ...item,
@@ -196,21 +225,17 @@ return (
                         {/* на 2 полках продукты */}
                         <View style={styles.productsRow}>
                             {shelf.map((product) => (
-                                <TouchableOpacity key={product.id} style={styles.productCard} activeOpacity={0.7} onPress={() => handleBuyProduct(product)}>
-                                    <Text style={styles.productEmodji}>{product.img}</Text>
-                                     
-                                    <View style={styles.productFooterRow}>
-                                    <Text style={styles.productName} numberOfLines={1}>{product.name}</Text>
-
-                                     <View style={styles.productPriceContainer}>
-                                         <Text style={styles.productPrice}>{product.price}</Text>
-                                        <Text style={styles.coinMiniEmoji}>🪙</Text>
-                                    </View>
-                                    </View>
-                                </TouchableOpacity>
-                                )
-                            )
-                         }
+                          <TouchableOpacity key={product.id} style={styles.productCard} activeOpacity={0.7} onPress={() => handleBuyProduct(product)}>
+                            <Image source={product.image} style={styles.productImage} resizeMode="contain" />
+                            <View style={styles.productFooterRow}>
+                              <Text style={styles.productName} numberOfLines={1}>{product.name}</Text>
+                              <View style={styles.productPriceContainer}>
+                                <Text style={styles.productPrice}>{product.price}</Text>
+                                <Text style={styles.coinMiniEmoji}>🪙</Text>
+                              </View>
+                            </View>
+                          </TouchableOpacity>
+                        ))}
                         </View>
                         {/*полка */}
                         <View style={styles.shelfLine}/>
@@ -603,6 +628,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#E65100',
   },
+  productImage: {
+  width: 70,
+  height: 70,
+  marginBottom: 8,
+},
   errorText: {
     color: '#D32F2F', 
     fontSize: 14,
