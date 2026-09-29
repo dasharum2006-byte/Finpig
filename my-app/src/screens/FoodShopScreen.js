@@ -66,7 +66,7 @@ const SHOP_FOOD_DATA = [
 export default function FoodShopScreen({navigation}) {
     const bank = useBank();
     const budgetPlanCtx = useBudgetPlan();
-    const pet = usePet();
+    const petCtx = usePet();
     const [currentCategoryIndex,setCurrentCategoryIndex] = useState(0);
 
     //Монеты  и товары в корзине
