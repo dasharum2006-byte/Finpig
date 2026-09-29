@@ -5,22 +5,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const BLOCK_TWO_ROUTINE = [
-  { id: 1, type: 'quiz', title: 'Деньги не растут на деревьях', subtitle: 'Деньги не растут на деревьях' },
-  { id: 2, type: 'quiz', title: 'Ловушка Хотюна «Супер-Скидки»', subtitle: 'Ловушка Хотюна «Супер-Скидки»' },
-  { id: 3, type: 'quiz', title: 'Монстр Долгов «Одолжун»', subtitle: 'Монстр Долгов «Одолжун»' },
-  { id: 4, type: 'quiz', title: 'Одолжун и коварные риски', subtitle: 'Одолжун и коварные риски' },
-  { id: 5, type: 'sort', title: 'Проверка Банкира', subtitle: 'Проверка Банкира' },
-  { id: 6, type: 'quiz', title: 'Шпионский счет сдачи', subtitle: 'Шпионский счет сдачи' },
-  { id: 7, type: 'quiz', title: 'Разведка цен', subtitle: 'Разведка цен' },
-  { id: 8, type: 'quiz', title: 'Ловушка коварных ссылок', subtitle: 'Ловушка коварных ссылок' },
-  { id: 9, type: 'quiz', title: 'Шпионский шифр карты ', subtitle: 'Шпионский шифр карты ' },
-  { id: 10, type: 'quiz', title: 'Секреты семейной базы', subtitle: 'Секреты семейной базы' },
-  { id: 11, type: 'quiz', title: 'Ловушка "Срочно переведи монеты!"', subtitle: 'Ловушка "Срочно переведи монеты!"' },
-  { id: 12, type: 'quiz', title: 'Шпионский сейф для карты ', subtitle: 'Шпионский сейф для карты ' },
-  { id: 13, type: 'quiz', title: 'Покупки в интернете', subtitle: 'Покупки в интернете' },
-  { id: 14, type: 'sort', title: 'Валюты', subtitle: 'Валюты' },
-  { id: 15, type: 'quiz', title: 'Обмен валюты', subtitle: 'Обмен валюты' },
-
+  { id: 1, type: 'quiz', title: 'Деньги не растут на деревьях', subtitle: 'Откуда берутся деньги' },
+  { id: 2, type: 'quiz', title: 'Ловушка Хотюна «Супер-Скидки»', subtitle: 'Скидки — ловушка' },
+  { id: 3, type: 'quiz', title: 'Монстр Долгов «Одолжун»', subtitle: 'Что такое долг' },
+  { id: 4, type: 'quiz', title: 'Шпионский счёт сдачи', subtitle: 'Считай сдачу' },
+  { id: 5, type: 'tap',  title: 'Покупки в интернете', subtitle: 'Онлайн — только со взрослыми' },
+  { id: 6, type: 'sort', title: 'Проверка Банкира', subtitle: 'Цели — по важности' },
 ];
 
 const STORAGE_KEY = '@block_two_progress_v1';

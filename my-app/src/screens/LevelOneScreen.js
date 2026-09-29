@@ -12,17 +12,17 @@ const LEVEL_STEPS = [
   {
     id: 1,
     subTitle: 'Почему появились деньги?',
-    text: 'У тебя есть большая плюшевая акула. На детской площадке ты увидел леденец у мальчика и захотел его съесть. Он предложил обмен: «Поменяй акулу на этот леденец».',
+    text: 'У тебя есть большая плюшевая акула. На детской площадке Финпиг увидел леденец у мальчика и захотел его съесть. Мальчик предложил обмен: «Поменяй акулу на этот леденец».',
     image: require('../../assets/pictirequestion/shark.png'),
-    question: 'Как ты думаешь, выгодно ли менять плюшевую акулу на леденец, если тебе захотелось сладкого?',
+    question: 'Как ты думаешь, выгодно ли менять плюшевую акулу на леденец, если  захотелось сладкого?',
     options: [
       { text: 'Да, ведь я хочу леденец прямо сейчас', isCorrect: false },
       { text: 'Нет, акула стоит намного дороже. Это невыгодный обмен', isCorrect: true },
       { text: 'Да, акулу всё равно нельзя съесть', isCorrect: false },
     ],
+    explanationWrong: 'Финпиг попромил потом у мамы леденец и у него была и Акула и леденец',
+    successText: 'Финпиг скушал леденец, но потом расстроился, потому что Акула теперь у мальчика',
   },
-
-  // 2. ИНТЕРАКТИВ — автобус
   {
     id: 2,
     type: 'tap',
@@ -36,12 +36,10 @@ const LEVEL_STEPS = [
     ],
     successText: 'Правильно! Приложил карту к валидатору — оплата прошла, контролёр доволен.',
   },
-
-  // 3. ИНТЕРАКТИВ — супермаркет
   {
     id: 3,
     type: 'tap',
-    image: require('../../assets/pictirequestion/shark.png'),
+    image: require('../../assets/hotunshop.png'),
     subTitle: 'Супермаркет',
     text: 'Суперагент Финпиг идёт за продуктами. Хотюн расставил у кассы ловушки — шоколадки и чипсы. Держись списка!',
     prompt: 'Что положишь в корзину? Нажми на нужное.Список покупок: Молоко,Шоколад,Хлеб и Яблоки',
@@ -54,23 +52,19 @@ const LEVEL_STEPS = [
     ],
     successText: 'Молодец! Собрал всё по списку — не поддался Хотюну!',
   },
-
-  // 4. ИНТЕРАКТИВ — фальшивка
   {
     id: 4,
     type: 'tap',
     subTitle: 'Осторожно: фальшивка',
-    text: 'Хотюн пытается подкинуть фальшивую купюру. Настоящие деньги имеют водяные знаки. Если сомневаешься — действуй по инструкции Финпига!',
+    text: 'Хотюн дал фальшивую купюру Финпигу. Фингпиг ушел из магазина с подозрительной курюрой и только дома обнаружил, что она фальшивая',
     prompt: 'Что делать с подозрительной купюрой? Нажми на правильное действие.',
     items: [
       { id: 'buy', emoji: '🍬', label: 'Купить конфету', isCorrect: false },
       { id: 'show', emoji: '👨‍👩‍👧', label: 'Показать взрослым', isCorrect: true },
-      { id: 'throw', emoji: '🗑️', label: 'Выбросить', isCorrect: false },
     ],
-    successText: 'Верно! Если купюра странная — сразу к взрослым. Так безопаснее.',
+    successText: 'Молодец! Финпиг рассказал маме, об этой ситуации, она похвалила, Хотюну пригрозили, чтобы он деньги проверял',
+    explanationWrong: 'Финпиг расстроился сильно, его наругали, потому что нельзя ничего покупать на фальшивые деньги',
   },
-
-  // 5. СОРТИРОВКА — подарок маме
   {
     id: 5,
     type: 'sort',
@@ -85,8 +79,6 @@ const LEVEL_STEPS = [
     ],
     correctOrder: ['step1', 'step2', 'step3', 'step4'],
   },
-
-  // 6. СОРТИРОВКА — эволюция денег
   {
     id: 6,
     type: 'sort',
@@ -144,8 +136,6 @@ export default function LevelOneScreen({ navigation, route }) {
 
   useEffect(() => {
     if (!step) return;
-
-    // Сброс интерактива
     setPicked([]);
     setWrong([]);
     setTapDone(false);
@@ -177,47 +167,59 @@ export default function LevelOneScreen({ navigation, route }) {
       }
     }
   }, [currentStepIndex, reviewMode, step]);
+const handleOptionPress = async (option) => {
+  if (isAnswered || reviewMode) return;
+  setSelectedOption(option);
+  setIsAnswered(true);
+  if (!reviewMode) await saveProgress(currentStepIndex + 1);
 
-  // ─── Обычный тест ───
-  const handleOptionPress = async (option) => {
-    if (isAnswered || reviewMode) return;
-    setSelectedOption(option);
-    setIsAnswered(true);
-    if (!reviewMode) await saveProgress(currentStepIndex + 1);
+  // Приоритет: option.explanation → step.explanation / step.explanationWrong
+  const explanationText =
+    option.explanation ||
+    (option.isCorrect ? step.explanation : step.explanationWrong) ||
+    (option.isCorrect
+      ? 'Верно! Так держать.'
+      : 'Правильный ответ подсвечен зелёным. Подумай, почему так.');
 
-    if (option.isCorrect) {
+  if (option.isCorrect) {
+    setScore(prev => prev + 1);
+    if (bank?.addCoins) bank.addCoins(20);
+    Alert.alert('🎉 +20 монет', explanationText);
+  } else {
+    Alert.alert('⚠️ Не совсем', explanationText);
+  }
+};
+
+const handleTap = async (item) => {
+  if (tapDone || reviewMode) return;
+
+  if (item.isCorrect) {
+    const newPicked = [...picked, item.id];
+    setPicked(newPicked);
+    const correctIds = step.items.filter(i => i.isCorrect).map(i => i.id);
+
+    if (newPicked.length === correctIds.length) {
+      setTapDone(true);
+      setIsAnswered(true);
       setScore(prev => prev + 1);
-      if (bank?.addCoins) bank.addCoins(20);
-      Alert.alert('🎉 +20 монет', 'Верно! Так держать.');
-    } else {
-      Alert.alert('⚠️ Не совсем', 'Правильный ответ подсвечен зелёным. Подумай, почему так.');
-    }
-  };
-
-  // ─── Интерактив (tap) ───
-  const handleTap = async (item) => {
-    if (tapDone || reviewMode) return;
-
-    if (item.isCorrect) {
-      const newPicked = [...picked, item.id];
-      setPicked(newPicked);
-      const correctIds = step.items.filter(i => i.isCorrect).map(i => i.id);
-
-      if (newPicked.length === correctIds.length) {
-        setTapDone(true);
-        setIsAnswered(true);
-        setScore(prev => prev + 1);
-        if (!reviewMode) {
-          await saveProgress(currentStepIndex + 1);
-          if (bank?.addCoins) bank.addCoins(20);
-        }
-        Alert.alert('🎉 Верно! +20 монет', step.successText || 'Отлично!');
+      if (!reviewMode) {
+        await saveProgress(currentStepIndex + 1);
+        if (bank?.addCoins) bank.addCoins(20);
       }
-    } else {
-      setWrong([...wrong, item.id]);
-      Alert.alert('⚠️ Не то', 'Подумай ещё — что в списке / что безопаснее?');
+      Alert.alert(
+        '🎉 Верно! +20 монет',
+        step.successText || 'Отлично!'
+      );
     }
-  };
+  } else {
+    setWrong([...wrong, item.id]);
+    const wrongText =
+      item.explanation ||
+      step.explanationWrong ||
+      'Подумай ещё — что в списке / что безопаснее?';
+    Alert.alert('⚠️ Не то', wrongText);
+  }
+};
 
   // ─── Сортировка: движение ───
   const moveUp = (index) => {
@@ -235,29 +237,32 @@ export default function LevelOneScreen({ navigation, route }) {
   };
 
   const checkSortOrder = async () => {
-    if (reviewMode) return;
-    const userOrder = sortItems.map(item => item.id);
-    const isCorrect = JSON.stringify(userOrder) === JSON.stringify(step.correctOrder);
-    setIsAnswered(true);
-    await saveProgress(currentStepIndex + 1);
+  if (reviewMode) return;
+  const userOrder = sortItems.map(item => item.id);
+  const isCorrect = JSON.stringify(userOrder) === JSON.stringify(step.correctOrder);
+  setIsAnswered(true);
+  await saveProgress(currentStepIndex + 1);
 
-    if (isCorrect) {
+  if (isCorrect) {
+    setIsSortCorrect(true);
+    setScore(prev => prev + 1);
+    if (bank?.addCoins) bank.addCoins(20);
+    Alert.alert(
+      '🎉 +20 монет',
+      step.explanation || 'Порядок правильный!'
+    );
+  } else {
+    setIsSortCorrect(false);
+    setTimeout(() => {
+      const correctItems = step.correctOrder.map(correctId =>
+        step.initialItems.find(item => item.id === correctId)
+      );
+      setSortItems(correctItems);
       setIsSortCorrect(true);
-      setScore(prev => prev + 1);
-      if (bank?.addCoins) bank.addCoins(20);
-      Alert.alert('🎉 +20 монет', 'Порядок правильный!');
-    } else {
-      setIsSortCorrect(false);
-      setTimeout(() => {
-        const correctItems = step.correctOrder.map(correctId =>
-          step.initialItems.find(item => item.id === correctId)
-        );
-        setSortItems(correctItems);
-        setIsSortCorrect(true);
-        setShowCorrectHint(true);
-      }, 1200);
-    }
-  };
+      setShowCorrectHint(true);
+    }, 1200);
+  }
+};
 
   // ─── Следующий шаг / завершение ───
   const handleNextStep = async () => {

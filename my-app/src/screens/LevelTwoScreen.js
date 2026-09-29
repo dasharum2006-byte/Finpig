@@ -8,186 +8,90 @@ const LEVEL_TWO_STEPS = [
   {
     id: 1,
     subTitle: 'Деньги не растут на деревьях',
-    text: 'Родители ходят на работу, выполняют свои обязанности и получают за труд зарплату. Твой главный ресурс сейчас — это время и силы, а твоя главная "работа" — это учёба и  помощь дома.',
+    text: 'Родители ходят на работу, выполняют свои обязанности и получают за труд зарплату. Твой главный ресурс сейчас — это время и силы, а твоя главная «работа» — это учёба и помощь дома.',
     image: require('../../assets/job.png'),
     question: 'Откуда у родителей берутся деньги?',
     options: [
       { text: 'Их приносит аист вместе с зарплатой', isCorrect: false },
       { text: 'Они получают их за свой труд и работу', isCorrect: true },
-      { text: 'Они находят их на улице каждый день', isCorrect: false }
-    ]
+      { text: 'Они находят их на улице каждый день', isCorrect: false },
+    ],
+    explanation: '💡 Верно! Деньги не появляются сами — их получают за работу. Родители ходят на работу и получают зарплату.',
+    explanationWrong: '🤔 Подумай: Деньги дают за работу — это называется «зарплата».',
   },
   {
     id: 2,
     subTitle: 'Ловушка Хотюна «Супер-Скидки»',
-    text: 'Внимание! Коварный Хотюн пробрался в магазин и развесил огромные вывески: «СКИДКА 50%!» и «3 по цене 2!». Он пытается загипнотизировать тебя, чтобы ты потратил все монеты. Но Финпиг знает: если вещь тебе изначально была не нужна, то покупая её даже по скидке, ты просто теряешь деньги',
-    // image: require('../../assets/hotunsales.png'),
-    question: 'Как супер-агенту победить ловушку Хотюна с яркими скидками?',
+    text: 'Коварный Хотюн пробрался в магазин и развесил огромные вывески: «СКИДКА 50%!» и «3 по 2!». Он пытается загипнотизировать, чтобы ты потратил все монеты. Но Финпиг знает: если вещь тебе изначально не нужна — даже со скидкой это потеря денег.',
+    question: 'Что ты будешь делать?',
+    image: require('../../assets/hotunsales.png'),
     options: [
       { text: 'Сразу бежать на кассу и скупать всё, пока скидка не кончилась', isCorrect: false },
-      { text: 'Включить защиту, сделать вдох и спросить себя: "А мне это правда нужно?"', isCorrect: true },
-      { text: 'Купить сразу три штуки и даже больше, ведь это же выгодно', isCorrect: false },
-    ]
+      { text: 'Сделать вдох и спросить себя: «А мне это правда нужно?»', isCorrect: true },
+      { text: 'Купить сразу три штуки и даже больше, ведь это выгодно', isCorrect: false },
+    ],
+    explanationWrong: 'Финпиг попромил потом у мамы леденец и у него была и Акула и леденец',
+    successText: ''
   },
   {
     id: 3,
     subTitle: 'Монстр Долгов «Одолжун»',
-    text: 'На детской площадке прячется хитрый монстр Одолжун. Он шепчет: "Возьми чужие монеты у друга на шоколадку, это же бесплатно!". Денежный долг — это когда ты берешь чужие монеты на время, и обязан вернуть ту сумму, которую взял. Брать легко, а отдавать трудно. Отдавать долг другу нужно строго в обещанный срок!',
-    // image: require('../../assets/odolzhun.png'),
-    question: 'Что шериф Финпиг говорит про денежный долг?',
+    text: 'В магазине прячется хитрый монстр Одолжун. Он шепчет: «Попроси деньги в долг у друга на приставку!». Денежный долг — это когда ты берёшь чужие монеты на время и обязан вернуть ту же сумму.',
+    question: 'Нужно ли Финпигу брать долг, если ему захотелось поиграть в приставку?',
     options: [
-      { text: 'Это бесплатный подарок от друга, возвращать ничего не нужно', isCorrect: false },
-      { text: 'Это чужие деньги, их берут на время и обязательно нужно вернуть вовремя', isCorrect: true },
-      { text: 'Долг можно вообще не отдавать, если просто убежать', isCorrect: false }
-    ]
-  },
-    {
-    id: 4,
-    subTitle: 'Одолжун и коварные риски',
-    text: 'Когда ты даешь свои личные карманные монеты в долг другу, тебя подстерегает Финансовый Риск. Одолжун может загипнотизировать друга: тот потеряет кошелек или забудет про долг. Перед тем как одолжить кому-то деньги, подумай о рисках и реши, готов ли ты подождать когда друг вернет деньги.',
-    image: require('../../assets/pinguinlook.png'),
-    question: 'Что такое финансовый риск?',
-    options: [
-      { text: 'Это стопроцентная гарантия, что тебе вернут в три раза больше', isCorrect: false },
-      { text: 'Это опасность того, что у должника возникнут проблемы и он не сможет вернуть долг вовремя', isCorrect: true },
-      { text: 'Это секретный подарок, который выдает директор банка за доброту', isCorrect: false }
-    ]
-  },
-  {
-    id: 5,
-    type: 'sort',
-    subTitle: 'Проверка Банкира',
-    text: 'Директор банка выдает кредиты только на серьезные цели, которые полезны семье. Помоги банкиру расставить цели от самых ВАЖНЫХ (наверху) до капризов Хотюна (внизу):',
-    question: 'Расположи цели от самой важной до самой ненужной:',
-    initialItems: [
-      { id: 'goal4', text: 'Покупка пятого светящегося поп-ита, потому что Хотюн так хочет' },
-      { id: 'goal1', text: 'Покупка квартиры для семьи, чтобы у каждого была своя комната' },
-      { id: 'goal2', text: 'Оплата учебы старшего брата' },
-      { id: 'goal3', text: 'Покупка огромной плюшевой акулы на все деньги' },
+      { text: 'Да, ведь деньги потом можно не возвращать', isCorrect: false },
+      { text: 'Нет, лучше не брать в долг большие суммы без обсуждения с родителями по поводу чего-то дорогого', isCorrect: true },
+      { text: 'Да,потому что долг можно вообще не отдавать, если просто убежать', isCorrect: false },
     ],
-    correctOrder: ['goal1', 'goal2', 'goal3', 'goal4']
+    explanation: '💡 Верно! Финпиг поговорил с родителями и они обещали подарить ему на День Рождения приставку. Финпиг счастлив',
+    explanationWrong: '🤔 Финпиг попросил у друга и купил себе приставку. Сначала он был счастлив, но потом стал грустным. Из-за того, что у него нет накоплений, ему приходиться отказываться от сладкого и других мелочей,которые важны ему, чтобы вернуть долг',
   },
   {
-    id: 6,
-    subTitle: 'Шпионский счет сдачи',
-    text: 'Ты покупаешь яблоко за 10 монет и сувенир за 30 монет. Ты даешь торговцу монету в 100 единиц. Одолжун пытается отвлечь тебя, чтобы ты не посчитал сдачу! Всегда проверяй чек и пересчитывай монеты прямо у лавки.',
-    // image: require('../../assets/shopsnow.png'),
-    question: 'Сколько монет должен вернуть тебе честный продавец, если ты победил невнимательность?',
+    id: 4,
+    subTitle: 'Шпионский счёт сдачи',
+    text: 'Ты покупаешь яблоко за 10 монет и сувенир за 30 монет. Ты даёшь торговцу монету в 100 единиц. Одолжун пытается отвлечь тебя, чтобы ты не посчитал сдачу! Всегда проверяй чек и пересчитывай монеты прямо у лавки.',
+    question: 'Сколько монет должен вернуть тебе честный продавец?',
+    image: require('../../assets/shopsnow.png'),
     options: [
       { text: '60 монет', isCorrect: true },
       { text: 'Ничего', isCorrect: false },
-      { text: '40 монет', isCorrect: false }
-    ]
-  },
-  {
-    id: 7,
-    subTitle: 'Разведка цен',
-    text: 'Сравнение цен — главный враг Хотюна.',
-    question: 'Хотюн шепчет: "Купи этот самокат в первой же лавке прямо сейчас". Но суперагент Финпиг включает режим разведки. Он сравнивает цены в разных магазинах и на современных маркетплейсах в интернете. Сравнение цен — главное оружие против Хотюна',
-    options: [
-      { text: 'Чтобы просто подольше походить по магазинам и устать', isCorrect: false },
-      { text: 'Чтобы найти товар по выгодной цене и сэкономить деньги', isCorrect: true }
-    ]
-  },
-     {
-    id: 8,
-    subTitle: 'Ловушка коварных ссылок',
-    text: 'Внимание, кибератака! На игровом сайте всплыл яркий баннер: "КЛИКНИ СЮДА! Твой пингвин выиграл 5000 монет!". Коварный Хотюн пытается заманить тебя на подозрительный сайт-двойник. Клики по рекламным баннерам и переходы по неизвестным ссылкам — это самый быстрый способ поймать вирус, который украдет логины,пароли и все твои деньги',
-    question: 'Что по инструкции Финпига нужно сделать, если в интернете всплыло окно с обещанием лёгких бесплатных монет?',
-    options: [
-      { text: 'Сразу кликнуть, ввести логин, пароль и номер карты для получения приза', isCorrect: false },
-      { text: 'Ни в коем случае не кликать на баннер, закрыть страницу и сообщить родителям', isCorrect: true },
-      { text: 'Переслать эту ссылку всем своим друзьям, чтобы они тоже кликнули', isCorrect: false }
-    ]
-  },
-   {
-    id: 9,
-    subTitle: 'Шпионский шифр карты ',
-    text: 'Вместо мешка с тяжёлыми монетами взрослые используют банковскую карту. Но Хотюн караулит и здесь! Он пытается подглядеть секретные элементы карты. Шериф Финпиг напоминает: никогда и никому нельзя говорить три цифры с обратной стороны карты (CVC-код) и пароль из СМС, даже если кто-то представляется директором банка!',
-    // image: require('../../assets/pictirequestion/bank_card_spy.png'), 
-    question: 'Какие данные банковской карты нужно держать в строжайшем секрете от всех?',
-    options: [
-      { text: 'Имя владельца карты, написанное на лицевой стороне', isCorrect: false },
-      { text: 'ПИН-код, CVC-код сзади карты и секретные пароли из СМС от банка', isCorrect: true },
-      { text: 'Название самого банка и цвет пластика', isCorrect: false }
-    ]
-  },
-  {
-    id: 10,
-    subTitle: 'Секреты семейной базы',
-    text: 'Коварный Одолжун пытается разузнать шпионские секреты твоей семьи. На детской площадке или в чате игры он выспрашивает: "А сколько зарабатывают твои родители? Где дома лежит заначка? А когда вы уедете в отпуск?". Шериф Финпиг предупреждает: доходы семьи, количество наличных денег в доме и планы поездок — это строго конфиденциальная информация. Рассказывать её посторонним людям нельзя ни в коем случае!',
-    // image: require('../../assets/pictirequestion/hotun.jpg'),
-    question: 'Как суперагент должен поступить, если чужой человек или друг в интернете расспрашивает о доходах родителей или местах хранения наличных денег?',
-    options: [
-      { text: 'Честно всё рассказать, чтобы похвастаться богатством', isCorrect: false },
-      { text: 'Ничего не говорить, прекратить разговор и сразу рассказать родителям об этих расспросах', isCorrect: true },
-      { text: 'Назвать случайные числа и придумать сказку', isCorrect: false }
-    ]
-  },
-  {
-    id: 11,
-    subTitle: 'Ловушка "Срочно переведи монеты!"',
-    text: 'Вдруг в соцсетях тебе пишет знакомый или друг: "Ой, я попал в беду, переведи мне скорее 100 монет на этот номер!". Или незнакомый взрослый у кассы просит: "Переведи мне со своей карты, а я тебе потом отдам". Настоящие взрослые НИКОГДА не попросят финансовой помощи или переводов у ребёнка! Это 100% взломанный аккаунт или уловка Хотюна.',
-    // image: require('../../assets/pictirequestion/hotun.jpg'),
-    question: 'Что нужно сделать, если в личные сообщения пришла экстренная просьба от друга срочно перевести деньги?',
-    options: [
-      { text: 'Быстро отправить монеты, ведь друзьям надо помогать без лишних вопросов', isCorrect: false },
-      { text: 'Не переводить деньги. Заблокировать контакт и перезвонить другу по обычному телефону, чтобы проверить, не взломали ли его', isCorrect: true },
-      { text: 'Начать плакать и просить монеты у незнакомцев на улице', isCorrect: false }
-    ]
-  },
-  {
-    id: 12,
-    subTitle: 'Шпионский сейф для карты ',
-    text: 'Детская банковская карта — это личный ключ от твоего цифрового кошелька. Хотюн ждёт, когда ты оставишь её на столе в школе, дашь подержать другу или положишь в задний карман брюк, откуда она легко выпадет. Финпиг даёт чёткую инструкцию: хранить карту нужно в безопасном месте, недоступном для посторонних глаз (в кошельке или закрытом кармане рюкзака), и никогда не передавать её в руки другим детям.',
-    // image: require('../../assets/pictirequestion/bank_card_spy.png'),
-    question: 'Какое правило безопасного хранения детской банковской карты является главным?',
-    options: [
-      { text: 'Носить карту в руке, чтобы все видели, какой ты крутой шпион', isCorrect: false },
-      { text: 'Хранить карту в закрытом потайном кармане и никогда не давать её в руки посторонним и друзьям', isCorrect: true },
-      { text: 'Оставлять карту на парте в школе, ведь одноклассники — твоя команда', isCorrect: false }
-    ]
-  },
-  {
-    id: 13,
-    subTitle: 'Покупки в интернете',
-    text: 'Ты нашёл на маркетплейсе супер-скин или шпионский гаджет. Хотюн шепчет: "Купи сам потихоньку, пока родители не видят!". Но правила этики и безопасности в цифровой среде гласят: ЛЮБЫЕ онлайн-платежи и покупки в интернете дети 7-11 лет должны совершать ТОЛЬКО вместе с родителями. Самостоятельный ввод карты на незнакомых сайтах приведёт к полной потере семейных сбережений.',
-    // image: require('../../assets/pictirequestion/phone.jpg'),
-    question: 'С кем суперагент имеет право совершать онлайн-покупки в интернет-магазинах?',
-    options: [
-      { text: 'Самостоятельно, ведь это мои личные карманные деньги', isCorrect: false },
-      { text: 'Строго вместе с родителями или другими значимыми взрослыми', isCorrect: true },
-      { text: 'С друзьями со двора, чтобы вместе выбрать лучший товар', isCorrect: false }
-    ]
-  },
-  {
-    id: 14,
-    type: 'sort',
-    subTitle: 'Валюты',
-    text: 'Суперагент Финпиг отправляется в заграничную командировку! В каждой стране действуют свои национальные деньги — Иностранная Валюта. Чтобы расплатиться в Египте или Китае, нужно изучить курс валют и сопоставить страны с их монетами. Расположи валюты в правильном порядке (сверху вниз): Рубль, Доллар, Юань, Фунт',
-    question: 'Наведи порядок на международной шпионской таможне (сверху вниз):',
-    initialItems: [
-      { id: 'step3', text: 'Валюта загадочного Китая 🇨🇳' },
-      { id: 'step1', text: 'Российский Рубль 🇷🇺' },
-      { id: 'step4', text: 'Монеты Великобритании 🇬🇧' },
-      { id: 'step2', text: 'Валюта для поездок в США 🇺🇸' },
+      { text: '40 монет', isCorrect: false },
     ],
-    correctOrder: ['step1', 'step2', 'step3', 'step4']
+    successText: '💡 Верно! Яблоко + сувенир = 10 + 30 = 40 монет. Ты дал 100. Сдача = 100 − 40 = 60 монет.Финпиг счастлив, его не обманули',
+    explanationWrong: '🤔 Посчитай: 10 + 30 = 40 монет — это покупки. Ты дал 100. Сдача = 100 − 40 = 60 монет.Тебя Обманули! Финпиг расстроился',
   },
   {
-    id: 15,
-    subTitle: 'Обмен валюты',
-    text: 'Ты прилетел в другую страну, и у тебя в кармане только рубли, а в местном магазине просят юани. Чтобы пользоваться иностранными деньгами, их нужно обменять в банке. Банк меняет деньги по специальному правилу — это называется Валютный Курс (цена одной валюты, выраженная в другой). Курс постоянно меняется',
-    // image: require('../../assets/pictirequestion/shopsnow.png'),
-    question: 'Что такое "валютный курс", с которым сталкивается шпион в путешествиях?',
-    options: [
-      { text: 'Это специальный подарок, который иностранный банк выдаёт бесплатно', isCorrect: false },
-      { text: 'Это цена одной валюты, по которой её можно обменять на другую валюту в банке', isCorrect: true },
-      { text: 'Это общая сумма всех денег, которые лежат в кошельке у питомца', isCorrect: false }
-    ]
-  }
-  
+    id: 5,
+    type: 'tap',
+    subTitle: 'Покупки в интернете',
+    text: 'Ты нашёл на маркетплейсе супер-скин или шпионский гаджет. Хотюн шепчет: «Купи сам потихоньку, пока родители не видят!».Любые онлайн-платежи совершаются ТОЛЬКО вместе с родителями.',
+    prompt: 'Что делать? Нажми на правильное действие.',
+    items: [
+      { id: 'alone', emoji: '💳', label: 'Купить сам', isCorrect: false, explanation: '⚠️ Нельзя! Без взрослых вводить карту в интернете опасно. Финпиг оплатил карточкой и все деньги родителей списались' },
+      { id: 'parents', emoji: '👨‍👩‍👧', label: 'Вместе с родителями', isCorrect: true },
+      { id: 'friend', emoji: '👦', label: 'С друзьями', isCorrect: false, explanation: '⚠️ Друзья не помогут — карта и пароли только для взрослых. У родителей друзей Финпига списались все деньги с карты' },
+    ],
+    successText: '💡 Верно! Онлайн-покупки делают только вместе с родителями. Так безопасно.',
+  },
+  {
+    id: 6,
+    type: 'sort',
+    subTitle: 'Проверка Банкира',
+    text: 'Директор банка выдаёт кредиты только на серьёзные цели, полезные семье. Помоги банкиру расставить цели от самых важных (наверху) до капризов Хотюна (внизу):',
+    question: 'Расположи цели от самой важной до самой ненужной:',
+    image: require('../../assets/credittrap.png'),
+    initialItems: [
+      { id: 'goal4', text: 'Покупка пятого светящегося поп-ита, потому что Хотюн так хочет' },
+      { id: 'goal1', text: 'Покупка квартиры для семьи, чтобы у каждого была своя комната' },
+      { id: 'goal2', text: 'Оплата учёбы старшего брата' },
+      { id: 'goal3', text: 'Покупка огромной плюшевой акулы на все деньги' },
+    ],
+    correctOrder: ['goal1', 'goal2', 'goal3', 'goal4'],
+    explanation: '💡 Верно! Самое важное — жильё и учёба. Потом — приятные покупки. А капризы Хотюна — в самом конце.',
+  },
 ];
+
+
 
 const STORAGE_KEY = '@block_two_progress_v1';
 
@@ -252,20 +156,56 @@ export default function LevelTwoScreen({ navigation, route }) {
   };
 
      const handleOptionPress = async (option) => {
-      if (isAnswered || reviewMode) return; 
-      setSelectedOption(option);
+  if (isAnswered || reviewMode) return;
+  setSelectedOption(option);
+  setIsAnswered(true);
+  if (!reviewMode) await saveProgress(currentStepIndex + 1);
+
+  const text =
+    option.explanation ||
+    (option.isCorrect
+      ? (step.explanation || step.successText || 'Верно! Так держать.')
+      : (step.explanationWrong || 'Правильный ответ подсвечен зелёным. Подумай, почему так.'));
+
+  if (option.isCorrect) {
+    setScore(prev => prev + 1);
+    if (bank?.addCoins) bank.addCoins(20);
+    Alert.alert('🎉 +20 монет!', text);
+  } else {
+    Alert.alert('⚠️ Не совсем', text);
+  }
+};
+// ─── Интерактив (tap) ───
+const handleTap = async (item) => {
+  if (tapDone || reviewMode) return;
+
+  if (item.isCorrect) {
+    const newPicked = [...picked, item.id];
+    setPicked(newPicked);
+    const correctIds = step.items.filter(i => i.isCorrect).map(i => i.id);
+
+    if (newPicked.length === correctIds.length) {
+      setTapDone(true);
       setIsAnswered(true);
-       if (!reviewMode) {
-      await saveProgress(currentStepIndex + 1); 
-    }
-      if (option.isCorrect) {
-        setScore(prev => prev + 1);
-        if (bank && typeof bank.addCoins === 'function') {
-          bank.addCoins(20);
-        }
-        Alert.alert("+20 монет летят в твой кошелёк");
+      setScore(prev => prev + 1);
+      if (!reviewMode) {
+        await saveProgress(currentStepIndex + 1);
+        if (bank?.addCoins) bank.addCoins(20);
       }
-    };
+      Alert.alert(
+        '🎉 Верно! +20 монет',
+        step.successText || 'Отлично!'
+      );
+    }
+  } else {
+    setWrong([...wrong, item.id]);
+    const wrongText =
+      item.explanation ||
+      step.explanationWrong ||
+      'Подумай ещё — что безопаснее?';
+    Alert.alert('⚠️ Не то', wrongText);
+  }
+};
 
   const moveUp = (index) => {
     if (index === 0 || isAnswered || reviewMode) return;
@@ -282,42 +222,33 @@ export default function LevelTwoScreen({ navigation, route }) {
   };
 
   const checkSortOrder = async () => {
-    if (reviewMode) return;
-    const userOrder = sortItems.map(item => item.id);
-    const isCorrect = JSON.stringify(userOrder) === JSON.stringify(step.correctOrder);
-    setIsAnswered(true);
-    await saveProgress(currentStepIndex + 1);
-    if (isCorrect) {
-      setIsSortCorrect(true);
-      setScore(prev => prev + 1);
-      if (bank && typeof bank.addCoins === 'function') {
-        bank.addCoins(20);
-      }
-      Alert.alert("+20 монет за правильный порядок");
-    } else {
-      setIsSortCorrect(false);
-      setTimeout(() => {
-        const correctItems = step.correctOrder.map(correctId =>
-          step.initialItems.find(item => item.id === correctId)
-        );
-        setSortItems(correctItems);
-        setIsSortCorrect(true);
-        setShowCorrectHint(true);
-      }, 1200);
-    }
-  };
+  if (reviewMode) return;
+  const userOrder = sortItems.map(item => item.id);
+  const isCorrect = JSON.stringify(userOrder) === JSON.stringify(step.correctOrder);
+  setIsAnswered(true);
+  await saveProgress(currentStepIndex + 1);
 
-  // const finishCurrentStep = async () => {
-  //     Alert.alert(
-  //       'Блок 2 пройден',
-  //       'Все 10 вопросов пройдены!',
-  //       [{
-  //         text: 'Круто',
-  //         onPress: () => navigation.navigate('BlockTwoScreen', { completedStep: 10 })
-  //       }]
-  //     );
-  //   }
-  // };
+  if (isCorrect) {
+    setIsSortCorrect(true);
+    setScore(prev => prev + 1);
+    if (bank?.addCoins) bank.addCoins(20);
+    Alert.alert(
+      '🎉 +20 монет',
+      step.explanation || 'Порядок правильный!'
+    );
+  } else {
+    setIsSortCorrect(false);
+    setTimeout(() => {
+      const correctItems = step.correctOrder.map(correctId =>
+        step.initialItems.find(item => item.id === correctId)
+      );
+      setSortItems(correctItems);
+      setIsSortCorrect(true);
+      setShowCorrectHint(true);
+    }, 1200);
+  }
+};
+
     const handleNextStep = async () => {
     if (!reviewMode) {
       const stepId = currentStepIndex + 1;
@@ -363,44 +294,36 @@ export default function LevelTwoScreen({ navigation, route }) {
         <View style={styles.questionCard}>
           <Text style={styles.questionText}>{step.question}</Text>
 
-          {step.type === 'sort' ? (
-            <View style={styles.sortContainer}>
-              {isAnswered && !isSortCorrect && showCorrectHint && (
-                <Text style={styles.hintText}>Смотри, как надо было:</Text>
-              )}
-              {sortItems.map((item, index) => {
-                let cardStyle = styles.sortCard;
-                if (reviewMode) {
-                  cardStyle = { ...styles.sortCard, backgroundColor: '#C8E6C9', borderColor: '#4CAF50' };
-                } else if (isAnswered) {
-                  cardStyle = isSortCorrect
-                    ? { ...styles.sortCard, backgroundColor: '#C8E6C9', borderColor: '#4CAF50' }
-                    : { ...styles.sortCard, backgroundColor: '#FFCDD2', borderColor: '#F44336' };
-                }
-                return (
-                  <View key={item.id} style={cardStyle}>
-                    <Text style={styles.sortCardText}>{item.text}</Text>
-                    {!isAnswered && !reviewMode && (
-                      <View style={styles.sortButtons}>
-                        <TouchableOpacity style={styles.arrowBtn} onPress={() => moveUp(index)}>
-                          <Text style={styles.arrowText}>🔼</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.arrowBtn} onPress={() => moveDown(index)}>
-                          <Text style={styles.arrowText}>🔽</Text>
-                        </TouchableOpacity>
-                      </View>
-                    )}
-                  </View>
-                );
-              })}
-              {!isAnswered && !reviewMode && (
-                <TouchableOpacity style={styles.checkButton} onPress={checkSortOrder}>
-                  <Text style={styles.checkButtonText}>Проверить план</Text>
+         {step.type === 'sort' ? (
+          <View style={styles.sortContainer}>
+          </View>
+        ) : step.type === 'tap' ? (
+          <View style={styles.itemsRow}>
+            {step.items.map((item) => {
+              const isPicked = picked.includes(item.id);
+              const isWrong = wrong.includes(item.id);
+              return (
+                <TouchableOpacity
+                  key={item.id}
+                  style={[
+                    styles.tapItem,
+                    isPicked && styles.tapItemCorrect,
+                    isWrong && styles.tapItemWrong,
+                  ]}
+                  onPress={() => handleTap(item)}
+                  disabled={isPicked || tapDone}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.tapEmoji}>{item.emoji}</Text>
+                  <Text style={styles.tapLabel}>{item.label}</Text>
+                  {isPicked && <Text style={styles.tapCheck}>✅</Text>}
+                  {isWrong && <Text style={styles.tapCheck}>⚠️</Text>}
                 </TouchableOpacity>
-              )}
-            </View>
-          ) : (
-            step.options.map((option, optIndex) => {
+              );
+            })}
+          </View>
+        ) : (
+          step.options.map((option, optIndex) => {
               let buttonStyle = styles.optionButton;
               if (reviewMode) {
                 if (option.isCorrect) {
@@ -611,4 +534,27 @@ const styles = StyleSheet.create({
     marginTop: 4,
     textAlign: 'center',
   },
+  itemsRow: {
+  flexDirection: 'row',
+  flexWrap: 'wrap',
+  justifyContent: 'space-around',
+},
+tapItem: {
+  width: '30%',
+  aspectRatio: 1,
+  backgroundColor: '#FFF',
+  borderRadius: 16,
+  borderWidth: 2,
+  borderColor: '#238f50',
+  alignItems: 'center',
+  justifyContent: 'center',
+  marginBottom: 12,
+  padding: 8,
+  minHeight: 48,
+},
+tapItemCorrect: { backgroundColor: '#C8E6C9', borderColor: '#4CAF50' },
+tapItemWrong: { backgroundColor: '#FFCDD2', borderColor: '#F44336' },
+tapEmoji: { fontSize: 38, marginBottom: 4 },
+tapLabel: { fontSize: 13, color: '#333', fontWeight: '600', textAlign: 'center' },
+tapCheck: { position: 'absolute', top: 4, right: 6, fontSize: 18 },
 });

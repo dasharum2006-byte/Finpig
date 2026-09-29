@@ -14,8 +14,8 @@ const TASKS_DATA = [
 
 const TOTAL_STEPS = {
   1: 6,   
-  2: 15,   
-  3: 13,   
+  2: 6,   
+  3: 5,   
   4: 5,  
 };
 
