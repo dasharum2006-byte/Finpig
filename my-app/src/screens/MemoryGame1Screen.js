@@ -11,12 +11,12 @@ import {
 import { useBank } from '../context/BankContext';
 
 const CARDS_DATA = [
-  // Р•Р“РРџР•Рў
+  // ЕГИПЕТ
   {
     id: 1,
     pairId: 'EGP',
     type: 'text',
-    content: 'рџ‡Єрџ‡¬\nР•РіРёРїРµС‚СЃРєРёР№ С„СѓРЅС‚',
+    content: '🇪🇬\nЕгипетский фунт',
   },
   {
     id: 2,
@@ -25,12 +25,12 @@ const CARDS_DATA = [
     content: require('../../assets/cards/egyptmoney.png'),
   },
 
-  // Р•Р’Р РћРЎРћР®Р—
+  // ЕВРОСОЮЗ
   {
     id: 3,
     pairId: 'EUR',
     type: 'text',
-    content: 'рџ‡Єрџ‡є\nР•РІСЂРѕ',
+    content: '🇪🇺\nЕвро',
   },
   {
     id: 4,
@@ -39,12 +39,12 @@ const CARDS_DATA = [
     content: require('../../assets/cards/euro.png'),
   },
 
-  // РљРРўРђР™
+  // КИТАЙ
   {
     id: 5,
     pairId: 'CNY',
     type: 'text',
-    content: 'рџ‡Ёрџ‡і\nР®Р°РЅСЊ',
+    content: '🇨🇳\nЮань',
   },
   {
     id: 6,
@@ -53,12 +53,12 @@ const CARDS_DATA = [
     content: require('../../assets/cards/chinamoney.png'),
   },
 
-  // РўРЈР Р¦РРЇ
+  // ТУРЦИЯ
   {
     id: 7,
     pairId: 'TRY',
     type: 'text',
-    content: 'рџ‡№рџ‡·\nР›РёСЂР°',
+    content: '🇹🇷\nЛира',
   },
   {
     id: 8,
@@ -67,12 +67,12 @@ const CARDS_DATA = [
     content: require('../../assets/cards/turkymoney.png'),
   },
 
-  // Р РћРЎРЎРРЇ
+  // РОССИЯ
   {
     id: 9,
     pairId: 'RUB',
     type: 'text',
-    content: 'рџ‡·рџ‡є\nР СѓР±Р»СЊ',
+    content: '🇷🇺\nРубль',
   },
   {
     id: 10,
@@ -81,12 +81,12 @@ const CARDS_DATA = [
     content: require('../../assets/cards/russiamoney.png'),
   },
 
-  // РЎРЁРђ
+  // США
   {
     id: 11,
     pairId: 'USD',
     type: 'text',
-    content: 'рџ‡єрџ‡ё\nР”РѕР»Р»Р°СЂ РЎРЁРђ',
+    content: '🇺🇸\nДоллар США',
   },
   {
     id: 12,
@@ -113,11 +113,11 @@ export default function MemoryGame1Screen({ navigation }) {
   const [matchedCards, setMatchedCards] = useState([]);
   const [moves, setMoves] = useState(0);
 
-  // РќРµ РґР°С‘Рј РЅР°Р¶РёРјР°С‚СЊ РґСЂСѓРіРёРµ РєР°СЂС‚С‹,
-  // РїРѕРєР° РґРІРµ РЅРµРїСЂР°РІРёР»СЊРЅС‹Рµ РєР°СЂС‚С‹ РѕС‚РєСЂС‹С‚С‹.
+  // Не даём нажимать другие карты,
+  // пока две неправильные карты открыты.
   const [isChecking, setIsChecking] = useState(false);
 
-  // Р—Р°С‰РёС‚Р° РѕС‚ РїРѕРІС‚РѕСЂРЅРѕРіРѕ Р·Р°РїСѓСЃРєР° РїРѕР±РµРґРЅРѕРіРѕ useEffect.
+  // Защита от повторного запуска победного useEffect.
   const victoryHandledRef = useRef(false);
 
   useEffect(() => () => clearTimeout(mismatchTimerRef.current), []);
@@ -145,7 +145,7 @@ export default function MemoryGame1Screen({ navigation }) {
       return;
     }
 
-    // РќРµР»СЊР·СЏ РЅР°Р¶Р°С‚СЊ СѓР¶Рµ РѕС‚РєСЂС‹С‚СѓСЋ РёР»Рё РЅР°Р№РґРµРЅРЅСѓСЋ РєР°СЂС‚Сѓ.
+    // Нельзя нажать уже открытую или найденную карту.
     if (
       selectedCards.includes(index) ||
       matchedCards.includes(card.pairId) ||
@@ -158,7 +158,7 @@ export default function MemoryGame1Screen({ navigation }) {
 
     setSelectedCards(newSelected);
 
-    // РџРѕРєР° РѕС‚РєСЂС‹С‚Р° С‚РѕР»СЊРєРѕ РѕРґРЅР° РєР°СЂС‚Р°.
+    // Пока открыта только одна карта.
     if (newSelected.length !== 2) {
       return;
     }
@@ -173,10 +173,10 @@ export default function MemoryGame1Screen({ navigation }) {
       return;
     }
 
-    // РџР°СЂР° РЅР°Р№РґРµРЅР°.
+    // Пара найдена.
     if (firstCard.pairId === secondCard.pairId) {
       setMatchedCards((prev) => {
-        // Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅР°СЏ Р·Р°С‰РёС‚Р° РѕС‚ РґСѓР±Р»РёРєР°С‚РѕРІ.
+        // Дополнительная защита от дубликатов.
         if (prev.includes(firstCard.pairId)) {
           return prev;
         }
@@ -188,7 +188,7 @@ export default function MemoryGame1Screen({ navigation }) {
       return;
     }
 
-    // РџР°СЂР° РЅРµРїСЂР°РІРёР»СЊРЅР°СЏ.
+    // Пара неправильная.
     setIsChecking(true);
 
     mismatchTimerRef.current = setTimeout(() => {
@@ -198,11 +198,16 @@ export default function MemoryGame1Screen({ navigation }) {
   };
 
   useEffect(() => {
-    if (!isLoaded || matchedCards.length !== TOTAL_PAIRS || victoryHandledRef.current) {
+    if (
+      !isLoaded ||
+      matchedCards.length !== TOTAL_PAIRS ||
+      victoryHandledRef.current
+    ) {
       return;
     }
 
-    // РўРѕР»СЊРєРѕ РѕРґРЅРѕ РЅР°С‡РёСЃР»РµРЅРёРµ Р·Р° РїР°СЂС‚РёСЋ, РґР°Р¶Рµ РїСЂРё РѕР±РЅРѕРІР»РµРЅРёРё РєРѕРЅС‚РµРєСЃС‚Р° Р±Р°РЅРєР°.
+    // Только одно начисление за партию,
+    // даже при обновлении контекста банка.
     victoryHandledRef.current = true;
     addCoins(REWARD);
     setShowVictory(true);
@@ -215,24 +220,25 @@ export default function MemoryGame1Screen({ navigation }) {
           style={styles.backButtonTop}
           onPress={() => navigation.goBack()}
         >
-          <Text style={styles.backButtonText}>РќР°Р·Р°Рґ</Text>
+          <Text style={styles.backButtonText}>Назад</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.bankBadge}
           onPress={() => navigation.navigate('Bank')}
           accessibilityRole="button"
-          accessibilityLabel="РћС‚РєСЂС‹С‚СЊ Р±Р°РЅРєРѕРІСЃРєРёР№ СЃС‡С‘С‚"
+          accessibilityLabel="Открыть банковский счёт"
         >
           <Text style={styles.bankText}>
-            рџЏ¦ РЎС‡С‘С‚: {isLoaded ? `${balance.toFixed(2)} рџЄ™` : 'Р—Р°РіСЂСѓР·РєР°вЂ¦'}
+            🏦 Счёт: {isLoaded ? `${balance.toFixed(2)} 🪙` : 'Загрузка…'}
           </Text>
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.title}>Р’Р°Р»СЋС‚С‹ СЃС‚СЂР°РЅ</Text>
+      <Text style={styles.title}>Валюты стран</Text>
+
       <Text style={styles.subtitle}>
-        РҐРѕРґРѕРІ: {moves}
+        Ходов: {moves}
       </Text>
 
       <View style={styles.grid}>
@@ -246,14 +252,13 @@ export default function MemoryGame1Screen({ navigation }) {
               key={card.id}
               activeOpacity={0.8}
               disabled={
-                !isLoaded || isChecking ||
+                !isLoaded ||
+                isChecking ||
                 matchedCards.includes(card.pairId)
               }
               style={[
                 styles.card,
-                isOpened
-                  ? styles.cardOpened
-                  : styles.cardClosed,
+                isOpened ? styles.cardOpened : styles.cardClosed,
               ]}
               onPress={() => handleCardPress(index)}
             >
@@ -270,9 +275,7 @@ export default function MemoryGame1Screen({ navigation }) {
                   </Text>
                 )
               ) : (
-                <Text style={styles.shirtText}>
-                  ?
-                </Text>
+                <Text style={styles.shirtText}>?</Text>
               )}
             </TouchableOpacity>
           );
@@ -284,9 +287,10 @@ export default function MemoryGame1Screen({ navigation }) {
         onPress={startNewGame}
       >
         <Text style={styles.buttonText}>
-          РќР°С‡Р°С‚СЊ Р·Р°РЅРѕРІРѕ
+          Начать заново
         </Text>
       </TouchableOpacity>
+
       <Modal
         visible={showVictory}
         transparent
@@ -295,19 +299,25 @@ export default function MemoryGame1Screen({ navigation }) {
       >
         <View style={styles.modalBackdrop}>
           <View style={styles.modalContent}>
-            <Text style={styles.title}>РњРѕР»РѕРґРµС†! рџЋ‰</Text>
+            <Text style={styles.title}>Молодец! 🎉</Text>
+
             <Text style={styles.victoryText}>
-              РўС‹ РїСЂРѕС€С‘Р» РёРіСЂСѓ! Р’СЃРµ РїР°СЂС‹ РЅР°Р№РґРµРЅС‹ Р·Р° {moves} С…РѕРґРѕРІ.
-              {'\n\n'}+{REWARD} РјРѕРЅРµС‚ РЅР°С‡РёСЃР»РµРЅРѕ РЅР° С‚РІРѕР№ Р±Р°РЅРєРѕРІСЃРєРёР№ СЃС‡С‘С‚ рџЄ™
+              Ты прошёл игру! Все пары найдены за {moves} ходов.
+              {'\n\n'}+{REWARD} монет начислено на твой банковский счёт 🪙
             </Text>
-            <TouchableOpacity style={styles.button} onPress={startNewGame}>
-              <Text style={styles.buttonText}>РРіСЂР°С‚СЊ СЃРЅРѕРІР°</Text>
+
+            <TouchableOpacity
+              style={styles.button}
+              onPress={startNewGame}
+            >
+              <Text style={styles.buttonText}>Играть снова</Text>
             </TouchableOpacity>
+
             <TouchableOpacity
               style={styles.closeButton}
               onPress={() => setShowVictory(false)}
             >
-              <Text style={styles.bankText}>Р—Р°РєСЂС‹С‚СЊ</Text>
+              <Text style={styles.bankText}>Закрыть</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -324,6 +334,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 24,
   },
+
   modalContent: {
     width: '100%',
     maxWidth: 380,
@@ -332,16 +343,19 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
     alignItems: 'center',
   },
+
   victoryText: {
     marginTop: 16,
     fontSize: 18,
     textAlign: 'center',
     color: '#2c3e50',
   },
+
   closeButton: {
     marginTop: 16,
     padding: 12,
   },
+
   container: {
     flex: 1,
     backgroundColor: '#f4f6f9',
@@ -362,7 +376,6 @@ const styles = StyleSheet.create({
   },
 
   backButtonTop: {
-
     paddingVertical: 8,
     paddingHorizontal: 12,
     backgroundColor: '#e74c3c',
@@ -382,7 +395,6 @@ const styles = StyleSheet.create({
   },
 
   bankBadge: {
-
     backgroundColor: '#FFF',
     paddingVertical: 7,
     paddingHorizontal: 12,
@@ -419,9 +431,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 4,
-
     elevation: 3,
-
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
