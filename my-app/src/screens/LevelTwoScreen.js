@@ -32,8 +32,8 @@ const LEVEL_TWO_STEPS = [
       { text: 'Сделать вдох и спросить себя: «А мне это правда нужно?»', isCorrect: true },
       { text: 'Купить сразу три штуки и даже больше, ведь это выгодно', isCorrect: false },
     ],
-    explanationWrong: 'Финпиг попромил потом у мамы леденец и у него была и Акула и леденец',
-    successText: ''
+    explanationWrong: '🤔 Финпиг не поддался и не потратил лишние монеты.',
+    successText: '💡 Верно! Сначала подумай — нужно ли тебе это вообще.'
   },
   {
     id: 3,
@@ -43,10 +43,10 @@ const LEVEL_TWO_STEPS = [
     options: [
       { text: 'Да, ведь деньги потом можно не возвращать', isCorrect: false },
       { text: 'Нет, лучше не брать в долг большие суммы без обсуждения с родителями по поводу чего-то дорогого', isCorrect: true },
-      { text: 'Да,потому что долг можно вообще не отдавать, если просто убежать', isCorrect: false },
+      { text: 'Да, потому что долг можно вообще не отдавать, если просто убежать', isCorrect: false },
     ],
     explanation: '💡 Верно! Финпиг поговорил с родителями и они обещали подарить ему на День Рождения приставку. Финпиг счастлив',
-    explanationWrong: '🤔 Финпиг попросил у друга и купил себе приставку. Сначала он был счастлив, но потом стал грустным. Из-за того, что у него нет накоплений, ему приходиться отказываться от сладкого и других мелочей,которые важны ему, чтобы вернуть долг',
+    explanationWrong: '🤔 Долг придётся возвращать. Лучше обсудить с родителями.',
   },
   {
     id: 4,
@@ -59,19 +59,19 @@ const LEVEL_TWO_STEPS = [
       { text: 'Ничего', isCorrect: false },
       { text: '40 монет', isCorrect: false },
     ],
-    successText: '💡 Верно! Яблоко + сувенир = 10 + 30 = 40 монет. Ты дал 100. Сдача = 100 − 40 = 60 монет.Финпиг счастлив, его не обманули',
-    explanationWrong: '🤔 Посчитай: 10 + 30 = 40 монет — это покупки. Ты дал 100. Сдача = 100 − 40 = 60 монет.Тебя Обманули! Финпиг расстроился',
+    successText: '💡 Верно! Яблоко + сувенир = 10 + 30 = 40 монет. Ты дал 100. Сдача = 100 − 40 = 60 монет.',
+    explanationWrong: '🤔 Посчитай: 10 + 30 = 40 монет — это покупки. Ты дал 100. Сдача = 100 − 40 = 60 монет.',
   },
   {
     id: 5,
     type: 'tap',
     subTitle: 'Покупки в интернете',
-    text: 'Ты нашёл на маркетплейсе супер-скин или шпионский гаджет. Хотюн шепчет: «Купи сам потихоньку, пока родители не видят!».Любые онлайн-платежи совершаются ТОЛЬКО вместе с родителями.',
+    text: 'Ты нашёл на маркетплейсе супер-скин или шпионский гаджет. Хотюн шепчет: «Купи сам потихоньку, пока родители не видят!». Любые онлайн-платежи совершаются ТОЛЬКО вместе с родителями.',
     prompt: 'Что делать? Нажми на правильное действие.',
     items: [
-      { id: 'alone', emoji: '💳', label: 'Купить сам', isCorrect: false, explanation: '⚠️ Нельзя! Без взрослых вводить карту в интернете опасно. Финпиг оплатил карточкой и все деньги родителей списались' },
+      { id: 'alone', emoji: '💳', label: 'Купить сам', isCorrect: false, explanation: '⚠️ Нельзя! Без взрослых вводить карту в интернете опасно.' },
       { id: 'parents', emoji: '👨‍👩‍👧', label: 'Вместе с родителями', isCorrect: true },
-      { id: 'friend', emoji: '👦', label: 'С друзьями', isCorrect: false, explanation: '⚠️ Друзья не помогут — карта и пароли только для взрослых. У родителей друзей Финпига списались все деньги с карты' },
+      { id: 'friend', emoji: '👦', label: 'С друзьями', isCorrect: false, explanation: '⚠️ Друзья не помогут — карта и пароли только для взрослых.' },
     ],
     successText: '💡 Верно! Онлайн-покупки делают только вместе с родителями. Так безопасно.',
   },
@@ -93,8 +93,6 @@ const LEVEL_TWO_STEPS = [
   },
 ];
 
-
-
 const STORAGE_KEY = '@block_two_progress_v1';
 
 export default function LevelTwoScreen({ navigation, route }) {
@@ -102,22 +100,33 @@ export default function LevelTwoScreen({ navigation, route }) {
   const bank = useBank();
   const petCtx = usePet();
   const reviewMode = route.params?.reviewMode ?? false;
+
   const [currentStepIndex, setCurrentStepIndex] = useState(startIndex);
   const [selectedOption, setSelectedOption] = useState(null);
   const [isAnswered, setIsAnswered] = useState(reviewMode);
   const [score, setScore] = useState(0);
-  // const [savedAnswers, setSavedAnswers] = useState({});
-  // const [savedSortOrders, setSavedSortOrders] = useState({});
+
+  // Сортировка
   const [sortItems, setSortItems] = useState([]);
   const [isSortCorrect, setIsSortCorrect] = useState(false);
   const [showCorrectHint, setShowCorrectHint] = useState(false);
 
+  // 🔧 ФИКС: добавлены состояния для tap-шагов
+  const [picked, setPicked] = useState([]);
+  const [wrong, setWrong] = useState([]);
+  const [tapDone, setTapDone] = useState(false);
+
   const step = LEVEL_TWO_STEPS[currentStepIndex];
-
-
 
   useEffect(() => {
     if (!step) return;
+
+    // 🔧 ФИКС: сбрасываем состояние tap при смене шага
+    setPicked([]);
+    setWrong([]);
+    setTapDone(false);
+    setShowCorrectHint(false);
+
     if (step.type === 'sort') {
       if (reviewMode) {
         const correctItems = step.correctOrder.map(correctId =>
@@ -131,6 +140,8 @@ export default function LevelTwoScreen({ navigation, route }) {
         setIsAnswered(false);
         setIsSortCorrect(false);
       }
+    } else if (step.type === 'tap') {
+      setIsAnswered(false);
     } else {
       if (reviewMode) {
         setIsAnswered(true);
@@ -141,12 +152,10 @@ export default function LevelTwoScreen({ navigation, route }) {
         setIsAnswered(false);
       }
     }
-    setShowCorrectHint(false);
   }, [currentStepIndex, reviewMode, step]);
 
-
   const saveProgress = async (stepId) => {
-     if (reviewMode) return;
+    if (reviewMode) return;
     petCtx.boostHappiness();
     try {
       const savedStep = await AsyncStorage.getItem(STORAGE_KEY);
@@ -159,55 +168,56 @@ export default function LevelTwoScreen({ navigation, route }) {
     }
   };
 
-     const handleOptionPress = async (option) => {
-  if (isAnswered || reviewMode) return;
-  setSelectedOption(option);
-  setIsAnswered(true);
-  if (!reviewMode) await saveProgress(currentStepIndex + 1);
+  const handleOptionPress = async (option) => {
+    if (isAnswered || reviewMode) return;
+    setSelectedOption(option);
+    setIsAnswered(true);
+    if (!reviewMode) await saveProgress(currentStepIndex + 1);
 
-  const text =
-    option.explanation ||
-    (option.isCorrect
-      ? (step.explanation || step.successText || 'Верно! Так держать.')
-      : (step.explanationWrong || 'Правильный ответ подсвечен зелёным. Подумай, почему так.'));
+    const text =
+      option.explanation ||
+      (option.isCorrect
+        ? (step.explanation || step.successText || 'Верно! Так держать.')
+        : (step.explanationWrong || 'Правильный ответ подсвечен зелёным. Подумай, почему так.'));
 
-  if (option.isCorrect) {
-    setScore(prev => prev + 1);
-    Alert.alert('🎉 Верно!', text);
-  } else {
-    Alert.alert('⚠️ Не совсем', text);
-  }
-};
-// ─── Интерактив (tap) ───
-const handleTap = async (item) => {
-  if (tapDone || reviewMode) return;
-
-  if (item.isCorrect) {
-    const newPicked = [...picked, item.id];
-    setPicked(newPicked);
-    const correctIds = step.items.filter(i => i.isCorrect).map(i => i.id);
-
-    if (newPicked.length === correctIds.length) {
-      setTapDone(true);
-      setIsAnswered(true);
+    if (option.isCorrect) {
       setScore(prev => prev + 1);
-      if (!reviewMode) {
-        await saveProgress(currentStepIndex + 1);
-      }
-      Alert.alert(
-        '🎉 Верно!',
-        step.successText || 'Отлично!'
-      );
+      Alert.alert('🎉 Верно!', text);
+    } else {
+      Alert.alert('⚠️ Не совсем', text);
     }
-  } else {
-    setWrong([...wrong, item.id]);
-    const wrongText =
-      item.explanation ||
-      step.explanationWrong ||
-      'Подумай ещё — что безопаснее?';
-    Alert.alert('⚠️ Не то', wrongText);
-  }
-};
+  };
+
+  // ─── Интерактив (tap) ───
+  const handleTap = async (item) => {
+    if (tapDone || reviewMode) return;
+
+    if (item.isCorrect) {
+      const newPicked = [...picked, item.id];
+      setPicked(newPicked);
+      const correctIds = step.items.filter(i => i.isCorrect).map(i => i.id);
+
+      if (newPicked.length === correctIds.length) {
+        setTapDone(true);
+        setIsAnswered(true);
+        setScore(prev => prev + 1);
+        if (!reviewMode) {
+          await saveProgress(currentStepIndex + 1);
+        }
+        Alert.alert(
+          '🎉 Верно!',
+          step.successText || 'Отлично!'
+        );
+      }
+    } else {
+      setWrong([...wrong, item.id]);
+      const wrongText =
+        item.explanation ||
+        step.explanationWrong ||
+        'Подумай ещё — что безопаснее?';
+      Alert.alert('⚠️ Не то', wrongText);
+    }
+  };
 
   const moveUp = (index) => {
     if (index === 0 || isAnswered || reviewMode) return;
@@ -224,33 +234,33 @@ const handleTap = async (item) => {
   };
 
   const checkSortOrder = async () => {
-  if (reviewMode) return;
-  const userOrder = sortItems.map(item => item.id);
-  const isCorrect = JSON.stringify(userOrder) === JSON.stringify(step.correctOrder);
-  setIsAnswered(true);
-  await saveProgress(currentStepIndex + 1);
+    if (reviewMode) return;
+    const userOrder = sortItems.map(item => item.id);
+    const isCorrect = JSON.stringify(userOrder) === JSON.stringify(step.correctOrder);
+    setIsAnswered(true);
+    await saveProgress(currentStepIndex + 1);
 
-  if (isCorrect) {
-    setIsSortCorrect(true);
-    setScore(prev => prev + 1);
-    Alert.alert(
-      '🎉 Правильно!',
-      step.explanation || 'Порядок правильный!'
-    );
-  } else {
-    setIsSortCorrect(false);
-    setTimeout(() => {
-      const correctItems = step.correctOrder.map(correctId =>
-        step.initialItems.find(item => item.id === correctId)
-      );
-      setSortItems(correctItems);
+    if (isCorrect) {
       setIsSortCorrect(true);
-      setShowCorrectHint(true);
-    }, 1200);
-  }
-};
+      setScore(prev => prev + 1);
+      Alert.alert(
+        '🎉 Правильно!',
+        step.explanation || 'Порядок правильный!'
+      );
+    } else {
+      setIsSortCorrect(false);
+      setTimeout(() => {
+        const correctItems = step.correctOrder.map(correctId =>
+          step.initialItems.find(item => item.id === correctId)
+        );
+        setSortItems(correctItems);
+        setIsSortCorrect(true);
+        setShowCorrectHint(true);
+      }, 1200);
+    }
+  };
 
-    const handleNextStep = async () => {
+  const handleNextStep = async () => {
     if (!reviewMode) {
       const stepId = currentStepIndex + 1;
       await saveProgress(stepId);
@@ -261,9 +271,7 @@ const handleTap = async (item) => {
       if (reviewMode) {
         navigation.navigate('BlockTwoScreen');
       } else {
-        // ⭐ Награда за пройденный блок (один раз)
         if (bank?.addCoins) bank.addCoins(20);
-        // ⭐ +1 уровень
         if (bank?.levelUp && bank.level < 3) {
           bank.levelUp();
         }
@@ -272,7 +280,7 @@ const handleTap = async (item) => {
     }
   };
 
-   const handleExit = async () => {
+  const handleExit = async () => {
     if (reviewMode) {
       navigation.navigate('BlockTwoScreen');
       return;
@@ -298,39 +306,81 @@ const handleTap = async (item) => {
           {step.image && <Image source={step.image} style={styles.storyImage} resizeMode="contain" />}
           <Text style={styles.storyText}>{step.text}</Text>
         </View>
-        <View style={styles.questionCard}>
-          <Text style={styles.questionText}>{step.question}</Text>
 
-         {step.type === 'sort' ? (
-          <View style={styles.sortContainer}>
-          </View>
-        ) : step.type === 'tap' ? (
-          <View style={styles.itemsRow}>
-            {step.items.map((item) => {
-              const isPicked = picked.includes(item.id);
-              const isWrong = wrong.includes(item.id);
-              return (
-                <TouchableOpacity
-                  key={item.id}
-                  style={[
-                    styles.tapItem,
-                    isPicked && styles.tapItemCorrect,
-                    isWrong && styles.tapItemWrong,
-                  ]}
-                  onPress={() => handleTap(item)}
-                  disabled={isPicked || tapDone}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.tapEmoji}>{item.emoji}</Text>
-                  <Text style={styles.tapLabel}>{item.label}</Text>
-                  {isPicked && <Text style={styles.tapCheck}>✅</Text>}
-                  {isWrong && <Text style={styles.tapCheck}>⚠️</Text>}
+        <View style={styles.questionCard}>
+          <Text style={styles.questionText}>
+            {step.type === 'tap' ? step.prompt : step.question}
+          </Text>
+
+          {/* ─── СОРТИРОВКА ─── */}
+          {step.type === 'sort' ? (
+            <View style={styles.sortContainer}>
+              {isAnswered && !isSortCorrect && showCorrectHint && !reviewMode && (
+                <Text style={styles.hintText}>Смотри, как надо было:</Text>
+              )}
+              {sortItems.map((item, index) => {
+                let cardStyle = styles.sortCard;
+                if (reviewMode) {
+                  cardStyle = { ...styles.sortCard, backgroundColor: '#C8E6C9', borderColor: '#4CAF50' };
+                } else if (isAnswered) {
+                  cardStyle = isSortCorrect
+                    ? { ...styles.sortCard, backgroundColor: '#C8E6C9', borderColor: '#4CAF50' }
+                    : { ...styles.sortCard, backgroundColor: '#FFCDD2', borderColor: '#F44336' };
+                }
+                return (
+                  <View key={item.id} style={cardStyle}>
+                    <Text style={styles.sortCardText}>{item.text}</Text>
+                    {!isAnswered && !reviewMode && (
+                      <View style={styles.sortButtons}>
+                        <TouchableOpacity style={styles.arrowBtn} onPress={() => moveUp(index)}>
+                          <Text style={styles.arrowText}>🔼</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.arrowBtn} onPress={() => moveDown(index)}>
+                          <Text style={styles.arrowText}>🔽</Text>
+                        </TouchableOpacity>
+                      </View>
+                    )}
+                  </View>
+                );
+              })}
+
+              {!isAnswered && !reviewMode && (
+                <TouchableOpacity style={styles.checkButton} onPress={checkSortOrder}>
+                  <Text style={styles.checkButtonText}>Проверить план 🔍</Text>
                 </TouchableOpacity>
-              );
-            })}
-          </View>
-        ) : (
-          step.options.map((option, optIndex) => {
+              )}
+            </View>
+
+          /* ─── TAP (интерактив) ─── */
+          ) : step.type === 'tap' ? (
+            <View style={styles.itemsRow}>
+              {step.items.map((item) => {
+                const isPicked = picked.includes(item.id);
+                const isWrong = wrong.includes(item.id);
+                return (
+                  <TouchableOpacity
+                    key={item.id}
+                    style={[
+                      styles.tapItem,
+                      isPicked && styles.tapItemCorrect,
+                      isWrong && styles.tapItemWrong,
+                    ]}
+                    onPress={() => handleTap(item)}
+                    disabled={isPicked || tapDone}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.tapEmoji}>{item.emoji}</Text>
+                    <Text style={styles.tapLabel}>{item.label}</Text>
+                    {isPicked && <Text style={styles.tapCheck}>✅</Text>}
+                    {isWrong && <Text style={styles.tapCheck}>⚠️</Text>}
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+
+          /* ─── ОБЫЧНЫЙ ТЕСТ ─── */
+          ) : (
+            step.options.map((option, optIndex) => {
               let buttonStyle = styles.optionButton;
               if (reviewMode) {
                 if (option.isCorrect) {
@@ -359,12 +409,9 @@ const handleTap = async (item) => {
         </View>
 
         {(isAnswered || reviewMode) && (
-          <TouchableOpacity 
-            style={styles.nextButton} 
-            onPress={handleNextStep}
-          >
-               <Text style={styles.nextButtonText}>
-              {currentStepIndex === LEVEL_TWO_STEPS.length - 1 ? 'Завершить блок ' : 'Дальше'}
+          <TouchableOpacity style={styles.nextButton} onPress={handleNextStep}>
+            <Text style={styles.nextButtonText}>
+              {currentStepIndex === LEVEL_TWO_STEPS.length - 1 ? 'Завершить блок' : 'Дальше'}
             </Text>
           </TouchableOpacity>
         )}
@@ -373,195 +420,136 @@ const handleTap = async (item) => {
   );
 }
 
-
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    backgroundColor: '#EAF4FF75', 
-    paddingTop: 30 
+  container: { flex: 1, backgroundColor: '#EAF4FF75', paddingTop: 30 },
+  topBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    marginBottom: 15,
   },
-  topBar: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    alignItems: 'center', 
-    paddingHorizontal: 20, 
-    marginBottom: 15 
+  backButton: {
+    backgroundColor: '#33864e',
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    borderRadius: 10,
   },
-  backButton: { 
-    backgroundColor: '#33864e', 
-    paddingHorizontal: 8, 
-    paddingVertical: 5, 
-    borderRadius: 10 
+  backText: { color: '#FFF', fontWeight: 'bold', fontSize: 20 },
+  mainTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#238828',
+    textAlign: 'center',
+    flex: 1,
   },
-  backText: { 
-    color: '#FFF', 
-    fontWeight: 'bold', 
-    fontSize: 20
-  },
-  mainTitle: { 
-    fontSize: 24, 
-    fontWeight: 'bold', 
-    color: '#238828', 
-    textAlign: 'center', 
-    flex: 1, 
-    marginLeft: 0, 
-  },
-  scoreText: { 
-    fontSize: 24, 
-    fontWeight: 'bold', 
-    color: '#FFE082' 
-  },
-  scrollContent: { 
-    paddingHorizontal: 20, 
-    paddingBottom: 40 
-  },
+  scoreText: { fontSize: 24, fontWeight: 'bold', color: '#FFE082' },
+  scrollContent: { paddingHorizontal: 20, paddingBottom: 40 },
 
-  storyCard: { 
-    backgroundColor: '#FFF', 
-    padding: 15, 
-    borderRadius: 20, 
-    marginBottom: 20, 
-    borderWidth: 2, 
-    borderColor: '#38944f' 
+  storyCard: {
+    backgroundColor: '#FFF',
+    padding: 15,
+    borderRadius: 20,
+    marginBottom: 20,
+    borderWidth: 2,
+    borderColor: '#38944f',
   },
-  subTitle: { 
-    fontSize: 20, 
-    fontWeight: 'bold', 
-    color: '#020202', 
-    marginBottom: 8 
-  },
-  storyImage: { 
-    width: '100%', 
-    height: 160, 
-    borderRadius: 12, 
-    marginBottom: 10 
-  },
-  storyText: { 
-    fontSize: 20, 
-    color: '#0D47A1', 
-    lineHeight: 22,
-    textAlign: 'justify',
-  },
+  subTitle: { fontSize: 20, fontWeight: 'bold', color: '#020202', marginBottom: 8 },
+  storyImage: { width: '100%', height: 160, borderRadius: 12, marginBottom: 10 },
+  storyText: { fontSize: 20, color: '#0D47A1', lineHeight: 22, textAlign: 'justify' },
 
-  questionCard: { 
-    backgroundColor: '#4f926b3a', 
-    padding: 12, 
-    borderRadius: 20, 
+  questionCard: {
+    backgroundColor: '#4f926b3a',
+    padding: 12,
+    borderRadius: 20,
     marginBottom: 15,
     borderColor: '#389950',
   },
-  questionText: { 
-    fontSize: 20, 
-    fontWeight: 'bold', 
-    color: '#1a1919', 
-    marginBottom: 15 
+  questionText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1a1919',
+    marginBottom: 15,
   },
-  optionButton: { 
-    backgroundColor: '#FFF', 
-    padding: 12, 
-    borderRadius: 12, 
-    marginBottom: 10, 
-    borderWidth: 2, 
-    borderColor: '#238f50' 
+  optionButton: {
+    backgroundColor: '#FFF',
+    padding: 12,
+    borderRadius: 12,
+    marginBottom: 10,
+    borderWidth: 2,
+    borderColor: '#238f50',
   },
-  optionText: { 
-    fontSize: 20, 
-    color: '#0D47A1', 
-    fontWeight: '500' 
-  },
+  optionText: { fontSize: 20, color: '#0D47A1', fontWeight: '500' },
 
-  sortContainer: { 
-    marginBottom: 10 
+  sortContainer: { marginBottom: 10 },
+  sortCard: {
+    backgroundColor: '#FFF',
+    padding: 12,
+    borderRadius: 12,
+    marginBottom: 10,
+    borderWidth: 2,
+    borderColor: '#90CAF9',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
-  sortCard: { 
-    backgroundColor: '#FFF', 
-    padding: 12, 
-    borderRadius: 12, 
-    marginBottom: 10, 
-    borderWidth: 2, 
-    borderColor: '#90CAF9', 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    alignItems: 'center' 
+  sortCardText: {
+    fontSize: 20,
+    color: '#0D47A1',
+    fontWeight: '500',
+    flex: 1,
+    paddingRight: 10,
   },
-  sortCardText: { 
-    fontSize: 20, 
-    color: '#0D47A1', 
-    fontWeight: '500', 
-    flex: 1, 
-    paddingRight: 10 
+  sortButtons: { flexDirection: 'row' },
+  arrowBtn: { padding: 5, marginLeft: 5 },
+  arrowText: { fontSize: 20 },
+  checkButton: {
+    backgroundColor: '#3b71af',
+    padding: 12,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 10,
   },
-  sortButtons: { 
-    flexDirection: 'row' 
-  },
-  arrowBtn: { 
-    padding: 5, 
-    marginLeft: 5 
-  },
-  arrowText: { 
-    fontSize: 20 
-  },
-  checkButton: { 
-    backgroundColor: '#3b71af', 
-    padding: 12, 
-    borderRadius: 12, 
-    alignItems: 'center', 
-    marginTop: 10 
-  },
-  checkButtonText: { 
-    color: '#FFF', 
-    fontSize: 20, 
-    fontWeight: 'bold' 
-  },
+  checkButtonText: { color: '#FFF', fontSize: 20, fontWeight: 'bold' },
 
-  hintText: { 
-    fontSize: 20, 
-    fontWeight: 'bold', 
-    color: '#2E7D32', 
-    textAlign: 'center', 
-    marginBottom: 10, 
-    fontStyle: 'italic' 
-  },
-  nextButton: { 
-    backgroundColor: '#29cecebd', 
-    padding: 15, 
-    borderRadius: 15, 
-    alignItems: 'center', 
-    marginTop: 0, 
-  },
-  nextButtonText: { 
-    color: '#FFF', 
-    fontSize: 20, 
-    fontWeight: 'bold' 
-  },
-  savedIndicator: {
-    fontSize: 17,
-    color: '#1976D2',
-    fontStyle: 'italic',
-    marginTop: 4,
+  hintText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#2E7D32',
     textAlign: 'center',
+    marginBottom: 10,
+    fontStyle: 'italic',
   },
+  nextButton: {
+    backgroundColor: '#29cecebd',
+    padding: 15,
+    borderRadius: 15,
+    alignItems: 'center',
+    marginTop: 0,
+  },
+  nextButtonText: { color: '#FFF', fontSize: 20, fontWeight: 'bold' },
+
   itemsRow: {
-  flexDirection: 'row',
-  flexWrap: 'wrap',
-  justifyContent: 'space-around',
-},
-tapItem: {
-  width: '30%',
-  aspectRatio: 1,
-  backgroundColor: '#FFF',
-  borderRadius: 16,
-  borderWidth: 2,
-  borderColor: '#238f50',
-  alignItems: 'center',
-  justifyContent: 'center',
-  marginBottom: 12,
-  padding: 8,
-  minHeight: 48,
-},
-tapItemCorrect: { backgroundColor: '#C8E6C9', borderColor: '#4CAF50' },
-tapItemWrong: { backgroundColor: '#FFCDD2', borderColor: '#F44336' },
-tapEmoji: { fontSize: 38, marginBottom: 4 },
-tapLabel: { fontSize: 17, color: '#0D47A1', fontWeight: '600', textAlign: 'center' },
-tapCheck: { position: 'absolute', top: 4, right: 6, fontSize: 18 },
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-around',
+  },
+  tapItem: {
+    width: '30%',
+    aspectRatio: 1,
+    backgroundColor: '#FFF',
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: '#238f50',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+    padding: 8,
+    minHeight: 48,
+  },
+  tapItemCorrect: { backgroundColor: '#C8E6C9', borderColor: '#4CAF50' },
+  tapItemWrong: { backgroundColor: '#FFCDD2', borderColor: '#F44336' },
+  tapEmoji: { fontSize: 38, marginBottom: 4 },
+  tapLabel: { fontSize: 17, color: '#0D47A1', fontWeight: '600', textAlign: 'center' },
+  tapCheck: { position: 'absolute', top: 4, right: 6, fontSize: 18 },
 });

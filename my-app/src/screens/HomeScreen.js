@@ -288,11 +288,8 @@ function HomeScreenInner({ route, navigation }) {
   const [showBudgetResult, setShowBudgetResult] = useState(false);
   const [showNewPlan, setShowNewPlan] = useState(false);
   const [showSwipeHints, setShowSwipeHints] = useState(false);
-  const [showTaskBadge, setShowTaskBadge] = useState(true);
 
   const scale = useRef(new Animated.Value(1)).current;
-
-  // 🔧 ФИКС: флаг, чтобы во время навигации не было двойных нажатий
   const isNavigatingRef = useRef(false);
 
   const myPet = petCtx.pet;
@@ -308,7 +305,6 @@ function HomeScreenInner({ route, navigation }) {
     }
   }, [currentStage, myPet?.stage]);
 
-  // 🔧 ФИКС: снимаем блокировку навигации при возврате на экран
   useFocusEffect(
     React.useCallback(() => {
       bank.checkLevelUp();
@@ -363,15 +359,6 @@ function HomeScreenInner({ route, navigation }) {
     return () => { active = false; };
   }, [onboardingDone]);
 
-  useFocusEffect(
-    React.useCallback(() => {
-      setShowTaskBadge(true);
-      const t = setTimeout(() => setShowTaskBadge(false), 3000);
-      return () => clearTimeout(t);
-    }, [])
-  );
-
-  // 🔧 ФИКС: PanResponder без Animated.View — не перехватывает тапы
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => false,
@@ -401,7 +388,7 @@ function HomeScreenInner({ route, navigation }) {
       },
 
       onPanResponderTerminate: () => {
-        // ничего не делаем — состояние не сломано
+        // ничего
       },
     })
   ).current;
@@ -614,15 +601,6 @@ function HomeScreenInner({ route, navigation }) {
               />
             </TouchableOpacity>
 
-            {showTaskBadge && (
-              <TouchableOpacity
-                style={styles.taskBadge}
-                onPress={() => navigation.navigate('Tasks')}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.taskBadgeText}>Продолжить задания</Text>
-              </TouchableOpacity>
-            )}
             {showSwipeHints && (
               <View style={styles.swipeHintsRow}>
                 <Text style={styles.swipeHint}>← свайп влево: гостиная</Text>
@@ -1053,16 +1031,6 @@ const styles = StyleSheet.create({
     textShadowRadius: 3,
   },
 
-  taskBadge: {
-    backgroundColor: 'rgba(13,71,161,0.78)',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 20,
-    borderWidth: 2,
-    borderColor: '#FFFFFF',
-    marginTop: 10,
-  },
-  taskBadgeText: { color: '#FFFFFF', fontSize: 17, fontWeight: '900' },
   bottomBar: {
     backgroundColor: 'rgba(227,242,253,0.96)',
     borderTopLeftRadius: 24,

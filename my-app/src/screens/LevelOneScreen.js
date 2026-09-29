@@ -8,19 +8,18 @@ import { usePet } from '../context/PetContext';
 const { width } = Dimensions.get('window');
 
 const LEVEL_STEPS = [
-
   {
     id: 1,
     subTitle: 'Почему появились деньги?',
     text: 'У тебя есть большая плюшевая акула. На детской площадке Финпиг увидел леденец у мальчика и захотел его съесть. Мальчик предложил обмен: «Поменяй акулу на этот леденец».',
     image: require('../../assets/pictirequestion/shark.png'),
-    question: 'Как ты думаешь, выгодно ли менять плюшевую акулу на леденец, если  захотелось сладкого?',
+    question: 'Как ты думаешь, выгодно ли менять плюшевую акулу на леденец, если захотелось сладкого?',
     options: [
       { text: 'Да, ведь я хочу леденец прямо сейчас', isCorrect: false },
       { text: 'Нет, акула стоит намного дороже. Это невыгодный обмен', isCorrect: true },
       { text: 'Да, акулу всё равно нельзя съесть', isCorrect: false },
     ],
-    explanationWrong: 'Финпиг попромил потом у мамы леденец и у него была и Акула и леденец',
+    explanationWrong: 'Финпиг попросил потом у мамы леденец и у него была и Акула и леденец',
     successText: 'Финпиг скушал леденец, но потом расстроился, потому что Акула теперь у мальчика',
   },
   {
@@ -31,8 +30,10 @@ const LEVEL_STEPS = [
     prompt: 'Чем оплатить проезд? Нажми на нужный предмет в рюкзаке.',
     items: [
       { id: 'card', emoji: '💳', label: 'Карта', isCorrect: true },
-      { id: 'candy', emoji: '🍬', label: 'Конфета', isCorrect: false },
-      { id: 'phone', emoji: '📱', label: 'Телефон', isCorrect: true },
+      { id: 'candy', emoji: '🍬', label: 'Конфета', isCorrect: false,
+        explanation: 'Конфету нельзя приложить к валидатору. Нужна карта!' },
+      { id: 'phone', emoji: '📱', label: 'Телефон', isCorrect: false,
+        explanation: 'Телефон сам по себе не оплатит — нужна карта.' },
     ],
     successText: 'Правильно! Приложил карту к валидатору — оплата прошла, контролёр доволен.',
   },
@@ -42,7 +43,7 @@ const LEVEL_STEPS = [
     image: require('../../assets/hotunshop.png'),
     subTitle: 'Супермаркет',
     text: 'Суперагент Финпиг идёт за продуктами. Хотюн расставил у кассы ловушки — шоколадки и чипсы. Держись списка!',
-    prompt: 'Что положишь в корзину? Нажми на нужное.Список покупок: Молоко,Шоколад,Хлеб и Яблоки',
+    prompt: 'Что положишь в корзину? Нажми на нужное. Список покупок: Молоко, Шоколад, Хлеб и Яблоки',
     items: [
       { id: 'milk', emoji: '🥛', label: 'Молоко', isCorrect: true },
       { id: 'choco', emoji: '🍫', label: 'Шоколад', isCorrect: true },
@@ -56,13 +57,13 @@ const LEVEL_STEPS = [
     id: 4,
     type: 'tap',
     subTitle: 'Осторожно: фальшивка',
-    text: 'Хотюн дал фальшивую купюру Финпигу. Фингпиг ушел из магазина с подозрительной курюрой и только дома обнаружил, что она фальшивая',
+    text: 'Хотюн дал фальшивую купюру Финпигу. Финпиг ушёл из магазина с подозрительной купюрой и только дома обнаружил, что она фальшивая.',
     prompt: 'Что делать с подозрительной купюрой? Нажми на правильное действие.',
     items: [
       { id: 'buy', emoji: '🍬', label: 'Купить конфету', isCorrect: false },
       { id: 'show', emoji: '👨‍👩‍👧', label: 'Показать взрослым', isCorrect: true },
     ],
-    successText: 'Молодец! Финпиг рассказал маме, об этой ситуации, она похвалила, Хотюну пригрозили, чтобы он деньги проверял',
+    successText: 'Молодец! Финпиг рассказал маме об этой ситуации, она похвалила.',
     explanationWrong: 'Финпиг расстроился сильно, его наругали, потому что нельзя ничего покупать на фальшивые деньги',
   },
   {
@@ -108,19 +109,19 @@ export default function LevelOneScreen({ navigation, route }) {
   const [isAnswered, setIsAnswered] = useState(reviewMode);
   const [score, setScore] = useState(0);
 
-  // Сортировка
   const [sortItems, setSortItems] = useState([]);
   const [isSortCorrect, setIsSortCorrect] = useState(false);
   const [showCorrectHint, setShowCorrectHint] = useState(false);
 
-  // Интерактив (tap)
   const [picked, setPicked] = useState([]);
   const [wrong, setWrong] = useState([]);
   const [tapDone, setTapDone] = useState(false);
 
+  // 🔧 ФИКС: для tap-шагов — показываем кнопку «Дальше» после первого ответа
+  const [tapAnswered, setTapAnswered] = useState(false);
+
   const step = LEVEL_STEPS[currentStepIndex];
 
-  // ─── Сохранение прогресса ───
   const saveProgress = async (stepId) => {
     if (reviewMode) return;
     petCtx.boostHappiness();
@@ -135,12 +136,12 @@ export default function LevelOneScreen({ navigation, route }) {
     }
   };
 
-
   useEffect(() => {
     if (!step) return;
     setPicked([]);
     setWrong([]);
     setTapDone(false);
+    setTapAnswered(false);
     setShowCorrectHint(false);
 
     if (step.type === 'sort') {
@@ -158,7 +159,6 @@ export default function LevelOneScreen({ navigation, route }) {
     } else if (step.type === 'tap') {
       setIsAnswered(false);
     } else {
-      // Обычный тест
       if (reviewMode) {
         setIsAnswered(true);
         const correctOption = step.options.find(opt => opt.isCorrect);
@@ -169,59 +169,62 @@ export default function LevelOneScreen({ navigation, route }) {
       }
     }
   }, [currentStepIndex, reviewMode, step]);
-const handleOptionPress = async (option) => {
-  if (isAnswered || reviewMode) return;
-  setSelectedOption(option);
-  setIsAnswered(true);
-  if (!reviewMode) await saveProgress(currentStepIndex + 1);
 
-  // Приоритет: option.explanation → step.explanation / step.explanationWrong
-  const explanationText =
-    option.explanation ||
-    (option.isCorrect ? step.explanation : step.explanationWrong) ||
-    (option.isCorrect
-      ? 'Верно! Так держать.'
-      : 'Правильный ответ подсвечен зелёным. Подумай, почему так.');
+  const handleOptionPress = async (option) => {
+    if (isAnswered || reviewMode) return;
+    setSelectedOption(option);
+    setIsAnswered(true);
+    if (!reviewMode) await saveProgress(currentStepIndex + 1);
 
-  if (option.isCorrect) {
-    setScore(prev => prev + 1);
-    Alert.alert('🎉 Верно!', explanationText);
-  } else {
-    Alert.alert('⚠️ Не совсем', explanationText);
-  }
-};
+    const explanationText =
+      option.explanation ||
+      (option.isCorrect ? step.explanation : step.explanationWrong) ||
+      (option.isCorrect
+        ? 'Верно! Так держать.'
+        : 'Правильный ответ подсвечен зелёным. Подумай, почему так.');
 
-const handleTap = async (item) => {
-  if (tapDone || reviewMode) return;
-
-  if (item.isCorrect) {
-    const newPicked = [...picked, item.id];
-    setPicked(newPicked);
-    const correctIds = step.items.filter(i => i.isCorrect).map(i => i.id);
-
-    if (newPicked.length === correctIds.length) {
-      setTapDone(true);
-      setIsAnswered(true);
+    if (option.isCorrect) {
       setScore(prev => prev + 1);
-      if (!reviewMode) {
-        await saveProgress(currentStepIndex + 1);
-      }
-      Alert.alert(
-        '🎉 Верно!',
-        step.successText || 'Отлично!'
-      );
+      Alert.alert('🎉 Верно!', explanationText);
+    } else {
+      Alert.alert('⚠️ Не совсем', explanationText);
     }
-  } else {
-    setWrong([...wrong, item.id]);
-    const wrongText =
-      item.explanation ||
-      step.explanationWrong ||
-      'Подумай ещё — что в списке / что безопаснее?';
-    Alert.alert('⚠️ Не то', wrongText);
-  }
-};
+  };
 
-  // ─── Сортировка: движение ───
+  // 🔧 ФИКС: после ПЕРВОГО тапа (правильного или неправильного) — показываем кнопку «Дальше»
+  const handleTap = async (item) => {
+    if (tapDone || reviewMode) return;
+
+    // Показываем кнопку «Дальше» сразу после первого тапа
+    setTapAnswered(true);
+
+    if (item.isCorrect) {
+      const newPicked = [...picked, item.id];
+      setPicked(newPicked);
+      const correctIds = step.items.filter(i => i.isCorrect).map(i => i.id);
+
+      if (newPicked.length === correctIds.length) {
+        setTapDone(true);
+        setIsAnswered(true);
+        setScore(prev => prev + 1);
+        if (!reviewMode) {
+          await saveProgress(currentStepIndex + 1);
+        }
+        Alert.alert(
+          '🎉 Верно!',
+          step.successText || 'Отлично!'
+        );
+      }
+    } else {
+      setWrong([...wrong, item.id]);
+      const wrongText =
+        item.explanation ||
+        step.explanationWrong ||
+        'Подумай ещё — что в списке / что безопаснее?';
+      Alert.alert('⚠️ Не то', wrongText);
+    }
+  };
+
   const moveUp = (index) => {
     if (index === 0 || isAnswered || reviewMode) return;
     const newItems = [...sortItems];
@@ -237,33 +240,32 @@ const handleTap = async (item) => {
   };
 
   const checkSortOrder = async () => {
-  if (reviewMode) return;
-  const userOrder = sortItems.map(item => item.id);
-  const isCorrect = JSON.stringify(userOrder) === JSON.stringify(step.correctOrder);
-  setIsAnswered(true);
-  await saveProgress(currentStepIndex + 1);
+    if (reviewMode) return;
+    const userOrder = sortItems.map(item => item.id);
+    const isCorrect = JSON.stringify(userOrder) === JSON.stringify(step.correctOrder);
+    setIsAnswered(true);
+    await saveProgress(currentStepIndex + 1);
 
-  if (isCorrect) {
-    setIsSortCorrect(true);
-    setScore(prev => prev + 1);
-    Alert.alert(
-      '🎉 Правильно!',
-      step.explanation || 'Порядок правильный!'
-    );
-  } else {
-    setIsSortCorrect(false);
-    setTimeout(() => {
-      const correctItems = step.correctOrder.map(correctId =>
-        step.initialItems.find(item => item.id === correctId)
-      );
-      setSortItems(correctItems);
+    if (isCorrect) {
       setIsSortCorrect(true);
-      setShowCorrectHint(true);
-    }, 1200);
-  }
-};
+      setScore(prev => prev + 1);
+      Alert.alert(
+        '🎉 Правильно!',
+        step.explanation || 'Порядок правильный!'
+      );
+    } else {
+      setIsSortCorrect(false);
+      setTimeout(() => {
+        const correctItems = step.correctOrder.map(correctId =>
+          step.initialItems.find(item => item.id === correctId)
+        );
+        setSortItems(correctItems);
+        setIsSortCorrect(true);
+        setShowCorrectHint(true);
+      }, 1200);
+    }
+  };
 
-  // ─── Следующий шаг / завершение ───
   const handleNextStep = async () => {
     if (!reviewMode) {
       const stepId = currentStepIndex + 1;
@@ -276,7 +278,6 @@ const handleTap = async (item) => {
       if (!reviewMode) {
         if (bank?.addCoins) bank.addCoins(20);
 
-        // ⭐ Повышаем уровень только если ещё не проходили (не review)
         if (bank?.levelUp && bank.level < 2) {
           bank.levelUp();
         }
@@ -296,6 +297,14 @@ const handleTap = async (item) => {
     navigation.navigate('BlockOneScreen');
   };
 
+  // 🔧 ФИКС: определяем, показывать ли кнопку «Дальше»
+  // Для tap — после первого тапа (tapAnswered).
+  // Для теста — после ответа (isAnswered).
+  // Для сортировки — после проверки (isAnswered).
+  const showNextButton = step.type === 'tap'
+    ? (tapAnswered || isAnswered || reviewMode)
+    : (isAnswered || reviewMode);
+
   return (
     <View style={styles.container}>
       <View style={styles.topBar}>
@@ -312,7 +321,6 @@ const handleTap = async (item) => {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Сцена */}
         <View style={styles.storyCard}>
           <Text style={styles.subTitle}>{step.subTitle}</Text>
           {step.image && (
@@ -325,7 +333,6 @@ const handleTap = async (item) => {
           <Text style={styles.storyText}>{step.text}</Text>
         </View>
 
-        {/* Вопрос / задание */}
         <View style={styles.questionCard}>
           <Text style={styles.questionText}>
             {step.type === 'tap' ? step.prompt : step.question}
@@ -446,8 +453,8 @@ const handleTap = async (item) => {
           )}
         </View>
 
-        {/* Кнопка «Дальше» */}
-        {isAnswered && (
+        {/* 🔧 Кнопка «Дальше» — теперь показывается ВСЕГДА после первого ответа */}
+        {showNextButton && (
           <TouchableOpacity style={styles.nextButton} onPress={handleNextStep}>
             <Text style={styles.nextButtonText}>
               {currentStepIndex === LEVEL_STEPS.length - 1
@@ -460,7 +467,6 @@ const handleTap = async (item) => {
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#EAF4FF75', paddingTop: 30 },
@@ -517,7 +523,6 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
 
-  // Тест
   optionButton: {
     backgroundColor: '#FFF',
     padding: 14,
@@ -530,7 +535,6 @@ const styles = StyleSheet.create({
   },
   optionText: { fontSize: 17, color: '#0D47A1', fontWeight: '500' },
 
-  // Интерактив (tap)
   itemsRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -555,7 +559,6 @@ const styles = StyleSheet.create({
   tapLabel: { fontSize: 17, color: '#0D47A1', fontWeight: '600', textAlign: 'center' },
   tapCheck: { position: 'absolute', top: 4, right: 6, fontSize: 18 },
 
-  // Сортировка
   sortContainer: { marginBottom: 10 },
   sortCard: {
     backgroundColor: '#FFF',
@@ -602,4 +605,3 @@ const styles = StyleSheet.create({
   },
   nextButtonText: { color: '#FFF', fontSize: 18, fontWeight: 'bold' },
 });
-
