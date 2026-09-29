@@ -268,13 +268,18 @@ export default function LevelOneScreen({ navigation, route }) {
     if (currentStepIndex < LEVEL_STEPS.length - 1) {
       setCurrentStepIndex(currentStepIndex + 1);
     } else {
-      // Завершили все вопросы
       if (!reviewMode) {
         if (bank?.addCoins) bank.addCoins(20);
+
+        // ⭐ Повышаем уровень только если ещё не проходили (не review)
+        if (bank?.levelUp && bank.level < 2) {
+          bank.levelUp();
+        }
+
         Alert.alert(
           'Отлично 🎉',
-          `Все ${LEVEL_STEPS.length} вопросов пройдены! Тебе начислено ещё 20 монет.`,
-          [{ text: 'К играм', onPress: () => navigation.navigate('BlockOneScreen') }]
+          `Все ${LEVEL_STEPS.length} вопросов пройдены! Тебе начислено ещё 20 монет.\n\n🐣 Твой питомец вырос!`,
+          [{ text: 'Круто!', onPress: () => navigation.navigate('BlockOneScreen') }]
         );
       } else {
         navigation.navigate('BlockOneScreen');
