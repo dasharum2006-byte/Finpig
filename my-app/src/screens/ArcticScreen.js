@@ -58,12 +58,12 @@ export default function ArcticScreen({ navigation }) {
             </TouchableOpacity>
           </View>
 
-          {/* 🔧 УВЕЛИЧЕН питомец */}
+          {/* 🔧 УМЕНЬШЕН и СДВИНУТ ВЛЕВО питомец */}
           <Image source={petImage} style={styles.petImage} />
           </View>
           </ImageBackground>
         </View>
-     
+
   );
 }
 
@@ -112,7 +112,6 @@ const styles = StyleSheet.create({
     width: width * 0.42,
     height: 70,
     backgroundColor: 'rgba(255, 255, 255, 0.92)',
-
     borderRadius: 18,
     paddingHorizontal: 5,
     alignItems: 'center',
@@ -141,12 +140,13 @@ const styles = StyleSheet.create({
     color: '#006064',
     textAlign: 'left',
   },
-  // 🔧 УВЕЛИЧЕН питомец (было 150×150, стало 250×250)
+  // 🔧 УМЕНЬШЕН и СДВИНУТ ВЛЕВО (было 250x250, bottom: 40)
   petImage: {
     position: 'absolute',
-    bottom: 40,
-    width: 250,
-    height: 250,
+    bottom: 20,
+    left: 30,
+    width: 180,
+    height: 180,
     resizeMode: 'contain',
   },
 });
