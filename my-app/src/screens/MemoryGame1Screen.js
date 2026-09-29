@@ -5,18 +5,18 @@ import {
   View,
   TouchableOpacity,
   Image,
-  Alert,
+  Modal,
 } from 'react-native';
 
 import { useBank } from '../context/BankContext';
 
 const CARDS_DATA = [
-  // ЕГИПЕТ
+  // Р•Р“РРџР•Рў
   {
     id: 1,
     pairId: 'EGP',
     type: 'text',
-    content: '🇪🇬\nЕгипетский фунт',
+    content: 'рџ‡Єрџ‡¬\nР•РіРёРїРµС‚СЃРєРёР№ С„СѓРЅС‚',
   },
   {
     id: 2,
@@ -25,12 +25,12 @@ const CARDS_DATA = [
     content: require('../../assets/cards/egyptmoney.png'),
   },
 
-  // ЕВРОСОЮЗ
+  // Р•Р’Р РћРЎРћР®Р—
   {
     id: 3,
     pairId: 'EUR',
     type: 'text',
-    content: '🇪🇺\nЕвро',
+    content: 'рџ‡Єрџ‡є\nР•РІСЂРѕ',
   },
   {
     id: 4,
@@ -39,12 +39,12 @@ const CARDS_DATA = [
     content: require('../../assets/cards/euro.png'),
   },
 
-  // КИТАЙ
+  // РљРРўРђР™
   {
     id: 5,
     pairId: 'CNY',
     type: 'text',
-    content: '🇨🇳\nЮань',
+    content: 'рџ‡Ёрџ‡і\nР®Р°РЅСЊ',
   },
   {
     id: 6,
@@ -53,12 +53,12 @@ const CARDS_DATA = [
     content: require('../../assets/cards/chinamoney.png'),
   },
 
-  // ТУРЦИЯ
+  // РўРЈР Р¦РРЇ
   {
     id: 7,
     pairId: 'TRY',
     type: 'text',
-    content: '🇹🇷\nЛира',
+    content: 'рџ‡№рџ‡·\nР›РёСЂР°',
   },
   {
     id: 8,
@@ -67,12 +67,12 @@ const CARDS_DATA = [
     content: require('../../assets/cards/turkymoney.png'),
   },
 
-  // РОССИЯ
+  // Р РћРЎРЎРРЇ
   {
     id: 9,
     pairId: 'RUB',
     type: 'text',
-    content: '🇷🇺\nРубль',
+    content: 'рџ‡·рџ‡є\nР СѓР±Р»СЊ',
   },
   {
     id: 10,
@@ -81,12 +81,12 @@ const CARDS_DATA = [
     content: require('../../assets/cards/russiamoney.png'),
   },
 
-  // США
+  // РЎРЁРђ
   {
     id: 11,
     pairId: 'USD',
     type: 'text',
-    content: '🇺🇸\nДоллар США',
+    content: 'рџ‡єрџ‡ё\nР”РѕР»Р»Р°СЂ РЎРЁРђ',
   },
   {
     id: 12,
@@ -97,32 +97,35 @@ const CARDS_DATA = [
 ];
 
 const TOTAL_PAIRS = CARDS_DATA.length / 2;
+const REWARD = 30;
 
 const shuffleArray = (array) => {
   return [...array].sort(() => Math.random() - 0.5);
 };
 
 export default function MemoryGame1Screen({ navigation }) {
-  const bank = useBank();
+  const { balance, addCoins, isLoaded } = useBank();
 
-  const [cards, setCards] = useState([]);
+  const [cards, setCards] = useState(() => shuffleArray(CARDS_DATA));
+  const [showVictory, setShowVictory] = useState(false);
+  const mismatchTimerRef = useRef(null);
   const [selectedCards, setSelectedCards] = useState([]);
   const [matchedCards, setMatchedCards] = useState([]);
   const [moves, setMoves] = useState(0);
 
-  // Не даём нажимать другие карты,
-  // пока две неправильные карты открыты.
+  // РќРµ РґР°С‘Рј РЅР°Р¶РёРјР°С‚СЊ РґСЂСѓРіРёРµ РєР°СЂС‚С‹,
+  // РїРѕРєР° РґРІРµ РЅРµРїСЂР°РІРёР»СЊРЅС‹Рµ РєР°СЂС‚С‹ РѕС‚РєСЂС‹С‚С‹.
   const [isChecking, setIsChecking] = useState(false);
 
-  // Защита от повторного запуска победного useEffect.
+  // Р—Р°С‰РёС‚Р° РѕС‚ РїРѕРІС‚РѕСЂРЅРѕРіРѕ Р·Р°РїСѓСЃРєР° РїРѕР±РµРґРЅРѕРіРѕ useEffect.
   const victoryHandledRef = useRef(false);
 
-  useEffect(() => {
-    startNewGame();
-  }, []);
+  useEffect(() => () => clearTimeout(mismatchTimerRef.current), []);
 
   const startNewGame = () => {
+    clearTimeout(mismatchTimerRef.current);
     victoryHandledRef.current = false;
+    setShowVictory(false);
 
     setCards(shuffleArray(CARDS_DATA));
     setSelectedCards([]);
@@ -132,7 +135,7 @@ export default function MemoryGame1Screen({ navigation }) {
   };
 
   const handleCardPress = (index) => {
-    if (isChecking) {
+    if (!isLoaded || isChecking || victoryHandledRef.current) {
       return;
     }
 
@@ -142,7 +145,7 @@ export default function MemoryGame1Screen({ navigation }) {
       return;
     }
 
-    // Нельзя нажать уже открытую или найденную карту.
+    // РќРµР»СЊР·СЏ РЅР°Р¶Р°С‚СЊ СѓР¶Рµ РѕС‚РєСЂС‹С‚СѓСЋ РёР»Рё РЅР°Р№РґРµРЅРЅСѓСЋ РєР°СЂС‚Сѓ.
     if (
       selectedCards.includes(index) ||
       matchedCards.includes(card.pairId) ||
@@ -155,7 +158,7 @@ export default function MemoryGame1Screen({ navigation }) {
 
     setSelectedCards(newSelected);
 
-    // Пока открыта только одна карта.
+    // РџРѕРєР° РѕС‚РєСЂС‹С‚Р° С‚РѕР»СЊРєРѕ РѕРґРЅР° РєР°СЂС‚Р°.
     if (newSelected.length !== 2) {
       return;
     }
@@ -170,10 +173,10 @@ export default function MemoryGame1Screen({ navigation }) {
       return;
     }
 
-    // Пара найдена.
+    // РџР°СЂР° РЅР°Р№РґРµРЅР°.
     if (firstCard.pairId === secondCard.pairId) {
       setMatchedCards((prev) => {
-        // Дополнительная защита от дубликатов.
+        // Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅР°СЏ Р·Р°С‰РёС‚Р° РѕС‚ РґСѓР±Р»РёРєР°С‚РѕРІ.
         if (prev.includes(firstCard.pairId)) {
           return prev;
         }
@@ -185,55 +188,25 @@ export default function MemoryGame1Screen({ navigation }) {
       return;
     }
 
-    // Пара неправильная.
+    // РџР°СЂР° РЅРµРїСЂР°РІРёР»СЊРЅР°СЏ.
     setIsChecking(true);
 
-    setTimeout(() => {
+    mismatchTimerRef.current = setTimeout(() => {
       setSelectedCards([]);
       setIsChecking(false);
     }, 1000);
   };
 
   useEffect(() => {
-    if (
-      cards.length === 0 ||
-      matchedCards.length !== TOTAL_PAIRS ||
-      victoryHandledRef.current
-    ) {
+    if (!isLoaded || matchedCards.length !== TOTAL_PAIRS || victoryHandledRef.current) {
       return;
     }
 
+    // РўРѕР»СЊРєРѕ РѕРґРЅРѕ РЅР°С‡РёСЃР»РµРЅРёРµ Р·Р° РїР°СЂС‚РёСЋ, РґР°Р¶Рµ РїСЂРё РѕР±РЅРѕРІР»РµРЅРёРё РєРѕРЅС‚РµРєСЃС‚Р° Р±Р°РЅРєР°.
     victoryHandledRef.current = true;
-
-    // Начисляем награду.
-    try {
-      if (bank && typeof bank.addCoins === 'function') {
-        bank.addCoins(30);
-      }
-    } catch (error) {
-      console.error('Ошибка при начислении монет:', error);
-    }
-
-    // Небольшая задержка нужна, чтобы последняя
-    // найденная пара успела отобразиться.
-    const timer = setTimeout(() => {
-      Alert.alert(
-        'Победа! 🎉',
-        `Вы нашли все пары за ${moves} ходов.\n\n+30 монет летят в твой кошелёк 🪙`,
-        [
-          {
-            text: 'Играть снова',
-            onPress: startNewGame,
-          },
-        ],
-        {
-          cancelable: false,
-        }
-      );
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [matchedCards, cards.length, moves, bank]);
+    addCoins(REWARD);
+    setShowVictory(true);
+  }, [matchedCards.length, isLoaded, addCoins]);
 
   return (
     <View style={styles.container}>
@@ -242,20 +215,24 @@ export default function MemoryGame1Screen({ navigation }) {
           style={styles.backButtonTop}
           onPress={() => navigation.goBack()}
         >
-          <Text style={styles.backButtonText}>Назад</Text>
+          <Text style={styles.backButtonText}>РќР°Р·Р°Рґ</Text>
         </TouchableOpacity>
 
-        <Text style={styles.title}>Валюты стран</Text>
-
-        <View style={styles.bankBadge}>
+        <TouchableOpacity
+          style={styles.bankBadge}
+          onPress={() => navigation.navigate('Bank')}
+          accessibilityRole="button"
+          accessibilityLabel="РћС‚РєСЂС‹С‚СЊ Р±Р°РЅРєРѕРІСЃРєРёР№ СЃС‡С‘С‚"
+        >
           <Text style={styles.bankText}>
-            🪙 {bank?.coins ?? 0}
+            рџЏ¦ РЎС‡С‘С‚: {isLoaded ? `${balance.toFixed(2)} рџЄ™` : 'Р—Р°РіСЂСѓР·РєР°вЂ¦'}
           </Text>
-        </View>
+        </TouchableOpacity>
       </View>
 
+      <Text style={styles.title}>Р’Р°Р»СЋС‚С‹ СЃС‚СЂР°РЅ</Text>
       <Text style={styles.subtitle}>
-        Ходов: {moves}
+        РҐРѕРґРѕРІ: {moves}
       </Text>
 
       <View style={styles.grid}>
@@ -269,7 +246,7 @@ export default function MemoryGame1Screen({ navigation }) {
               key={card.id}
               activeOpacity={0.8}
               disabled={
-                isChecking ||
+                !isLoaded || isChecking ||
                 matchedCards.includes(card.pairId)
               }
               style={[
@@ -307,14 +284,64 @@ export default function MemoryGame1Screen({ navigation }) {
         onPress={startNewGame}
       >
         <Text style={styles.buttonText}>
-          Начать заново
+          РќР°С‡Р°С‚СЊ Р·Р°РЅРѕРІРѕ
         </Text>
       </TouchableOpacity>
+      <Modal
+        visible={showVictory}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowVictory(false)}
+      >
+        <View style={styles.modalBackdrop}>
+          <View style={styles.modalContent}>
+            <Text style={styles.title}>РњРѕР»РѕРґРµС†! рџЋ‰</Text>
+            <Text style={styles.victoryText}>
+              РўС‹ РїСЂРѕС€С‘Р» РёРіСЂСѓ! Р’СЃРµ РїР°СЂС‹ РЅР°Р№РґРµРЅС‹ Р·Р° {moves} С…РѕРґРѕРІ.
+              {'\n\n'}+{REWARD} РјРѕРЅРµС‚ РЅР°С‡РёСЃР»РµРЅРѕ РЅР° С‚РІРѕР№ Р±Р°РЅРєРѕРІСЃРєРёР№ СЃС‡С‘С‚ рџЄ™
+            </Text>
+            <TouchableOpacity style={styles.button} onPress={startNewGame}>
+              <Text style={styles.buttonText}>РРіСЂР°С‚СЊ СЃРЅРѕРІР°</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setShowVictory(false)}
+            >
+              <Text style={styles.bankText}>Р—Р°РєСЂС‹С‚СЊ</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.45)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 24,
+  },
+  modalContent: {
+    width: '100%',
+    maxWidth: 380,
+    padding: 24,
+    borderRadius: 20,
+    backgroundColor: '#FFF',
+    alignItems: 'center',
+  },
+  victoryText: {
+    marginTop: 16,
+    fontSize: 18,
+    textAlign: 'center',
+    color: '#2c3e50',
+  },
+  closeButton: {
+    marginTop: 16,
+    padding: 12,
+  },
   container: {
     flex: 1,
     backgroundColor: '#f4f6f9',
@@ -325,17 +352,17 @@ const styles = StyleSheet.create({
   topBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     width: '100%',
     paddingHorizontal: 20,
-    marginTop: 40,
-    position: 'relative',
+    position: 'absolute',
+    top: 40,
+    left: 0,
     height: 50,
   },
 
   backButtonTop: {
-    position: 'absolute',
-    left: 20,
+
     paddingVertical: 8,
     paddingHorizontal: 12,
     backgroundColor: '#e74c3c',
@@ -355,8 +382,7 @@ const styles = StyleSheet.create({
   },
 
   bankBadge: {
-    position: 'absolute',
-    right: 20,
+
     backgroundColor: '#FFF',
     paddingVertical: 7,
     paddingHorizontal: 12,
