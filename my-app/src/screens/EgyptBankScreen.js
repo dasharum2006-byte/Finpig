@@ -14,11 +14,9 @@ import {
 const { width } = Dimensions.get('window');
 
 export default function EgyptBankScreen({ navigation }) {
-  // Изначальный баланс игрока
-  const [coins, setCoins] = useState(350);       // Золотые монеты
-  const [crystals, setCrystals] = useState(5);    // Редкие кристаллы Египта
+  const [coins, setCoins] = useState(350);
+  const [crystals, setCrystals] = useState(5);
 
-  // Функция: Обменять 1 Кристалл на 50 Монет
   const handleExchangeCrystal = () => {
     if (crystals < 1) {
       Alert.alert('Упс!', 'У тебя нет египетских кристаллов для обмена! 💎');
@@ -32,27 +30,24 @@ export default function EgyptBankScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
-      {/* Фон банка с чистым папирусом по центру (egypt_bank.jpg) */}
       <ImageBackground
         source={require('../../assets/egyptbank.png')}
         style={styles.bg}
         resizeMode="cover"
       >
-        {/* Кнопка "Назад в город" */}
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('EgyptScreen')}>
           <Text style={styles.backButtonText}>⬅ В город</Text>
         </TouchableOpacity>
 
-        {/* Кошелек игрока (Монеты и Кристаллы) в верхнем правом углу */}
         <View style={styles.walletContainer}>
           <Text style={styles.walletText}>🪙 {coins}</Text>
           <Text style={styles.walletText}>💎 {crystals}</Text>
         </View>
 
-        {/* Заголовок */}
-        <Text style={styles.title}>Королевский Обменник</Text>
+        {/* 🔧 ЗАГОЛОВОК ИЗМЕНЕН НА "БАНК" */}
+        <Text style={styles.title}>Банк</Text>
 
-        {/* ТЕКСТ ПОВЕРХ ЧИСТОГО ПАПИРУСА НА СТЕНЕ */}
+        {/* 🔧 ТЕКСТ ВПИСАН В БЕЛОЕ ПОЛОТНО (СВИТОК) */}
         <View style={styles.papyrusContainer}>
           <Text style={styles.papyrusTitle}>📜 Курс Обмена</Text>
           <Text style={styles.papyrusText}>
@@ -61,16 +56,14 @@ export default function EgyptBankScreen({ navigation }) {
           <Text style={styles.rateText}>1 Кристалл 💎 = 50 Монет 🪙</Text>
         </View>
 
-        {/* Кнопка обмена внизу экрана */}
         <View style={styles.buttonsContainer}>
           <TouchableOpacity style={styles.exchangeButton} onPress={handleExchangeCrystal}>
             <Text style={styles.buttonText}>Обменять 1 💎 на 50 🪙</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Персонаж-банкир, стоящий СЛЕВА */}
         <Image
-          source={require('../../assets/Animals/Pinguin/Black/pinguin1_m.png')} 
+          source={require('../../assets/Animals/Pinguin/Black/pinguin1_m.png')}
           style={styles.bankerImage}
         />
 
@@ -115,43 +108,42 @@ const styles = StyleSheet.create({
     textShadowColor: '#fff',
     textShadowRadius: 4,
   },
-  
-  // ПОЗИЦИОНИРОВАНИЕ ТЕКСТА СТРОГО НА ПАПИРУС (на стене)
+
+  // 🔧 СКОРРЕКТИРОВАНО ПОЛОЖЕНИЕ ТЕКСТА НА ПОЛОТНЕ
   papyrusContainer: {
     position: 'absolute',
-    top: '26%', // Регулируй этот процент под свой фон с папирусом
-    width: width * 0.72, 
+    top: '28%', // Сдвинуто немного вниз для центрирования на свитке
+    width: width * 0.68, // Немного уменьшена ширина, чтобы текст не вылезал за края
     alignItems: 'center',
-    paddingHorizontal: 15,
+    paddingHorizontal: 10,
   },
   papyrusTitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: 'bold',
     color: '#4a2c11',
     marginBottom: 6,
   },
   papyrusText: {
-    fontSize: 12,
+    fontSize: 11, // Уменьшен шрифт для лучшего вписывания
     fontWeight: '600',
     color: '#5c3a21',
     textAlign: 'center',
-    lineHeight: 16,
+    lineHeight: 15, // Уменьшен межстрочный интервал
   },
   rateText: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: 'bold',
     color: '#b8860b',
-    marginTop: 12,
+    marginTop: 10,
     backgroundColor: 'rgba(61, 37, 16, 0.1)',
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 8,
   },
 
-  // Блок кнопки обмена внизу экрана
   buttonsContainer: {
     position: 'absolute',
-    bottom: 180, 
+    bottom: 180,
     width: '100%',
     paddingHorizontal: 40,
   },
@@ -171,11 +163,10 @@ const styles = StyleSheet.create({
   },
   buttonText: { fontSize: 16, fontWeight: 'bold', color: '#3d2510' },
 
-  // Банкир СЛЕВА внизу
   bankerImage: {
     position: 'absolute',
     bottom: 30,
-    left: 20, 
+    left: 20,
     width: 130,
     height: 130,
     resizeMode: 'contain',

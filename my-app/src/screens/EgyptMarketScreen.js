@@ -27,14 +27,15 @@ export default function EgyptMarketScreen({ navigation }) {
 
   const [coins, setCoins] = useState(350);
 
+  // 🔧 ЗАМЕНА ТОВАРОВ НА СТАТУЭТКУ, КОТА, ФРЕСКУ И ВАЗУ
   const [shelf1Items, setShelf1Items] = useState([
-    { id: 'apple', name: 'Сочное яблоко', price: 20, emoji: '🍏', count: 5 },
-    { id: 'date', name: 'Сладкий финик', price: 10, emoji: '🌴', count: 12 },
+    { id: 'statue', name: 'Статуэтка', price: 100, image: require('../../assets/statue.png'), count: 2 },
+    { id: 'cat', name: 'Кот', price: 80, image: require('../../assets/cat.png'), count: 3 },
   ]);
 
   const [shelf2Items, setShelf2Items] = useState([
-    { id: 'pot', name: 'Расписной кувшин', price: 70, emoji: '🏺', count: 2 },
-    { id: 'papyrus', name: 'Папирус', price: 40, emoji: '📜', count: 4 },
+    { id: 'fresco', name: 'Фреска', price: 60, image: require('../../assets/fresco.png'), count: 4 },
+    { id: 'vase', name: 'Ваза', price: 40, image: require('../../assets/vase.png'), count: 5 },
   ]);
 
   const handleBuyItem = (item, setShelf, shelfItems) => {
@@ -77,7 +78,8 @@ export default function EgyptMarketScreen({ navigation }) {
         </View>
 
         <View style={styles.headerContainer}>
-          <Text style={styles.title}>Восточная Лавка</Text>
+          {/* 🔧 ИЗМЕНЕНО НАЗВАНИЕ НА "ЛАВКА" */}
+          <Text style={styles.title}>Лавка</Text>
         </View>
 
         {/* ПОЛКА 1 */}
@@ -88,7 +90,8 @@ export default function EgyptMarketScreen({ navigation }) {
               style={styles.itemCard}
               onPress={() => handleBuyItem(item, setShelf1Items, shelf1Items)}
             >
-              <Text style={styles.itemEmoji}>{item.emoji}</Text>
+              {/* 🔧 ИСПОЛЬЗУЕМ КАРТИНКУ ВМЕСТО ЭМОДЗИ */}
+              <Image source={item.image} style={styles.itemImage} />
               <Text style={styles.itemName}>{item.name}</Text>
               <View style={styles.priceTag}>
                 <Text style={styles.priceText}>💰 {item.price}</Text>
@@ -106,7 +109,8 @@ export default function EgyptMarketScreen({ navigation }) {
               style={styles.itemCard}
               onPress={() => handleBuyItem(item, setShelf2Items, shelf2Items)}
             >
-              <Text style={styles.itemEmoji}>{item.emoji}</Text>
+              {/* 🔧 ИСПОЛЬЗУЕМ КАРТИНКУ ВМЕСТО ЭМОДЗИ */}
+              <Image source={item.image} style={styles.itemImage} />
               <Text style={styles.itemName}>{item.name}</Text>
               <View style={styles.priceTag}>
                 <Text style={styles.priceText}>💰 {item.price}</Text>
@@ -116,7 +120,7 @@ export default function EgyptMarketScreen({ navigation }) {
           ))}
         </View>
 
-        {/* 🔧 УВЕЛИЧЕН питомец */}
+        {/* 🔧 ЯЙЦО НЕМНОГО УВЕЛИЧЕНО (220x220) */}
         <Image source={petImage} style={styles.petImage} />
       </ImageBackground>
     </SafeAreaView>
@@ -204,9 +208,12 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 3,
   },
-  itemEmoji: {
-    fontSize: 32,
-    marginBottom: 2,
+  // 🔧 СТИЛЬ ДЛЯ КАРТИНОК ТОВАРОВ
+  itemImage: {
+    width: 50,
+    height: 50,
+    resizeMode: 'contain',
+    marginBottom: 5,
   },
   itemName: {
     fontSize: 12,
@@ -233,13 +240,13 @@ const styles = StyleSheet.create({
     color: '#777',
     marginTop: 4,
   },
-  // 🔧 УВЕЛИЧЕН питомец (было 140×140, стало 200×200)
+  // 🔧 ЯЙЦО УВЕЛИЧЕНО (было 200x200, стало 220x220)
   petImage: {
     position: 'absolute',
     bottom: 20,
     alignSelf: 'center',
-    width: 200,
-    height: 200,
+    width: 220,
+    height: 220,
     resizeMode: 'contain',
   },
 });
