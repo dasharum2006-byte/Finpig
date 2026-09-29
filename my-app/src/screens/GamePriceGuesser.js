@@ -26,7 +26,7 @@ const ITEMS_DATA = [
   {
     id: 3,
     name: 'Самокат трюковой',
-    // image: require('../../assets/job.png'), 
+    image: require('../../assets/cards/kuryer.png'), 
     correctPrice: 5000,
     minPrice: 500,
     maxPrice: 15000,
@@ -53,7 +53,7 @@ const ITEMS_DATA = [
     {
     id: 6,
     name: 'Макароны',
-    // image: require('../../assets/job.png'), 
+    image: require('../../assets/cards/pasta.png'), 
     correctPrice: 90,
     minPrice: 5,
     maxPrice: 1000,
@@ -62,7 +62,7 @@ const ITEMS_DATA = [
   {
     id: 7,
     name: 'Комикс про динозавров',
-    // image: require('../../assets/job.png'), 
+    image: require('../../assets/cards/yikiomisima.png'), 
     correctPrice: 400,
     minPrice: 1,
     maxPrice: 10000,
@@ -80,7 +80,7 @@ const ITEMS_DATA = [
   {
   id: 9,
   name: 'Шоколадный батончик',
-  // image: require('../../assets/cards/chocolate.png'), 
+  image: require('../../assets/cards/tango.png'), 
   correctPrice: 70,
   minPrice: 5,
   maxPrice: 1000,
@@ -89,7 +89,7 @@ const ITEMS_DATA = [
 {
   id: 10,
   name: 'Билет в кино',
-  // image: require('../../assets/cards/cinema.png'), 
+  image: require('../../assets/cards/kolobok.png'), 
   correctPrice: 350,
   minPrice: 5,
   maxPrice: 1500,
@@ -98,7 +98,7 @@ const ITEMS_DATA = [
 {
   id: 11,
   name: 'Пицца Пепперони',
-  // image: require('../../assets/cards/pizza.png'), 
+  image: require('../../assets/cards/pizzaexpress24.png'), 
   correctPrice: 650,
   minPrice: 200,
   maxPrice: 5000,
@@ -107,7 +107,7 @@ const ITEMS_DATA = [
 {
   id: 12,
   name: 'Беспроводные наушники',
-  // image: require('../../assets/cards/headphones.png'), 
+  image: require('../../assets/cards/inceahahahnaushniki).png'), 
   correctPrice: 6000,
   minPrice: 1,
   maxPrice: 25000,
@@ -116,7 +116,7 @@ const ITEMS_DATA = [
 {
   id: 13,
   name: 'Трендовые кроссовки',
-  // image: require('../../assets/cards/sneakers.png'), 
+  image: require('../../assets/cards/balenciaga.png'), 
   correctPrice: 8000,
   minPrice: 90,
   maxPrice: 30000,
@@ -125,7 +125,7 @@ const ITEMS_DATA = [
 {
   id: 14,
   name: 'Настольная игра',
-  // image: require('../../assets/cards/boardgame.png'), 
+  image: require('../../assets/cards/igramillenialov.png'), 
   correctPrice: 2500,
   minPrice: 300,
   maxPrice: 10000,
@@ -134,7 +134,7 @@ const ITEMS_DATA = [
 {
   id: 15,
   name: 'Современный смартфон',
-  // image: require('../../assets/cards/phone.png'), 
+  image: require('../../assets/cards/iphone(Ilya).png'), 
   correctPrice: 20000,
   minPrice: 20,
   maxPrice: 500000,
@@ -143,7 +143,7 @@ const ITEMS_DATA = [
 {
   id: 16,
   name: 'Игровая приставка',
-  image: require('../../assets/cards/chinamoney.png'), 
+  image: require('../../assets/cards/palesation5.png'), 
   correctPrice: 40000,
   minPrice: 500,
   maxPrice: 600000,
@@ -153,7 +153,7 @@ const ITEMS_DATA = [
 {
   id: 17,
   name: 'Крутой игровой ПК',
-  // image: require('../../assets/cards/pc.png'), 
+  image: require('../../assets/cards/komp.png'), 
   correctPrice: 150000,
   minPrice: 1000,
   maxPrice: 4000000,
@@ -162,7 +162,7 @@ const ITEMS_DATA = [
 {
   id: 18,
   name: 'Поездка на море',
-  // image: require('../../assets/cards/vacation.png'), 
+  image: require('../../assets/cards/WWzavozik67.png'), 
   correctPrice: 120000,
   minPrice: 10,
   maxPrice: 1000000,
@@ -171,7 +171,7 @@ const ITEMS_DATA = [
 {
   id: 19,
   name: 'Электросамокат',
-  // image: require('../../assets/cards/scooter.png'), 
+  image: require('../../assets/cards/kuryer.png'), 
   correctPrice: 35000,
   minPrice: 2000,
   maxPrice: 1200000,
@@ -180,7 +180,7 @@ const ITEMS_DATA = [
 {
   id: 20,
   name: 'Однокомнатная квартира',
-  // image: require('../../assets/cards/flat.png'), 
+  image: require('../../assets/cards/dom.png'), 
   correctPrice: 9000000,
   minPrice: 100000,
   maxPrice: 150000000,
