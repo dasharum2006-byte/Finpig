@@ -5,12 +5,10 @@ const PetContext = createContext(null);
 
 const STORAGE_KEY = '@pet_state_v2';
 
-// Полный цикл голода: 24 часа
 const HUNGER_CYCLE_MS = 24 * 60 * 60 * 1000;
-const HUNGER_DROP_PER_MS = 100 / HUNGER_CYCLE_MS; // % в миллисекунду
+const HUNGER_DROP_PER_MS = 100 / HUNGER_CYCLE_MS;
 const HUNGER_MAX = 100;
 
-// Пересчёт: сколько % голода осталось с момента последнего кормления
 function computeHunger(lastFed) {
   if (!lastFed) return HUNGER_MAX;
   const elapsed = Date.now() - lastFed;
@@ -24,17 +22,14 @@ export function PetProvider({ children }) {
   const [pet, setPet] = useState(null);
   const [lastFed, setLastFed] = useState(null);
   const [hunger, setHunger] = useState(HUNGER_MAX);
-  const [inventory, setInventory] = useState([]); 
+  const [inventory, setInventory] = useState([]);
 
-  // ─── Загрузка ───
   useEffect(() => {
     (async () => {
       try {
         const raw = await AsyncStorage.getItem(STORAGE_KEY);
-        // console.log('RAW PET STORAGE:', raw); 
         if (raw) {
           const s = JSON.parse(raw);
-          // console.log('PARSED PET:', s);  
           setPet(s.pet ?? null);
           setIsOnboardingDone(s.isOnboardingDone ?? false);
           const savedLastFed = s.lastFed ?? Date.now();
@@ -53,16 +48,14 @@ export function PetProvider({ children }) {
     })();
   }, []);
 
-  // ─── Сохранение ───
   useEffect(() => {
     if (!isLoaded) return;
     AsyncStorage.setItem(
       STORAGE_KEY,
       JSON.stringify({ pet, lastFed, hunger, inventory, isOnboardingDone })
-     ).catch((e) => console.error('Pet save error:', e));
+    ).catch((e) => console.error('Pet save error:', e));
   }, [isLoaded, pet, lastFed, hunger, inventory, isOnboardingDone]);
 
-  // ─── Тикер: обновляем голод каждые 30 секунд ───
   useEffect(() => {
     if (!isLoaded) return;
     const interval = setInterval(() => {
@@ -71,7 +64,6 @@ export function PetProvider({ children }) {
     return () => clearInterval(interval);
   }, [isLoaded, lastFed]);
 
-  // ─── Создать нового питомца ───
   const setNewPet = useCallback(({ speciesId, variationId, name }) => {
     setPet({
       speciesId,
@@ -85,36 +77,22 @@ export function PetProvider({ children }) {
     setHunger(HUNGER_MAX);
   }, []);
 
-  const hatchPet = useCallback(() => {
-    setPet((p) => (p ? { ...p, hatched: true, stage: 1 } : p));
-  }, []);
-
-  const evolvePet = useCallback(() => {
+  // Установить стадию (0..3). Вызывается HomeScreen по bank.level
+  const setStage = useCallback((newStage) => {
     setPet((p) => {
       if (!p) return p;
-      const nextStage = Math.min(3, (p.stage ?? 0) + 1);
-      return { ...p, stage: nextStage, hatched: true };
+      const safe = Math.max(0, Math.min(3, newStage));
+      if (p.stage === safe) return p;
+      return { ...p, stage: safe, hatched: safe >= 1 };
     });
   }, []);
 
-  // ─── Покормить — прирост по "весу" еды ───
-  // amount: сколько % добавить (20 для вредного, 45 для полезного)
   const feedPet = useCallback((amount = 100) => {
     const now = Date.now();
-
-    // Считаем текущий голод на этот момент
     const currentHunger = computeHunger(lastFed);
-
-    // Новая сытость = текущая + прирост, но не выше 100
     const newHunger = Math.min(HUNGER_MAX, currentHunger + amount);
-
-    // Переводим "новую сытость" обратно в lastFed:
-    // newHunger = 100 - (now - lastFed') / cycle * 100
-    // → now - lastFed' = (100 - newHunger) / 100 * cycle
-    // → lastFed' = now - (100 - newHunger) / 100 * cycle
     const remainingDrop = ((HUNGER_MAX - newHunger) / 100) * HUNGER_CYCLE_MS;
     const newLastFed = now - remainingDrop;
-
     setLastFed(newLastFed);
     setHunger(newHunger);
   }, [lastFed]);
@@ -124,14 +102,13 @@ export function PetProvider({ children }) {
     const now = Date.now();
     setLastFed(now);
     setHunger(HUNGER_MAX);
-    setIsOnboardingDone(false); 
+    setIsOnboardingDone(false);
   }, []);
 
   const setOnboardingDone = useCallback((value) => {
-  setIsOnboardingDone(value);
-}, []);
+    setIsOnboardingDone(value);
+  }, []);
 
-// Добавить купленную еду в инвентарь
   const addFoodToInventory = useCallback((newItems) => {
     setInventory((prev) => {
       const updated = [...prev];
@@ -147,7 +124,6 @@ export function PetProvider({ children }) {
     });
   }, []);
 
-  // Потратить 1 единицу еды при кормлении
   const consumeFood = useCallback((itemId) => {
     setInventory((prev) => {
       return prev
@@ -170,14 +146,13 @@ export function PetProvider({ children }) {
         lastFed,
         inventory,
         setNewPet,
-        hatchPet,
-        evolvePet,
+        setStage,
         feedPet,
         clearPet,
-        addFoodToInventory,   
+        addFoodToInventory,
         isOnboardingDone,
-        setOnboardingDone,  
-        consumeFood, 
+        setOnboardingDone,
+        consumeFood,
         HUNGER_MAX,
       }}
     >

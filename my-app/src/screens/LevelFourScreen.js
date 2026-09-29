@@ -196,6 +196,10 @@ export default function LevelFourScreen({ navigation, route }) {
       if (reviewMode) {
         navigation.navigate('BlockFourScreen');
       } else {
+        // ⭐ +1 уровень (максимум 4)
+        if (bank?.levelUp && bank.level < 4) {
+          bank.levelUp();
+        }
         navigation.navigate('BlockFourScreen', { completedStep: LEVEL_FOUR_STEPS.length });
       }
     }

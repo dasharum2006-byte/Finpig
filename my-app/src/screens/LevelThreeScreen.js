@@ -294,6 +294,10 @@ export default function LevelThreeScreen({ navigation, route }) {
       if (reviewMode) {
         navigation.navigate('BlockThreeScreen');
       } else {
+        // ⭐ +1 уровень
+        if (bank?.levelUp && bank.level < 4) {
+          bank.levelUp();
+        }
         navigation.navigate('BlockThreeScreen', { completedStep: LEVEL_THREE_STEPS.length });
       }
     }
