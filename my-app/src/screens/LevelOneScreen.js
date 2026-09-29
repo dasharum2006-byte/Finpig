@@ -32,7 +32,7 @@ const LEVEL_STEPS = [
     items: [
       { id: 'card', emoji: '💳', label: 'Карта', isCorrect: true },
       { id: 'candy', emoji: '🍬', label: 'Конфета', isCorrect: false },
-      { id: 'phone', emoji: '📱', label: 'Телефон', isCorrect: false },
+      { id: 'phone', emoji: '📱', label: 'Телефон', isCorrect: true },
     ],
     successText: 'Правильно! Приложил карту к валидатору — оплата прошла, контролёр доволен.',
   },
@@ -41,14 +41,15 @@ const LEVEL_STEPS = [
   {
     id: 3,
     type: 'tap',
+    image: require('../../assets/pictirequestion/shark.png'),
     subTitle: 'Супермаркет',
     text: 'Суперагент Финпиг идёт за продуктами. Хотюн расставил у кассы ловушки — шоколадки и чипсы. Держись списка!',
-    prompt: 'Что положишь в корзину? Нажми на нужное.',
+    prompt: 'Что положишь в корзину? Нажми на нужное.Список покупок: Молоко,Шоколад,Хлеб и Яблоки',
     items: [
       { id: 'milk', emoji: '🥛', label: 'Молоко', isCorrect: true },
-      { id: 'choco', emoji: '🍫', label: 'Шоколад', isCorrect: false },
+      { id: 'choco', emoji: '🍫', label: 'Шоколад', isCorrect: true },
       { id: 'bread', emoji: '🍞', label: 'Хлеб', isCorrect: true },
-      { id: 'chips', emoji: '🍟', label: 'Чипсы', isCorrect: false },
+      { id: 'chips', emoji: '🍟', label: 'Картошка фри', isCorrect: false },
       { id: 'apple', emoji: '🍎', label: 'Яблоки', isCorrect: true },
     ],
     successText: 'Молодец! Собрал всё по списку — не поддался Хотюну!',

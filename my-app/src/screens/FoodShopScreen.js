@@ -13,15 +13,15 @@ const SHOP_FOOD_DATA = [
     title: 'готовая еда',
     shelves: [
       [
-        { id: '1', name: 'Борщ',      price: 4, image: require('../../assets/Food/borsh.png'),      feedValue: 22 },
-        { id: '9', name: 'Салат',     price: 6, image: require('../../assets/Food/salade.png'),     feedValue: 22 },
+        { id: '1', name: 'Борщ',      price: 20, image: require('../../assets/Food/borsh.png'),      feedValue: 22 },
+        { id: '9', name: 'Салат',     price: 15, image: require('../../assets/Food/salade.png'),     feedValue: 22 },
       ],
       [
-        { id: '5', name: 'Спагетти',  price: 3, image: require('../../assets/Food/pasta.png'),      feedValue: 22 },
-        { id: '14', name: 'Каша',     price: 7, image: require('../../assets/Food/porrige.png'),    feedValue: 22 },
+        { id: '5', name: 'Спагетти',  price: 24, image: require('../../assets/Food/pasta.png'),      feedValue: 22 },
+        { id: '14', name: 'Каша',     price: 10, image: require('../../assets/Food/porrige.png'),    feedValue: 22 },
       ],
       [
-        { id: '3', name: 'Бутерброд', price: 5, image: require('../../assets/Food/buterbrod.png'),  feedValue: 22 }
+        { id: '3', name: 'Бутерброд', price: 12, image: require('../../assets/Food/buterbrod.png'),  feedValue: 22 }
     ],
   ]
   },
@@ -48,11 +48,11 @@ const SHOP_FOOD_DATA = [
     title: 'остальное',
     shelves: [
       [
-        { id: '16', name: 'Йогурт',         price: 4, image: require('../../assets/Food/yogurt.png'),   feedValue: 22 },
+        { id: '16', name: 'Йогурт',         price: 8, image: require('../../assets/Food/yogurt.png'),   feedValue: 22 },
         { id: '4',  name: 'Морс с малиной', price: 6, image: require('../../assets/Food/mors.png'),     feedValue: 10 },
       ],
       [
-        { id: '22', name: 'Рыба',           price: 3, image: require('../../assets/Food/fish.png'),     feedValue: 22 },
+        { id: '22', name: 'Рыба',           price: 10, image: require('../../assets/Food/fish.png'),     feedValue: 22 },
         { id: '10', name: 'Сок',            price: 7, image: require('../../assets/Food/applejuice.png'), feedValue: 10 },
       ],
       [

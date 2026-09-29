@@ -7,10 +7,12 @@ import { usePet } from '../context/PetContext';
 
 export default function PurchasedItemsScreen({ navigation }) {
   const petCtx = usePet();
+  console.log('PURCHASED INVENTORY:', petCtx.inventory); 
   const inventory = petCtx.inventory ?? [];
 
   const food = inventory.filter((i) => i.type === 'food');
-  const toys = inventory.filter((i) => i.type === 'toy' || !i.type);
+  const toys = inventory.filter((i) => i.type === 'toy');
+  console.log('FOOD:', food.length, 'TOYS:', toys.length);
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>

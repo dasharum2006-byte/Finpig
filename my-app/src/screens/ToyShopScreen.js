@@ -11,31 +11,30 @@ import backgroundImage from '../../assets/fonshop.png';
 
 const { width } = Dimensions.get('window');
 
-// ─── БД товаров «Хочется» ───
+
 const SHOP_TOY_DATA = [
   {
     id: 'toys', title: 'игрушки',
     shelves: [
-      [{ id: 't1', name: 'мишка', price: 50, img: '🧸' }, { id: 't2', name: 'мячик', price: 30, img: '⚽' }],
-      [{ id: 't3', name: 'машинка', price: 40, img: '🚗' }, { id: 't4', name: 'кукла', price: 45, img: '🪆' }],
+      [{ id: 't_1', name: 'мишка',   price: 50, img: '🧸' }, { id: 't_2', name: 'мячик',   price: 30, img: '⚽' }],
+      [{ id: 't_3', name: 'машинка', price: 40, img: '🚗' }, { id: 't_4', name: 'кукла',   price: 45, img: '🪆' }],
     ],
   },
   {
-    id: 'sweets', title: 'вкусняшки',
+    id: 'stationery', title: 'канцелярия',
     shelves: [
-      [{ id: 's1', name: 'мороженое', price: 15, img: '🍦' }, { id: 's2', name: 'бургер', price: 25, img: '🍔' }],
-      [{ id: 's3', name: 'картошка фри', price: 20, img: '🍟' }, { id: 's4', name: 'пирожное', price: 35, img: '🧁' }],
+      [{ id: 't_5', name: 'ручка',     price: 15, img: '🖊️' }, { id: 't_8', name: 'тетрадь',  price: 25, img: '📓' }],
+      [{ id: 't_6', name: 'карандаши', price: 30, img: '✏️' }, { id: 't_7', name: 'ластик',   price: 10, img: '🧽' }],
     ],
   },
   {
     id: 'decor', title: 'украшения',
     shelves: [
-      [{ id: 'd1', name: 'корона', price: 100, img: '👑' }, { id: 'd2', name: 'бантик', price: 30, img: '🎀' }],
-      [{ id: 'd3', name: 'шляпа', price: 60, img: '🎩' }, { id: 'd4', name: 'шарик', price: 20, img: '🎈' }],
+      [{ id: 't_12', name: 'корона', price: 100, img: '👑' }, { id: 't_9', name: 'бантик', price: 30, img: '🎀' }],
+      [{ id: 't_11', name: 'шляпа',  price: 60,  img: '🎩' }, { id: 't_10', name: 'шарик',  price: 20, img: '🎈' }],
     ],
   },
 ];
-
 export default function ToyShopScreen({ navigation }) {
   const bank = useBank();
   const petCtx = usePet();
@@ -93,7 +92,7 @@ export default function ToyShopScreen({ navigation }) {
     budgetPlanCtx.updateFact('wants', totalCost);
     petCtx.addFoodToInventory(cart.map((item) => ({
     ...item,
-    type: 'toy',   // ← помечаем как игрушку
+    type: 'toy',   
   })));
     setCart([]);
     setPaymentError('');
