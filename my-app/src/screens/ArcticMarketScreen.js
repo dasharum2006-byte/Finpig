@@ -112,7 +112,7 @@ export default function ArcticMarketScreen({ navigation }) {
           ))}
         </View>
 
-        {/* 🔧 ЯЙЦО УЖЕ ОТЦЕНТРИРОВАНО */}
+        {/* ✅ Питомец — по центру снизу, увеличен */}
         <Image source={petImage} style={styles.petImage} />
 
       </View>
@@ -189,14 +189,12 @@ const styles = StyleSheet.create({
   shelf2Position: {
     top: '52%',
   },
-  // 🔧 УБРАН БЕЛЫЙ ФОН И РАМКИ (чтобы не было "квадратиков")
   itemCard: {
     width: width * 0.36,
     backgroundColor: 'transparent',
     borderRadius: 15,
     padding: 10,
     alignItems: 'center',
-    // Убраны borderWidth, borderColor, shadow, elevation
   },
   itemEmoji: {
     fontSize: 32,
@@ -227,12 +225,14 @@ const styles = StyleSheet.create({
     color: '#666',
     marginTop: 4,
   },
+
+  // ✅ Питомец — по центру снизу, увеличен
   petImage: {
     position: 'absolute',
-    bottom: 20,
-    alignSelf: 'center',
-    width: 200,
-    height: 200,
+    bottom: 30,              // ← чуть ниже
+    alignSelf: 'center',     // ← по центру
+    width: 250,              // ← было 200, стало 250
+    height: 250,             // ← было 200, стало 250
     resizeMode: 'contain',
   },
 });

@@ -27,15 +27,15 @@ export default function EgyptMarketScreen({ navigation }) {
 
   const [coins, setCoins] = useState(350);
 
-  // 🔧 ЗАМЕНА ТОВАРОВ НА СТАТУЭТКУ, КОТА, ФРЕСКУ И ВАЗУ
+  // ✅ ИСПРАВЛЕНО: все картинки из assets/Food/
   const [shelf1Items, setShelf1Items] = useState([
-    { id: 'statue', name: 'Статуэтка', price: 100, image: require('../../assets/statue.png'), count: 2 },
-    { id: 'cat', name: 'Кот', price: 80, image: require('../../assets/cat.png'), count: 3 },
+    { id: 'statue', name: 'Статуэтка', price: 100, image: require('../../assets/Food/statue.png'), count: 2 },
+    { id: 'cat', name: 'Кот', price: 80, image: require('../../assets/Food/cat.png'), count: 3 },
   ]);
 
   const [shelf2Items, setShelf2Items] = useState([
-    { id: 'fresco', name: 'Фреска', price: 60, image: require('../../assets/fresco.png'), count: 4 },
-    { id: 'vase', name: 'Ваза', price: 40, image: require('../../assets/vase.png'), count: 5 },
+    { id: 'fresco', name: 'Фреска', price: 60, image: require('../../assets/Food/fresco.png'), count: 4 },
+    { id: 'vase', name: 'Ваза', price: 40, image: require('../../assets/Food/vase.png'), count: 5 },
   ]);
 
   const handleBuyItem = (item, setShelf, shelfItems) => {
@@ -78,7 +78,6 @@ export default function EgyptMarketScreen({ navigation }) {
         </View>
 
         <View style={styles.headerContainer}>
-          {/* 🔧 ИЗМЕНЕНО НАЗВАНИЕ НА "ЛАВКА" */}
           <Text style={styles.title}>Лавка</Text>
         </View>
 
@@ -90,7 +89,6 @@ export default function EgyptMarketScreen({ navigation }) {
               style={styles.itemCard}
               onPress={() => handleBuyItem(item, setShelf1Items, shelf1Items)}
             >
-              {/* 🔧 ИСПОЛЬЗУЕМ КАРТИНКУ ВМЕСТО ЭМОДЗИ */}
               <Image source={item.image} style={styles.itemImage} />
               <Text style={styles.itemName}>{item.name}</Text>
               <View style={styles.priceTag}>
@@ -109,7 +107,6 @@ export default function EgyptMarketScreen({ navigation }) {
               style={styles.itemCard}
               onPress={() => handleBuyItem(item, setShelf2Items, shelf2Items)}
             >
-              {/* 🔧 ИСПОЛЬЗУЕМ КАРТИНКУ ВМЕСТО ЭМОДЗИ */}
               <Image source={item.image} style={styles.itemImage} />
               <Text style={styles.itemName}>{item.name}</Text>
               <View style={styles.priceTag}>
@@ -120,7 +117,6 @@ export default function EgyptMarketScreen({ navigation }) {
           ))}
         </View>
 
-        {/* 🔧 ЯЙЦО НЕМНОГО УВЕЛИЧЕНО (220x220) */}
         <Image source={petImage} style={styles.petImage} />
       </ImageBackground>
     </SafeAreaView>
@@ -208,7 +204,6 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 3,
   },
-  // 🔧 СТИЛЬ ДЛЯ КАРТИНОК ТОВАРОВ
   itemImage: {
     width: 50,
     height: 50,
@@ -240,7 +235,6 @@ const styles = StyleSheet.create({
     color: '#777',
     marginTop: 4,
   },
-  // 🔧 ЯЙЦО УВЕЛИЧЕНО (было 200x200, стало 220x220)
   petImage: {
     position: 'absolute',
     bottom: 20,

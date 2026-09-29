@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
   },
   buttonsContainer: {
     position: 'absolute',
-    bottom: 180,
+    bottom: 400,
     width: '100%',
     paddingHorizontal: 40,
   },
@@ -160,8 +160,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 20,
     alignSelf: 'center',
-    width: 200,
-    height: 200,
+    width: 300,
+    height: 300,
     resizeMode: 'contain',
   },
 });
