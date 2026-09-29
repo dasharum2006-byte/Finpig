@@ -237,6 +237,18 @@ export function BankProvider({ children }) {
     setBalance((b) => b + amount);
     setWallets((w) => ({ ...w, rub: w.rub + amount }));
   }, []);
+    // ─── Полный сброс банка (для удаления профиля) ───
+  const resetBank = useCallback(() => {
+    setBalance(0);
+    setCardNumber(null);
+    setLevel(0);
+    setEnvelopes([]);
+    setDeposit(null);
+    setLoan(null);
+    setWallets({ rub: 0, cny: 0, egp: 0, ant: 0 });
+    setLastDailyBonus(null);
+    setNotification(null);
+  }, []);
 
   const value = {
     isLoaded,
@@ -249,6 +261,7 @@ export function BankProvider({ children }) {
     wallets, exchangeCurrency,
     notification, setNotification,
     addCoins,
+     resetBank,    
   };
 
   return <BankContext.Provider value={value}>{children}</BankContext.Provider>;

@@ -1,30 +1,59 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ImageBackground } from 'react-native';
+import React, { useRef } from 'react';
+import {
+  View, Text, StyleSheet, TouchableOpacity, ImageBackground,
+  PanResponder, Dimensions,
+} from 'react-native';
+
+const { width } = Dimensions.get('window');
+const SWIPE_ACTIVATE = 15;
+const SWIPE_THRESHOLD = 40;
 
 export default function LivingRoomScreen({ navigation }) {
+  const panResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, g) =>
+        Math.abs(g.dx) > SWIPE_ACTIVATE &&
+        Math.abs(g.dx) > Math.abs(g.dy) * 1.5,
+      onPanResponderRelease: (_, g) => {
+        if (g.dx > SWIPE_THRESHOLD) {
+          navigation.navigate('Home');
+        }
+      },
+    })
+  ).current;
+
   return (
-    <ImageBackground 
-      source={require('../../assets/livingroom.png')} 
+    <ImageBackground
+      source={require('../../assets/livingroom.png')}
       style={styles.container}
       resizeMode="cover"
     >
-      <View style={styles.mainContainer}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Text style={styles.backText}>Назад</Text>
-        </TouchableOpacity>
-
+      <View style={styles.mainContainer} {...panResponder.panHandlers}>
         <View style={styles.content}>
           <Text style={styles.title}>Гостиная</Text>
-          <TouchableOpacity 
-            style={styles.gameButton} 
-            onPress={() => navigation.navigate('MiniGamesScreen')} 
+
+          {/* 🎮 Мини-игры */}
+          <TouchableOpacity
+            style={styles.gameButton}
+            onPress={() => navigation.navigate('MiniGamesScreen')}
             activeOpacity={0.8}
           >
             <Text style={styles.gameEmoji}>🎮</Text>
             <Text style={styles.gameText}>Мини-игры</Text>
           </TouchableOpacity>
-        </View>
 
+          {/* 🎒 Мои покупки */}
+          <TouchableOpacity
+            style={[styles.gameButton, styles.shopButton]}
+            onPress={() => navigation.navigate('PurchasedItems')}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.gameEmoji}>🎒</Text>
+            <Text style={styles.gameText}>Мои покупки</Text>
+          </TouchableOpacity>
+
+          <Text style={styles.swipeHint}>свайп вправо → домой</Text>
+        </View>
       </View>
     </ImageBackground>
   );
@@ -35,68 +64,62 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     height: '100%',
+    backgroundColor: '#d9c3a5',
+    paddingTop: 0,
   },
   mainContainer: {
     flex: 1,
-    paddingTop: 30, 
+    paddingTop: 30,
     paddingHorizontal: 20,
-  },
-  backButton: {
-    alignSelf: 'flex-start',
-    backgroundColor: 'rgba(255, 255, 255, 0.85)',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#CCC',
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  backText: {
-    color: '#333',
-    fontWeight: '700',
-    fontSize: 14,
   },
   content: {
     flex: 1,
     justifyContent: 'flex-start',
     alignItems: 'center',
-    // paddingBottom: 80, 
   },
   title: {
     fontSize: 32,
-    fontWeight: '1000',
+    fontWeight: '900',
     color: '#FFF',
     letterSpacing: 1.2,
-    marginTop: -40,
+    marginTop: 10,
     textShadowColor: 'rgba(0, 0, 0, 0.6)',
     textShadowOffset: { width: 2, height: 2 },
     textShadowRadius: 8,
   },
   gameButton: {
-    backgroundColor: '#4e60c9bd', 
+    backgroundColor: '#4e60c9bd',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-end',
     paddingHorizontal: 30,
     paddingVertical: 15,
-    marginTop: 600,
+    marginTop: 510,
     borderRadius: 24,
     gap: 10,
     borderWidth: 2,
     borderColor: '#1f31d4',
-    shadowColor: '#000',
-    elevation: 6,
+    minHeight: 48,
   },
-  gameEmoji: {
-    fontSize: 28,
+  shopButton: {
+    marginTop: 20,
+    backgroundColor: '#42a4f5bd',
+    borderColor: '#1976D2',
   },
+  gameEmoji: { fontSize: 28 },
   gameText: {
     color: '#FFF',
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: '900',
     letterSpacing: 0.5,
+  },
+  swipeHint: {
+    marginTop: 20,
+    fontSize: 13,
+    color: '#FFF',
+    fontStyle: 'italic',
+    textShadowColor: 'rgba(0,0,0,0.5)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
   },
 });

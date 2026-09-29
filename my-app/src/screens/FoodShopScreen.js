@@ -31,20 +31,10 @@ const SHOP_FOOD_DATA = [
         [{id:'c3',name:'рыба',price: 3,img:''},{id:'c4',name:'сок',price: 7,img:''}],
         [{id:'c5',name:'',price: 5,img:''},{id:'c6',name:'',price: 6,img:''}],
         ]
-    },
-    {
-    id: 'sweets', title: 'сладости',
-    shelves: [
-        [{id:'d1',name:'торт',price: 4,img:''},{id:'d2',name:'печенье',price: 6,img:''}],
-        [{id:'d3',name:'',price: 3,img:''},{id:'d4',name:'',price: 7,img:''}],
-        [{id:'d5',name:'',price: 5,img:''},{id:'d6',name:'',price: 6,img:''}],
-        ]
-    },
+    }
 ];
 //Добавление ЛОгики для покупок - корзина и чек!!!!!!!!!!1
 export default function FoodShopScreen({navigation}) {
-    //индекс текущ активности
-    // 👇 ПОДКЛЮЧАЕМ ГЛОБАЛЬНЫЙ БАНК
     const bank = useBank();
     const budgetPlanCtx = useBudgetPlan();
     const pet = usePet();
@@ -121,6 +111,10 @@ export default function FoodShopScreen({navigation}) {
         bank.setBalance(bank.balance - totalCost);
         pet.addFoodToInventory(cart); 
         budgetPlanCtx.updateFact('needs', totalCost);
+        petCtx.addFoodToInventory(cart.map((item) => ({
+          ...item,
+          type: 'food',   
+        })));
 
         setCart([]);
         setPaymentError('');
@@ -455,7 +449,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#FFE082',
+    borderColor: '#424039',
     marginBottom: 10,
   },
   coinText: {

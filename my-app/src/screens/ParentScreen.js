@@ -20,29 +20,31 @@ export default function ParentScreen({ navigation }) {
   const petCtx = usePet();
   const budgetPlanCtx = useBudgetPlan();
     const { demoMode, toggleDemo } = useDemo();
+
+
   const handleResetProfile = () => {
-    Alert.alert(
-      'Сбросить профиль?',
-      'Весь прогресс ребёнка будет удалён: питомец, монеты, цели, план. Это действие нельзя отменить.',
-      [
-        { text: 'Отмена', style: 'cancel' },
-        {
-          text: 'Сбросить',
-          style: 'destructive',
-          onPress: () => {
-            petCtx.clearPet?.();
-            budgetPlanCtx.resetPlan?.();
-            bank.setBalance?.(0);
-            // Очищаем конверты
-            bank.envelopes?.forEach((env) => {
-              bank.withdrawFromEnvelope?.(env.id, env.amount);
-            });
-            Alert.alert('Готово', 'Профиль сброшен. Перезапустите приложение.');
-          },
+  Alert.alert(
+    'Сбросить профиль?',
+    'Весь прогресс ребёнка будет удалён: питомец, монеты, цели, план. Это действие нельзя отменить.',
+    [
+      { text: 'Отмена', style: 'cancel' },
+      {
+        text: 'Сбросить',
+        style: 'destructive',
+        onPress: async () => {
+          petCtx.clearPet?.();
+          budgetPlanCtx.resetPlan?.();
+          bank.resetBank?.();                    // ← одна строка вместо всего
+          await AsyncStorage.clear();            // ← чистит всё хранилище
+          Alert.alert(
+            'Готово',
+            'Профиль сброшен. Закрой приложение ПОЛНОСТЬЮ и запусти заново.'
+          );
         },
-      ]
-    );
-  };
+      },
+    ]
+  );
+};
 
 
   const totalSaved = bank.envelopes?.reduce((sum, e) => sum + e.amount, 0) ?? 0;
@@ -125,7 +127,7 @@ export default function ParentScreen({ navigation }) {
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                 <View style={{ flex: 1 }}>
                 <Text style={styles.cardTitle}>🧪 Демо-режим</Text>
-                <Text style={{ fontSize: 12, color: '#999', marginTop: 4 }}>
+                <Text style={{ fontSize: 17, color: '#999', marginTop: 4 }}>
                     Для  проверки. Все периоды подряд, без ожидания.
                 </Text>
                 </View>
@@ -149,11 +151,11 @@ export default function ParentScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
+  container: { flex: 1, backgroundColor: colors.background, paddingTop: 10 },
   scroll: { padding: 20, paddingBottom: 40 },
 
   header: { marginBottom: 20 },
-  backBtn: { fontSize: 16, color: colors.accent, fontWeight: '600', marginBottom: 8 },
+  backBtn: { fontSize: 20, color: colors.accent, fontWeight: '600', marginBottom: 8 },
   title: { fontSize: 24, fontWeight: '700', color: colors.text },
   subtitle: { fontSize: 14, color: colors.textSecondary, marginTop: 6, lineHeight: 20 },
 
@@ -162,29 +164,29 @@ const styles = StyleSheet.create({
     padding: 16, marginBottom: 14,
     borderWidth: 1, borderColor: '#eee',
   },
-  cardTitle: { fontSize: 17, fontWeight: '700', color: colors.text, marginBottom: 12 },
+  cardTitle: { fontSize: 20, fontWeight: '700', color: colors.text, marginBottom: 12 },
 
-  goalItem: { fontSize: 14, color: colors.text, marginVertical: 3, lineHeight: 20 },
-  bodyText: { fontSize: 14, color: colors.textSecondary, lineHeight: 20 },
-  emptyText: { fontSize: 13, color: colors.textSecondary, fontStyle: 'italic' },
+  goalItem: { fontSize: 18, color: colors.text, marginVertical: 3, lineHeight: 20 },
+  bodyText: { fontSize: 18, color: colors.textSecondary, lineHeight: 20 },
+  emptyText: { fontSize: 18, color: colors.textSecondary, fontStyle: 'italic' },
 
   statRow: {
     flexDirection: 'row', justifyContent: 'space-between',
     paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#f0f0f0',
   },
-  statLabel: { fontSize: 14, color: colors.textSecondary, flex: 1 },
-  statValue: { fontSize: 15, fontWeight: '700', color: colors.text },
+  statLabel: { fontSize: 18, color: colors.textSecondary, flex: 1 },
+  statValue: { fontSize: 18, fontWeight: '700', color: colors.text },
 
   dangerCard: {
     backgroundColor: '#fff5f5', borderRadius: 16,
     padding: 16, marginTop: 6,
     borderWidth: 1, borderColor: '#ffcdd2',
   },
-  dangerTitle: { fontSize: 16, fontWeight: '700', color: '#c62828', marginBottom: 8 },
-  dangerText: { fontSize: 13, color: '#8a6d6d', marginBottom: 12, lineHeight: 18 },
+  dangerTitle: { fontSize: 18, fontWeight: '700', color: '#c62828', marginBottom: 8 },
+  dangerText: { fontSize: 18, color: '#8a6d6d', marginBottom: 12, lineHeight: 18 },
   dangerBtn: {
     backgroundColor: '#e53935', paddingVertical: 12,
     borderRadius: 12, alignItems: 'center',
   },
-  dangerBtnText: { color: '#fff', fontSize: 15, fontWeight: '700' },
+  dangerBtnText: { color: '#fff', fontSize: 17, fontWeight: '700' },
 });

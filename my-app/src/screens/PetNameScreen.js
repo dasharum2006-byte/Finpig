@@ -117,27 +117,37 @@ export default function PetNameScreen({ route, navigation }) {
     </SafeAreaView>
   );
 }
-
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
+  container: { flex: 1, backgroundColor: '#E3F2FD' },               // ← светло-голубой
   flex: { flex: 1 },
   content: { paddingHorizontal: PADDING, paddingTop: 20, paddingBottom: 20 },
 
+  // ─── Яйцо сверху ───
   eggWrapper: { alignItems: 'center', marginBottom: 20 },
   eggImage: { width: width * 0.5, height: width * 0.5 },
 
-  label: { fontSize: 16, color: colors.text, fontWeight: '600', marginBottom: 10 },
+  // ─── Лейблы ───
+  label: {
+    fontSize: 18,
+    color: '#0D47A1',                                                // ← тёмно-голубой
+    fontWeight: '800',
+    marginBottom: 10,
+  },
+
+  // ─── Поле ввода ───
   input: {
     borderWidth: 2,
-    borderColor: colors.border,
+    borderColor: '#90CAF9',                                          // ← голубая обводка
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
-    fontSize: 16,
-    color: colors.text,
-    backgroundColor: colors.cardBg,
+    fontSize: 18,
+    color: '#0D47A1',                                                // ← тёмно-голубой текст
+    backgroundColor: '#FFFFFF',                                      // ← белый фон
+    minHeight: 56,
   },
 
+  // ─── Карточки окрасов ───
   variationsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -148,21 +158,32 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     borderRadius: 16,
     borderWidth: 3,
-    borderColor: 'transparent',
-    backgroundColor: colors.cardBg,
+    borderColor: '#90CAF9',                                          // ← голубая обводка
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 10,
+    shadowColor: '#42A5F5',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
   },
-  variationCardSelected: { borderColor: colors.accent },
+  variationCardSelected: {
+    borderColor: '#1976D2',                                          // ← тёмно-голубая обводка
+    backgroundColor: '#E3F2FD',                                      // ← светло-голубой фон
+    borderWidth: 4,
+  },
   variationImage: { width: '80%', height: '80%' },
   variationLabel: {
     position: 'absolute',
     bottom: 6,
-    fontSize: 12,
-    fontWeight: '700',
-    color: colors.text,
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#0D47A1',                                                // ← тёмно-голубой
   },
+
+  // ─── Бейдж-галочка ───
   checkBadge: {
     position: 'absolute',
     top: 6,
@@ -170,22 +191,38 @@ const styles = StyleSheet.create({
     width: 26,
     height: 26,
     borderRadius: 13,
-    backgroundColor: colors.accent,
+    backgroundColor: '#1976D2',                                      // ← тёмно-голубой
     alignItems: 'center',
     justifyContent: 'center',
   },
-  checkText: { color: '#fff', fontSize: 14, fontWeight: 'bold' },
+  checkText: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
 
+  // ─── Footer с кнопкой ───
   footer: {
     paddingHorizontal: PADDING,
     paddingTop: 12,
     paddingBottom: 20,
     borderTopWidth: 1,
-    borderTopColor: colors.border,
-    backgroundColor: colors.background,
+    borderTopColor: '#90CAF9',                                       // ← голубая граница
+    backgroundColor: '#E3F2FD',                                      // ← тот же фон
   },
-  button: { backgroundColor: colors.accent, paddingVertical: 16, borderRadius: 14, alignItems: 'center' },
-  buttonDisabled: { backgroundColor: colors.disabled },
-  buttonText: { color: '#fff', fontSize: 17, fontWeight: '600' },
-  buttonTextDisabled: { color: colors.disabledText },
+  button: {
+    backgroundColor: '#42A5F5',                                      // ← голубая кнопка
+    paddingVertical: 16,
+    borderRadius: 14,
+    alignItems: 'center',
+    minHeight: 56,
+    justifyContent: 'center',
+    shadowColor: '#42A5F5',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    elevation: 6,
+  },
+  buttonDisabled: {
+    backgroundColor: '#BBDEFB',                                      // ← светло-голубая
+    shadowOpacity: 0,
+  },
+  buttonText: { color: '#fff', fontSize: 18, fontWeight: '800' },
+  buttonTextDisabled: { color: '#E3F2FD' },
 });

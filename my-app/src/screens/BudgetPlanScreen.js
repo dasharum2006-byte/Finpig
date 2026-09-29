@@ -5,18 +5,29 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../theme';
 import { useBank } from '../context/BankContext';
 import { useBudgetPlan } from '../context/BudgetPlanContext';
-
+import { usePet } from '../context/PetContext';
+import { getEggImage, getPetImage } from '../petsConfig';
 const STEP = 50;
+
 
 export default function BudgetPlanScreen({ onFinish, mode = 'plan' }) {
   const bank = useBank();
   const budgetPlanCtx = useBudgetPlan();
-
+   const petCtx = usePet();  
+    const myPet = petCtx.pet;
+  const currentStage = myPet?.stage ?? 0;
+  const petImage = myPet
+    ? (currentStage === 0
+        ? getEggImage(myPet.speciesId)
+        : getPetImage(myPet.speciesId, myPet.variationId, currentStage - 1))
+    : null;
+  const petName = myPet?.name ?? 'Питомец';
   const budget = bank.balance > 0 ? bank.balance : 500;
 
   const [needs, setNeeds] = useState(0);
@@ -67,11 +78,11 @@ export default function BudgetPlanScreen({ onFinish, mode = 'plan' }) {
     return 'Всё распределено ✅';
   };
 
-  const getRemainingColor = () => {
-    if (remaining > 0) return '#e8a87c';
-    if (remaining < 0) return '#ff4d4d';
-    return '#4caf50';
-  };
+const getRemainingColor = () => {
+  if (remaining > 0) return '#90CAF9';  
+  if (remaining < 0) return '#EF5350';   
+  return '#42A5F5';                
+};
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
@@ -85,6 +96,16 @@ export default function BudgetPlanScreen({ onFinish, mode = 'plan' }) {
             Давай распределим твои монеты на этот период
           </Text>
         </View>
+        {petImage && (
+    <View style={styles.petBlock}>
+      <Image
+        source={petImage}
+        style={styles.petImageBudget}
+        resizeMode="contain"
+      />
+      <Text style={styles.petNameBudget}>{petName} ждёт план!</Text>
+    </View>
+  )}
 
         <View style={styles.budgetCard}>
           <Text style={styles.budgetLabel}>Твой бюджет</Text>
@@ -347,96 +368,201 @@ function CategoryRow({
     </View>
   );
 }
-
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
+  // ─── Общий контейнер ───
+  container: { flex: 1, backgroundColor: '#E3F2FD' },   // ← светло-голубой фон
   scroll: { padding: 20, paddingBottom: 40 },
 
+  // ─── Header ───
   header: { marginBottom: 20 },
-  title: { fontSize: 26, fontWeight: '700', color: colors.text, marginBottom: 6 },
-  subtitle: { fontSize: 15, color: colors.textSecondary, lineHeight: 20 },
+  title: { fontSize: 26, fontWeight: '900', color: '#0D47A1', marginBottom: 6 },
+  subtitle: { fontSize: 18, color: '#1976D2', lineHeight: 20 },
 
-  emptyWrap: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
-  emptyText: { fontSize: 16, color: colors.textSecondary },
-
+  // ─── Budget card (500 монет) ───
   budgetCard: {
-    backgroundColor: colors.accent,
-    borderRadius: 20, padding: 20,
-    alignItems: 'center', marginBottom: 24,
+    backgroundColor: '#42A5F5',        // ← голубая карточка
+    borderRadius: 20,
+    padding: 10,
+    alignItems: 'center',
+    marginBottom: 24,
+    shadowColor: '#42A5F5',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    elevation: 6,
   },
-  budgetLabel: { color: '#fff', fontSize: 14, opacity: 0.9, marginBottom: 4 },
-  budgetValue: { color: '#fff', fontSize: 32, fontWeight: '700' },
+  budgetLabel: { color: '#E3F2FD', fontSize: 14, opacity: 0.95, marginBottom: 4 },
+  budgetValue: { color: '#FFF', fontSize: 36, fontWeight: '900', letterSpacing: 1 },
 
-  section: { marginBottom: 20 },
-  sectionTitle: { fontSize: 18, fontWeight: '700', color: colors.text, marginBottom: 12 },
+  // ─── Section ───
+  section: { marginBottom: 10 },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#0D47A1',
+    marginBottom: 12,
+  },
 
+  // ─── Category row (🍎🎈💰) ───
   row: {
-    backgroundColor: colors.cardBg,
-    borderRadius: 16, padding: 14, marginBottom: 12,
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 14,
+    marginBottom: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderWidth: 2,
+    borderColor: '#90CAF9',            // ← голубая обводка
+    minHeight: 72,
   },
   rowLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
   rowEmoji: { fontSize: 28, marginRight: 12 },
-  rowTitle: { fontSize: 16, fontWeight: '700', color: colors.text },
-  rowHint: { fontSize: 12, color: colors.textSecondary, marginTop: 2 },
+  rowTitle: { fontSize: 17, fontWeight: '800', color: '#0D47A1' },
+  rowHint: { fontSize: 17, color: '#1976D2', marginTop: 2 },
+
+  // ─── Кнопки +/- ───
   rowControls: { flexDirection: 'row', alignItems: 'center' },
   stepBtn: {
-    width: 40, height: 40, borderRadius: 20,
-    backgroundColor: colors.accent,
-    alignItems: 'center', justifyContent: 'center',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#42A5F5',        // ← голубая
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#42A5F5',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  stepBtnDisabled: { backgroundColor: '#ccc' },
-  stepBtnText: { color: '#fff', fontSize: 22, fontWeight: '700', lineHeight: 24 },
+  stepBtnDisabled: { backgroundColor: '#BBDEFB', shadowOpacity: 0 },   // ← светлее
+  stepBtnText: { color: '#FFF', fontSize: 22, fontWeight: '900', lineHeight: 24 },
   rowValue: {
-    minWidth: 60, textAlign: 'center',
-    fontSize: 18, fontWeight: '700', color: colors.text,
+    minWidth: 60,
+    textAlign: 'center',
+    fontSize: 18,
+    fontWeight: '900',
+    color: '#0D47A1',
     marginHorizontal: 8,
   },
 
-  progressBlock: { marginVertical: 16 },
+  // ─── Прогресс-бар ───
+  progressBlock: { marginVertical: 5 },
   progressTrack: {
-    height: 16, borderRadius: 8,
-    backgroundColor: 'rgba(0,0,0,0.08)', overflow: 'hidden',
+    height: 15,
+    borderRadius: 8,
+    backgroundColor: 'rgba(66, 165, 245, 0.15)',   // ← светло-голубой фон
+    overflow: 'hidden',
   },
+  
   progressFill: { height: '100%', borderRadius: 8 },
-  remainingText: { marginTop: 8, fontSize: 15, fontWeight: '600', textAlign: 'center' },
-
-  petHint: { backgroundColor: '#fff7e6', borderRadius: 14, padding: 14, marginBottom: 16 },
-  petHintText: { fontSize: 14, color: '#8a6d3b', lineHeight: 20 },
-
-  confirmButton: {
-    backgroundColor: colors.accent,
-    paddingVertical: 16, borderRadius: 16,
-    alignItems: 'center', marginTop: 8,
+  remainingText: {
+    marginTop: 6,
+    fontSize: 15,
+    fontWeight: '700',
+    textAlign: 'center',
   },
-  confirmButtonDisabled: { backgroundColor: '#e0e0e0' },
-  confirmText: { color: '#fff', fontSize: 18, fontWeight: '700' },
-  confirmTextDisabled: { color: '#999' },
+
+  // ─── Подсказка от питомца ───
+  petHint: {
+    backgroundColor: '#E1F5FE',         // ← очень светлый голубой
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#81D4FA',
+  },
+  petHintText: { fontSize: 14, color: '#01579B', lineHeight: 20 },
+
+  // ─── Кнопка «Подтвердить» ───
+  confirmButton: {
+    backgroundColor: '#42A5F5',         // ← голубая
+    paddingVertical: 16,
+    borderRadius: 16,
+    alignItems: 'center',
+    marginTop: 8,
+    minHeight: 56,
+    justifyContent: 'center',
+    shadowColor: '#42A5F5',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    elevation: 6,
+  },
+  confirmButtonDisabled: {
+    backgroundColor: '#BBDEFB',         // ← светло-голубая
+    shadowOpacity: 0,
+  },
+  confirmText: { color: '#FFF', fontSize: 18, fontWeight: '900' },
+  confirmTextDisabled: { color: '#E3F2FD' },
+
+  // ─── ResultView (итоги) ───
+  emptyWrap: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
+  emptyText: { fontSize: 16, color: '#1976D2' },
 
   overallCard: {
-    backgroundColor: colors.accent, borderRadius: 20,
-    padding: 20, marginBottom: 24, alignItems: 'center',
+    backgroundColor: '#42A5F5',
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 24,
+    alignItems: 'center',
+    shadowColor: '#42A5F5',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    elevation: 6,
   },
-  overallLabel: { color: '#fff', fontSize: 14, opacity: 0.9, marginBottom: 4 },
-  overallValue: { color: '#fff', fontSize: 22, fontWeight: '700', marginBottom: 12 },
+  overallLabel: { color: '#E3F2FD', fontSize: 14, opacity: 0.95, marginBottom: 4 },
+  overallValue: { color: '#FFF', fontSize: 22, fontWeight: '900', marginBottom: 12 },
   overallTrack: {
-    width: '100%', height: 12, borderRadius: 6,
-    backgroundColor: 'rgba(255,255,255,0.3)', overflow: 'hidden',
+    width: '100%',
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: 'rgba(255,255,255,0.3)',
+    overflow: 'hidden',
   },
-  overallFill: { height: '100%', backgroundColor: '#fff', borderRadius: 6 },
+  overallFill: { height: '100%', backgroundColor: '#FFF', borderRadius: 6 },
 
-  resultRow: { backgroundColor: colors.cardBg, borderRadius: 16, padding: 16, marginBottom: 12 },
+  resultRow: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 2,
+    borderColor: '#90CAF9',            // ← голубая обводка
+  },
   resultHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
   resultEmoji: { fontSize: 24, marginRight: 10 },
-  resultTitle: { fontSize: 16, fontWeight: '700', color: colors.text },
+  resultTitle: { fontSize: 16, fontWeight: '800', color: '#0D47A1' },
   resultValues: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
   resultCol: { flex: 1, alignItems: 'center' },
-  resultLabel: { fontSize: 12, color: colors.textSecondary, marginBottom: 4 },
-  resultNumber: { fontSize: 18, fontWeight: '700', color: colors.text },
-  resultFeedback: { fontSize: 13, fontWeight: '600', textAlign: 'center' },
+  resultLabel: { fontSize: 12, color: '#1976D2', marginBottom: 4 },
+  resultNumber: { fontSize: 18, fontWeight: '900', color: '#0D47A1' },
+  resultFeedback: { fontSize: 13, fontWeight: '700', textAlign: 'center' },
 
   petFeedback: {
-    backgroundColor: '#fff7e6', borderRadius: 14, padding: 16, marginVertical: 16,
+    backgroundColor: '#E1F5FE',
+    borderRadius: 14,
+    padding: 16,
+    marginVertical: 16,
+    borderWidth: 1,
+    borderColor: '#81D4FA',
   },
-  petFeedbackText: { fontSize: 15, color: '#8a6d3b', lineHeight: 22 },
+  petFeedbackText: { fontSize: 15, color: '#01579B', lineHeight: 22 },
+  petBlock: {
+  alignItems: 'center',
+  marginBottom: 16,
+},
+petImageBudget: {
+  width: 140,
+  height: 140,
+  marginBottom: 8,
+},
+petNameBudget: {
+  fontSize: 16,
+  fontWeight: '700',
+  color: '#0D47A1',
+  textAlign: 'center',
+},
 });

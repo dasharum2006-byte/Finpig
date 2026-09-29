@@ -3,27 +3,14 @@ import { useFocusEffect } from '@react-navigation/native';
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-
 const BLOCK_ONE_ROUTINE = [
-  { id: 1, type: 'quiz', title: 'Откуда взялись деньги?', subtitle: 'Откуда взялись деньги?' },
-  { id: 2, type: 'quiz', title: 'Почему появились деньги?', subtitle: 'Почему появились деньги?' },
-  { id: 3, type: 'quiz', title: 'Сбережения', subtitle: 'Сбережения' },
-  { id: 4, type: 'quiz', title: 'Копим на мечту', subtitle: 'Копим на мечту' },
-  { id: 5, type: 'sort', title: 'План «Подарок маме»', subtitle: 'План «Подарок маме»' },
-  { id: 6, type: 'quiz', title: 'Осторожно  фальшивка', subtitle: 'Осторожно фальшивка' },
-  { id: 7, type: 'quiz', title: 'Ловушка Монстра «Хотюна»', subtitle: 'Ловушка Монстра «Хотюна»' },
-  { id: 8, type: 'quiz', title: 'Нужды и Хотелки', subtitle: 'Нужды и Хотелки' },
-  { id: 9, type: 'quiz', title: 'Обман в магазине', subtitle: 'Обман в магазине' },
-  { id: 10, type: 'quiz', title: 'Экзамен Банкира', subtitle: 'Экзамен Банкира' },
-  { id: 11, type: 'quiz', title: 'Супермаркет', subtitle: 'Супермаркет' },
-  { id: 12, type: 'quiz', title: 'Спецоперация в автобусе', subtitle: 'Спецоперация в автобусе' },
-  { id: 13, type: 'quiz', title: 'Эволюция денег', subtitle: 'Эволюция денег' },
-  { id: 14, type: 'quiz', title: 'Тайна  кошелька', subtitle: 'Тайна  кошелька' },
-  { id: 15, type: 'quiz', title: 'Невидимые монеты ', subtitle: 'Невидимые монеты ' },
-  { id: 16, type: 'quiz', title: 'Чек-ап расходов ', subtitle: 'Чек-ап расхов ' },
+  { id: 1, type: 'quiz', title: 'Почему появились деньги?', subtitle: 'Акула и леденец' },
+  { id: 2, type: 'tap',  title: 'Спецоперация в автобусе', subtitle: 'Оплати проезд' },
+  { id: 3, type: 'tap',  title: 'Супермаркет', subtitle: 'Собери корзину по списку' },
+  { id: 4, type: 'tap',  title: 'Осторожно: фальшивка', subtitle: 'Что делать с подозрительной купюрой' },
+  { id: 5, type: 'sort', title: 'План «Подарок маме»', subtitle: 'Расставь шаги по порядку' },
+  { id: 6, type: 'sort', title: 'Эволюция денег', subtitle: 'От древности до цифровых' },
 ];
-
-
 
 const STORAGE_KEY = '@block_one_progress_v1';
 
@@ -36,9 +23,7 @@ export default function BlockOneScreen({ navigation }) {
         try {
           const savedStep = await AsyncStorage.getItem(STORAGE_KEY);
           const currentStepInt = (savedStep ? parseInt(savedStep, 10) : 0);
-
           setCompletedStep(currentStepInt);
-          //Если прошли 6 вопросов ставим флаг
           if (currentStepInt >= BLOCK_ONE_ROUTINE.length) {
             await AsyncStorage.setItem('@block_one_finished', 'true');
           }
@@ -53,53 +38,44 @@ export default function BlockOneScreen({ navigation }) {
   const handlePressItem = (item) => {
     const isCompleted = item.id <= completedStep;
     const isCurrent = item.id === completedStep + 1;
+
     if (isCompleted) {
-      if (item.type === 'quiz') {
-        navigation.navigate('LevelOneScreen', { 
-          startIndex: item.id - 1, 
-          reviewMode: true 
-        });
-      }
+      // Прошёл — можно посмотреть ответы (review)
+      navigation.navigate('LevelOneScreen', {
+        startIndex: item.id - 1,
+        reviewMode: true,
+      });
       return;
     }
-    // if (isCompleted) {
-    //   Alert.alert('Уже пройдено ', 'Этот шаг ты уже прошёл');
-    //   return;
-    // }
+
     if (!isCurrent) {
       Alert.alert('Заблокировано 🔒', 'Сначала пройди предыдущий шаг');
       return;
     }
-    if (item.type === 'quiz') {
-      navigation.navigate('LevelOneScreen', { startIndex: item.id - 1 });
-    // } else if (item.type === 'game') {
-    //   navigation.navigate(item.screen, { stepId: item.id });
-    }
-  };
-   
-    const handleGoToBlockTwo = async () => {
-    try {
-      await AsyncStorage.setItem('@block_one_finished', 'true');
-      navigation.navigate('Tasks', { unlockBlockTwo: true });
-    } catch (e) {
-      console.error(e);
-    }
+
+    // Текущее задание — открываем
+    navigation.navigate('LevelOneScreen', { startIndex: item.id - 1 });
   };
 
-   const isBlockFinished = completedStep >= BLOCK_ONE_ROUTINE.length;
-
+  const isBlockFinished = completedStep >= BLOCK_ONE_ROUTINE.length;
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('Tasks')}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.navigate('Tasks')}
+        >
           <Text style={styles.backButtonText}>Задания</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Блок 1</Text>
         <View style={{ width: 110 }} />
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         {BLOCK_ONE_ROUTINE.map((item) => {
           const isCompleted = item.id <= completedStep;
           const isCurrent = item.id === completedStep + 1;
@@ -116,6 +92,7 @@ export default function BlockOneScreen({ navigation }) {
               ]}
               onPress={() => handlePressItem(item)}
               activeOpacity={isLocked ? 1 : 0.8}
+              disabled={isLocked}
             >
               <View style={styles.cardInfo}>
                 <Text style={[
@@ -129,7 +106,11 @@ export default function BlockOneScreen({ navigation }) {
                   styles.cardSubtitle,
                   isCompleted && styles.completedText,
                 ]}>
-                  {isCompleted ? 'Нажми, чтобы посмотреть ответы' : isLocked ? 'Пройди прошлый уровень' : item.subtitle}
+                  {isCompleted
+                    ? 'Нажми, чтобы посмотреть ответы'
+                    : isLocked
+                      ? 'Пройди прошлый уровень'
+                      : item.subtitle}
                 </Text>
               </View>
               {isCurrent && <Text style={styles.arrow}>▶</Text>}
@@ -137,67 +118,72 @@ export default function BlockOneScreen({ navigation }) {
             </TouchableOpacity>
           );
         })}
+
+        {/* Кнопка «В Блок 2» — когда всё пройдено */}
+        {/* {isBlockFinished && (
+          <TouchableOpacity
+            style={styles.nextBlockBtn}
+            onPress={() => navigation.navigate('Tasks')}
+          >
+            <Text style={styles.nextBlockBtnText}>🎉 Блок 1 пройден! К заданиям</Text>
+          </TouchableOpacity>
+        )} */}
       </ScrollView>
     </View>
   );
 }
 
-
 const styles = StyleSheet.create({
   container: { 
     flex: 1, 
-    backgroundColor: '#F5F7FA', 
-    paddingTop: 25, 
+    backgroundColor: '#F4F7F9', // Чистый аккуратный светлый фон
+    paddingTop: 50, // Выровняли верхний отступ под остальные экраны
   },
   header: { 
     flexDirection: 'row', 
     justifyContent: 'space-between', 
     alignItems: 'center', 
     paddingHorizontal: 20, 
-    textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 25,
   },
   backButton: { 
-    backgroundColor: '#3e9250cb', 
-    paddingHorizontal: 15, 
+    backgroundColor: '#607D8B', // Приятный стальной цвет, как на экране Tasks
+    paddingHorizontal: 14, 
     paddingVertical: 8, 
-    borderRadius: 12 
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: '#455A64', // Чёткая контурная линия для кнопки
   },
   backButtonText: { 
-    color: '#131212', 
-    fontWeight: 'bold' 
+    color: '#FFF', // Белый текст на стальном фоне читается гораздо лучше
+    fontWeight: 'bold',
+    fontSize: 13,
   },
   headerTitle: { 
-    fontSize: 26, 
-    marginLeft: 35,
+    fontSize: 22, 
     fontWeight: 'bold', 
-    color: '#333',
-    textAlign: 'center', 
-    flex: 1,            
-    textAlignVertical: 'center',
+    color: '#2C3E50',
+    textAlign: 'center',
+    flex: 1,
   },
   scrollContent: { 
     paddingHorizontal: 20, 
     paddingBottom: 40 
   },
 
+  // БАЗОВАЯ КАРТОЧКА (ИСПРАВЛЕНО: ТЕНЕЙ НЕТ, ЧЁТКАЯ РАМКА BORDER LINE)
   card: { 
     flexDirection: 'row', 
     alignItems: 'center', 
     justifyContent: 'space-between', 
     padding: 16, 
-    borderRadius: 16, 
+    borderRadius: 14, 
     marginBottom: 12, 
-    borderWidth: 1, 
-    elevation: 2,
+    borderWidth: 2, // Жирненький аккуратный контур
   },
   quizCard: { 
-    backgroundColor: '#FFF', 
-    borderColor: '#E2E8F0' 
-  },
-  gameCard: { 
-    backgroundColor: '#EBF8FF', 
-    borderColor: '#BEE3F8' 
+    backgroundColor: '#FFFFFF', 
+    borderColor: '#CFD8DC' // Спокойный базовый серый контур
   },
   cardInfo: { 
     flex: 1,            
@@ -206,27 +192,64 @@ const styles = StyleSheet.create({
   cardTitle: { 
     fontSize: 16, 
     fontWeight: 'bold', 
-    color: '#2D3748',
-    textAlign: 'left'    
+    color: '#2C3E50',
   },
-  lockedText: { 
-    color: '#A0AEC0' 
-  },
+  
+  // КНИЖНЫЙ СТИЛЬ ПОДЗАГОЛОВКА 📖
   cardSubtitle: { 
     fontSize: 13, 
-    color: '#718096', 
+    color: '#7F8C8D', 
     marginTop: 4,
-    textAlign: 'left'    
+    textAlign: 'justify', // Текст распределяется ровно по краям
+    lineHeight: 18,       // Межстрочный интервал
   },
-  arrow: { 
-    fontSize: 16, 
-    color: '#A0AEC0', 
-    marginLeft: 10,      
-    marginTop: 0 
-  },
+  
+  // ЗАКРЫТАЯ КАРТОЧКА
   lockedCard: { 
-    backgroundColor: '#E2E8F0', 
-    borderColor: '#CBD5E0', 
+    backgroundColor: '#ECEFF1', 
+    borderColor: '#B0BEC5', 
     opacity: 0.6 
   },
+  lockedText: { 
+    color: '#78909C' 
+  },
+  
+  // ПРОЙДЕННАЯ КАРТОЧКА
+  completedCard: {
+    backgroundColor: '#E8F5E9',
+    borderColor: '#81C784',
+  },
+  completedText: {
+    color: '#2E7D32',
+  },
+
+  arrow: { 
+    fontSize: 16, 
+    color: '#78909C', 
+    marginLeft: 10,      
+  },
+  checkMark: {
+    fontSize: 18,
+    marginLeft: 10,
+  },
+    // СТИЛИ ДЛЯ КНОПКИ ПЕРЕХОДА К СЛЕДУЮЩЕМУ БЛОКУ (БЕЗ ТЕНЕЙ, С КОНТУРОМ)
+  nextBlockBtn: {
+    backgroundColor: '#E8F5E9', // Мягкий пастельный зеленый
+    paddingVertical: 15,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 20,
+    marginBottom: 10,
+    borderWidth: 2,
+    borderColor: '#4CAF50', // Яркий зеленый контур (border line)
+  },
+  nextBlockBtnText: {
+    color: '#2e7d329c', // Глубокий темно-зеленый текст
+    fontSize: 16,
+    fontWeight: 'bold',
+    textTransform: 'uppercase', // Геймерский заглавный стиль текста
+    letterSpacing: 0.5,
+  },
+
 });

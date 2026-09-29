@@ -6,12 +6,12 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../theme';
 import { useBank } from '../context/BankContext';
-
+import { useBudgetPlan } from '../context/BudgetPlanContext';
 // ─── 3 цели по умолчанию ───
 const DEFAULT_GOALS = [
   { id: 'g1', title: 'Велосипед', emoji: '🚲', cost: 500 },
   { id: 'g2', title: 'Самокат',   emoji: '🛴', cost: 300 },
-  { id: 'g3', title: 'Подарок маме', emoji: '🎁', cost: 200 },
+  { id: 'g3', title: 'Подарок', emoji: '🎁', cost: 200 },
 ];
 
 export default function GoalsScreen({ navigation }) {
@@ -207,9 +207,9 @@ const styles = StyleSheet.create({
   scroll: { padding: 20, paddingBottom: 40 },
 
   header: { marginBottom: 20 },
-  backBtn: { fontSize: 16, color: colors.accent, fontWeight: '600', marginBottom: 8 },
+  backBtn: { fontSize: 17, color: colors.accent, fontWeight: '600', marginBottom: 8 },
   title: { fontSize: 26, fontWeight: '700', color: colors.text },
-  subtitle: { fontSize: 14, color: colors.textSecondary, marginTop: 6 },
+  subtitle: { fontSize: 17, color: colors.textSecondary, marginTop: 6 },
 
   balanceCard: {
     backgroundColor: '#fff', borderRadius: 16,
@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: '#eee',
   },
   balanceRow: { flexDirection: 'row', justifyContent: 'space-between', marginVertical: 4 },
-  balanceLabel: { fontSize: 15, color: colors.textSecondary },
+  balanceLabel: { fontSize: 17, color: colors.textSecondary },
   balanceValue: { fontSize: 18, fontWeight: '700', color: colors.text },
 
   goalCard: {
@@ -228,18 +228,18 @@ const styles = StyleSheet.create({
   goalHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
   goalEmoji: { fontSize: 36, marginRight: 12 },
   goalTitle: { fontSize: 18, fontWeight: '700', color: colors.text },
-  goalSub: { fontSize: 13, color: colors.textSecondary, marginTop: 2 },
+  goalSub: { fontSize: 17, color: colors.textSecondary, marginTop: 2 },
 
   progressTrack: {
     height: 14, borderRadius: 7, backgroundColor: '#eee',
     overflow: 'hidden', marginBottom: 6,
   },
   progressFill: { height: '100%', borderRadius: 7 },
-  progressText: { fontSize: 12, color: colors.textSecondary, marginBottom: 12 },
+  progressText: { fontSize: 17, color: colors.textSecondary, marginBottom: 12 },
 
   btnRow: { flexDirection: 'row', gap: 10 },
   actionBtn: { flex: 1, paddingVertical: 10, borderRadius: 10, alignItems: 'center' },
-  actionBtnText: { color: '#fff', fontWeight: '700', fontSize: 14 },
+  actionBtnText: { color: '#fff', fontWeight: '700', fontSize: 17 },
 
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
   modalContent: {
@@ -247,12 +247,12 @@ const styles = StyleSheet.create({
     padding: 24, paddingBottom: 40,
   },
   modalTitle: { fontSize: 20, fontWeight: '700', color: colors.text, marginBottom: 8 },
-  modalHint: { fontSize: 14, color: colors.textSecondary, marginBottom: 16 },
+  modalHint: { fontSize: 17, color: colors.textSecondary, marginBottom: 16 },
   input: {
     borderWidth: 2, borderColor: '#ddd', borderRadius: 12,
     padding: 14, fontSize: 18, color: colors.text, marginBottom: 20,
   },
   modalBtnRow: { flexDirection: 'row', gap: 12 },
   modalBtn: { flex: 1, padding: 14, borderRadius: 12, alignItems: 'center' },
-  modalBtnText: { color: '#fff', fontSize: 16, fontWeight: '700' },
+  modalBtnText: { color: '#fff', fontSize: 17, fontWeight: '700' },
 });

@@ -1,6 +1,6 @@
 //Экран загрузки
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, Text, View, Image, Animated, Easing } from 'react-native';
+import { StyleSheet, Text, View, Image, Animated, Easing, ActivityIndicator } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Asset } from 'expo-asset';
 
@@ -11,8 +11,9 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 // Контексты
 import { BankProvider } from './src/context/BankContext';
-import { PetProvider } from './src/context/PetContext';
-
+import { PetProvider, usePet } from './src/context/PetContext';
+import { BudgetPlanProvider } from './src/context/BudgetPlanContext';
+import { DemoProvider } from './src/context/DemoContext';
 // Экраны
 import CatalogScreen from './src/screens/CatalogScreen';
 import WorldScreen from './src/screens/WorldScreen';
@@ -47,118 +48,68 @@ import GamePriceGuesser from './src/screens/GamePriceGuesser';
 import MemoryGame1Screen from './src/screens/MemoryGame1Screen';
 import ScamGameScreen from './src/screens/ScamGameScreen';
 import BudgetPlanScreen from './src/screens/BudgetPlanScreen';
-import { BudgetPlanProvider } from './src/context/BudgetPlanContext';
 import ToyShopScreen from './src/screens/ToyShopScreen';
 import GoalsScreen from './src/screens/GoalsScreen';
 import ParentGateScreen from './src/screens/ParentGateScreen';
 import ParentScreen from './src/screens/ParentScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
-import { DemoProvider } from './src/context/DemoContext';
 import BudgetResultScreen from './src/screens/BudgetResultScreen';
 import NewBudgetPlanScreen from './src/screens/NewBudgetPlanScreen';
+import GlossaryScreen from './src/screens/GlossaryScreen';
+import HistoryScreen from './src/screens/HistoryScreen';
+import PurchasedItemsScreen from './src/screens/PurchasedItemsScreen';
 
 const Stack = createNativeStackNavigator();
 
-export default function App() {
-  const [percent, setPercent] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
-  const coinAnim = useRef(new Animated.Value(0)).current;
+
+    function RootNavigator() {
+  const petCtx = usePet();
+  const [initialRoute, setInitialRoute] = useState(null);
 
   useEffect(() => {
-    Animated.loop(
-      Animated.timing(coinAnim, {
-        toValue: 1,
-        duration: 1500,
-        easing: Easing.bezier(0.55, 0.055, 0.675, 0.19),
-        useNativeDriver: false,
-      })
-    ).start();
+    if (petCtx.isLoaded) {
+      setInitialRoute(petCtx.pet ? 'Home' : 'Catalog');
+    }
+  }, [petCtx.isLoaded, petCtx.pet]);
 
-    const interval = setInterval(() => {
-      setPercent((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setTimeout(() => {
-            setIsLoading(false);
-          }, 300);
-          return 100;
-        }
-        return prev + 1;
-      });
-    }, 25);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  const coinTop = coinAnim.interpolate({
-    inputRange: [0, 0.7, 1],
-    outputRange: [-40, 60, 60],
-  });
-
-  const coinOpacity = coinAnim.interpolate({
-    inputRange: [0, 0.2, 0.7, 1],
-    outputRange: [0, 1, 1, 0],
-  });
-
-  if (isLoading) {
+  if (!petCtx.isLoaded || !initialRoute) {
     return (
-      <View style={styles.splashContainer}>
-        <StatusBar style="dark" />
-        <View style={styles.splashContent}>
-          <Text style={styles.appTitle}>Финпиг</Text>
-          <View style={styles.piggyBankContainer}>
-            <Animated.View
-              style={[styles.cssCoinLoading, { top: coinTop, opacity: coinOpacity }]}
-            >
-              <View style={styles.coinInner}>
-                <Text style={styles.coinText}>1</Text>
-              </View>
-            </Animated.View>
-            <Image source={require('./assets/piggy_bank.png')} style={styles.pig} />
-          </View>
-          <View style={styles.loadingSection}>
-            <Text style={styles.loaderText}>Загрузка</Text>
-            <View style={styles.loadingLineContainer}>
-              <View style={[styles.loadingLine, { width: `${percent}%` }]} />
-              <Text style={styles.loadingText}>{percent}%</Text>
-            </View>
-          </View>
-        </View>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#E3F2FD' }}>
+        <ActivityIndicator size="large" color="#42A5F5" />
       </View>
     );
   }
 
   return (
-    <BankProvider>
-      <PetProvider>
-        <BudgetPlanProvider>  
-          <DemoProvider> 
-        <SafeAreaProvider>
-          
-          <NavigationContainer>
-            <Stack.Navigator
-              screenOptions={{
-                headerStyle: { backgroundColor: colors.background },
-                headerTintColor: colors.text,
-                headerShadowVisible: false,
-                headerTitleStyle: { fontWeight: '600' },
-              }}
-            >
+    <Stack.Navigator
+      initialRouteName={initialRoute}
+      screenOptions={{
+        headerStyle: { backgroundColor: colors.background },
+        headerTintColor: colors.text,
+        headerShadowVisible: false,
+        headerTitleStyle: { fontWeight: '600' },
+      }}
+    >
               {/* ─── ГЛАВНЫЕ ─── */}
               <Stack.Screen
                 name="Catalog"
                 component={CatalogScreen}
-                options={{ title: 'Каталог' }}
+                options={{ headerShown: false }}
               />
               <Stack.Screen
                 name="PetName"
                 component={PetNameScreen}
-                options={{ title: 'Имя питомца' }}
+                options={{ headerShown: false }}
               />
+              <Stack.Screen
+              name="History"
+              component={HistoryScreen}
+              options={{ headerShown: false }}
+            />
               <Stack.Screen
                 name="Home"
                 component={HomeScreen}
-                options={{ headerShown: false, animation: 'slide_from_right' }}
+                options={{ headerShown: false, animation: 'fade' }}
               />
               <Stack.Screen
                 name="BudgetPlanScreen"
@@ -168,7 +119,7 @@ export default function App() {
               <Stack.Screen
                 name="Kitchen"
                 component={KitchenScreen}
-                options={{ headerShown: false, animation: 'slide_from_left' }}
+                options={{ headerShown: false, animation: 'fade' }}
               />
               <Stack.Screen
                 name="GoalsScreen"
@@ -187,7 +138,7 @@ export default function App() {
               />
               <Stack.Screen name="LivingRoomScreen" 
               component={LivingRoomScreen} 
-              options={{ headerShown: false }} />
+              options={{ headerShown: false , animation:'fade'} }/>
             
                <Stack.Screen name="MiniGamesScreen" 
               component={MiniGamesScreen} 
@@ -225,8 +176,13 @@ export default function App() {
               <Stack.Screen
                 name="ToyShopScreen"
                 component={ToyShopScreen}
-                options={{ title: 'Магазин игрушек'}}
+                options={{ headerShown: false }}
               />
+              <Stack.Screen
+              name="PurchasedItems"
+              component={PurchasedItemsScreen}
+              options={{ headerShown: false }}
+            />
 
               {/* ─── МИР ─── */}
               <Stack.Screen
@@ -241,6 +197,11 @@ export default function App() {
                 component={TasksScreen}
                 options={{ headerShown: false }}
               />
+              <Stack.Screen
+              name="Glossary"
+              component={GlossaryScreen}
+              options={{ headerShown: false }}
+            />
               <Stack.Screen
                 name="BlockOneScreen"
                 component={BlockOneScreen}
@@ -344,15 +305,73 @@ export default function App() {
                 options={{ headerShown: false }}
               />
               </Stack.Navigator>
-                </NavigationContainer>
-              </SafeAreaProvider>
-            </DemoProvider> 
-        </BudgetPlanProvider>  
+  );
+}
+
+export default function App() {
+  const [percent, setPercent] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const coinAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+  const interval = setInterval(() => {
+    setPercent((prev) => {
+      if (prev >= 100) {
+        clearInterval(interval);
+        setTimeout(() => setIsLoading(false), 300);
+        return 100;
+      }
+      return prev + 1;
+    });
+  }, 25);
+  return () => clearInterval(interval);
+}, []);
+
+
+  if (isLoading) {
+    return (
+      <View style={styles.splashContainer}>
+        <StatusBar style="dark" />
+        <View style={styles.splashContent}>
+          <Text style={styles.appTitle}>Финпиг</Text>
+          <View style={styles.piggyBankContainer}>
+            {/* <Animated.View
+              style={[styles.cssCoinLoading, { top: coinTop, opacity: coinOpacity }]}
+            >
+              <View style={styles.coinInner}>
+                <Text style={styles.coinText}>1</Text>
+              </View>
+            </Animated.View> */}
+            <Image source={require('./assets/piggy_bank.png')} style={styles.pig} />
+          </View>
+          <View style={styles.loadingSection}>
+            <Text style={styles.loaderText}>Загрузка</Text>
+            <View style={styles.loadingLineContainer}>
+              <View style={[styles.loadingLine, { width: `${percent}%` }]} />
+              <Text style={styles.loadingText}>{percent}%</Text>
+            </View>
+          </View>
+        </View>
+      </View>
+    );
+  }
+
+ return (
+    <BankProvider>
+      <PetProvider>
+        <BudgetPlanProvider>
+          <DemoProvider>
+            <SafeAreaProvider>
+              <NavigationContainer>
+                <RootNavigator />
+              </NavigationContainer>
+            </SafeAreaProvider>
+          </DemoProvider>
+        </BudgetPlanProvider>
       </PetProvider>
     </BankProvider>
   );
 }
-
 const styles = StyleSheet.create({
   splashContainer: {
     flex: 1,

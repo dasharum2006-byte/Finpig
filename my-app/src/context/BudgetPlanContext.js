@@ -11,6 +11,7 @@ export function BudgetPlanProvider({ children }) {
 const [periodCompleted, setPeriodCompleted] = useState(false);
   const [currentFact, setCurrentFact] = useState(null);
   const [history, setHistory] = useState([]);
+  const [goal, setGoal] = useState(null);
 
 
   useEffect(() => {
@@ -23,6 +24,7 @@ const [periodCompleted, setPeriodCompleted] = useState(false);
           setCurrentFact(s.currentFact ?? null);
           setHistory(s.history ?? []);
           setPeriodCompleted(s.periodCompleted ?? false);
+          setGoal(s.goal ?? null);           
         }
       } catch (e) {
         console.error('BudgetPlan load error:', e);
@@ -37,9 +39,9 @@ const [periodCompleted, setPeriodCompleted] = useState(false);
     if (!isLoaded) return;
     AsyncStorage.setItem(
       STORAGE_KEY,
-      JSON.stringify({ currentPlan, currentFact, history, periodCompleted })
+      JSON.stringify({ currentPlan, currentFact, history, periodCompleted, goal  })
     ).catch((e) => console.error('BudgetPlan save error:', e));
-  }, [isLoaded, currentPlan, currentFact, history, periodCompleted]);
+  }, [isLoaded, currentPlan, currentFact, history, periodCompleted, goal ]);
 
 
   const confirmPlan = useCallback(({ budget, needs, wants, savings }) => {
@@ -87,6 +89,7 @@ const [periodCompleted, setPeriodCompleted] = useState(false);
     setCurrentFact(null);
     setHistory([]);
     setPeriodCompleted(false); 
+     setGoal(null);       
   }, []);
 
 
@@ -116,6 +119,8 @@ const [periodCompleted, setPeriodCompleted] = useState(false);
         updateFact,
         finishPeriod,
         resetPlan,
+         goal,          
+  setGoal,   
         getMatchPercent,
       }}
     >

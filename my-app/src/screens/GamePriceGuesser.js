@@ -143,7 +143,7 @@ const ITEMS_DATA = [
 {
   id: 16,
   name: 'Игровая приставка',
-  // image: require('../../assets/cards/console.png'), 
+  image: require('../../assets/cards/chinamoney.png'), 
   correctPrice: 40000,
   minPrice: 500,
   maxPrice: 600000,

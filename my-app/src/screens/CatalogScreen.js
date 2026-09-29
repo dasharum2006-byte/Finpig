@@ -9,6 +9,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import { colors } from '../theme';
 import { SPECIES_LIST } from '../petsConfig';
@@ -37,6 +38,15 @@ export default function CatalogScreen({ navigation }) {
     });
   };
 
+  const handleForceReset = async () => {
+    try {
+      await AsyncStorage.clear();
+      console.log('Всё сброшено.');
+      alert('Всё сброшено');
+    } catch (e) {
+      console.error('Reset error:', e);
+    }
+  };
   const renderItem = ({ item }) => {
     const isSelected = item.id === selectedId;
     return (
@@ -89,37 +99,60 @@ export default function CatalogScreen({ navigation }) {
             Выбрать
           </Text>
         </TouchableOpacity>
+              {/* <TouchableOpacity
+        onPress={handleForceReset}
+        style={{
+          position: 'absolute',
+          top: 60,
+          right: 20,
+          paddingHorizontal: 12,
+          paddingVertical: 8,
+          backgroundColor: '#ff4d4d',
+          borderRadius: 8,
+          zIndex: 100,
+        }}
+      > */} 
+        {/* <Text style={{ color: '#fff', fontWeight: '700', fontSize: 12 }}>СБРОС ВСЁ</Text>
+      </TouchableOpacity> */}
       </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  header: { paddingHorizontal: PADDING, paddingTop: 12, paddingBottom: 8 },
-  title: { fontSize: 28, fontWeight: 'bold', color: colors.text },
-  subtitle: { fontSize: 14, color: colors.textSecondary, marginTop: 4 },
+  container: { flex: 1, backgroundColor: '#E3F2FD' },                       // ← светло-голубой
+  header: { paddingHorizontal: PADDING, paddingTop: 12, paddingBottom: 10 },
+  title: { fontSize: 28, fontWeight: '900', color: '#0D47A1', marginTop: 10},             // ← тёмно-голубой
+  subtitle: { fontSize: 18, color: '#1976D2', marginTop: 8},               // ← средне-голубой
   listContent: { paddingHorizontal: PADDING, paddingBottom: 16 },
   row: { justifyContent: 'space-between', marginBottom: GAP },
   card: {
     aspectRatio: 1,
     borderRadius: 14,
     overflow: 'hidden',
-    backgroundColor: colors.cardBg,
+    backgroundColor: '#FFFFFF',                                             // ← белые карточки
     borderWidth: 3,
-    borderColor: 'transparent',
+    borderColor: '#90CAF9',                                                 // ← голубая обводка
     alignItems: 'center',
     justifyContent: 'center',
     padding: 12,
+    shadowColor: '#42A5F5',                                                 // ← голубая тень
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  cardSelected: { borderColor: colors.accent },
+  cardSelected: {
+    borderColor: '#1976D2',                                                 // ← тёмно-голубая обводка
+    backgroundColor: '#E3F2FD',                                             // ← светло-голубой фон
+  },
   image: { width: '85%', height: '85%' },
   cardLabel: {
     position: 'absolute',
     bottom: 6,
-    fontSize: 12,
+    fontSize: 18,
     fontWeight: '700',
-    color: colors.text,
+    color: '#0D47A1',                                                       // ← тёмно-голубой текст
   },
   checkBadge: {
     position: 'absolute',
@@ -128,7 +161,7 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: colors.accent,
+    backgroundColor: '#1976D2',                                             // ← тёмно-голубой бейдж
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -137,17 +170,27 @@ const styles = StyleSheet.create({
     paddingHorizontal: PADDING,
     paddingTop: 12,
     paddingBottom: 20,
-    backgroundColor: colors.background,
+    backgroundColor: '#E3F2FD',                                             // ← тот же фон
     borderTopWidth: 1,
-    borderTopColor: colors.border,
+    borderTopColor: '#90CAF9',                                              // ← голубая граница
   },
   button: {
-    backgroundColor: colors.accent,
+    backgroundColor: '#42A5F5',                                             // ← голубая кнопка
     paddingVertical: 16,
     borderRadius: 14,
     alignItems: 'center',
+    minHeight: 56,
+    justifyContent: 'center',
+    shadowColor: '#42A5F5',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    elevation: 6,
   },
-  buttonDisabled: { backgroundColor: colors.disabled },
-  buttonText: { color: '#fff', fontSize: 17, fontWeight: '600' },
-  buttonTextDisabled: { color: colors.disabledText },
+  buttonDisabled: {
+    backgroundColor: '#BBDEFB',                                             // ← светлая
+    shadowOpacity: 0,
+  },
+  buttonText: { color: '#fff', fontSize: 18, fontWeight: '800' },
+  buttonTextDisabled: { color: '#E3F2FD' },
 });

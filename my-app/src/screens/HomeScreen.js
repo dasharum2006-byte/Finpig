@@ -12,6 +12,7 @@ const { width } = Dimensions.get('window');
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useBudgetPlan } from '../context/BudgetPlanContext';
 import { useDemo } from '../context/DemoContext';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const PET_SIZE_BASE = width * 0.6;
 
@@ -38,33 +39,90 @@ const ROOMS = [
 ];
 
 function OnboardingFlow({ step, pet, onNext, onFinish, navigation }) {
-  if (step === 'intro')  return <IntroScreen onNext={() => onNext('budget')} />;
+  if (step === 'intro') return <IntroScreen pet={pet} onNext={() => onNext('budget')} />;
   if (step === 'budget') return <StartBudgetScreen onNext={() => onNext('goal')} />;
   if (step === 'goal')   return <GoalScreen onNext={() => onNext('plan')} />;
   if (step === 'plan')   return <BudgetPlanScreen onFinish={onFinish} />;
 
   return null;
 }
+function IntroScreen({ onNext, pet }) {
+  const petImage = pet
+    ? getEggImage(pet.speciesId)
+    : null;
 
-function IntroScreen({ onNext }) {
   return (
-    <SafeAreaView style={styles.container} edges={['bottom']}>
-      <View style={styles.onboardingWrap}>
-        <Text style={styles.onboardingTitle}>🐣 Привет! Я твой питомец.</Text>
-        <Text style={styles.onboardingText}>
-          Заботиться обо мне просто — у тебя есть монеты,
-          и ты решаешь, куда их тратить:
+    <ImageBackground
+      source={require('../../assets/1.png')}
+      style={styles.introContainer}
+      resizeMode="cover"
+    >
+      <ScrollView
+        contentContainerStyle={styles.introScroll}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Питомец сверху — можно оставить, можно убрать */}
+        {petImage && (
+          <Image
+            source={petImage}
+            style={styles.introPetImage}
+            resizeMode="contain"
+          />
+        )}
+  
+
+        <Text style={styles.introTitle}>Привет</Text>
+        <Text style={styles.introSubtitle}>
+          Я твой питомец. Заботиться обо мне просто — у тебя есть монеты,
+          и ты решаешь, куда их тратить.
         </Text>
-        <Text style={styles.onboardingLine}>🍎 Нужное — еда и уход. Без этого мне плохо.</Text>
-        <Text style={styles.onboardingLine}>🎈 Хочется — игрушки. Приятно, но можно подождать.</Text>
-        <Text style={styles.onboardingLine}>💰 В копилку — на твою мечту.</Text>
-        <TouchableOpacity style={styles.onboardingButton} onPress={onNext}>
-          <Text style={styles.onboardingButtonText}>Понятно →</Text>
+
+        <View style={styles.introCardsRow}>
+          <View style={styles.introCard}>
+            <View style={[styles.introIconCircle, { backgroundColor: '#FFE5D4' }]}>
+              <Text style={styles.introIcon}>🍎</Text>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.introCardTitle}>Нужное</Text>
+              <Text style={styles.introCardText}>Еда и уход — без этого мне плохо</Text>
+            </View>
+          </View>
+
+          <View style={styles.introCard}>
+            <View style={[styles.introIconCircle, { backgroundColor: '#E5F0FF' }]}>
+              <Text style={styles.introIcon}>🎈</Text>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.introCardTitle}>Хочется</Text>
+              <Text style={styles.introCardText}>Игрушки — приятно, но можно подождать</Text>
+            </View>
+          </View>
+
+          <View style={styles.introCard}>
+            <View style={[styles.introIconCircle, { backgroundColor: '#E5FFE8' }]}>
+              <Text style={styles.introIcon}>💰</Text>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.introCardTitle}>В копилку</Text>
+              <Text style={styles.introCardText}>На твою мечту</Text>
+            </View>
+          </View>
+        </View>
+
+        <TouchableOpacity
+          style={styles.introButton}
+          onPress={onNext}
+          activeOpacity={0.85}
+        >
+          <Text style={styles.introButtonText}>Понятно →</Text>
         </TouchableOpacity>
-      </View>
-    </SafeAreaView>
+      </ScrollView>
+      </ImageBackground>
   );
 }
+
+
+
 
 function StartBudgetScreen({ onNext }) {
   const bank = useBank();
@@ -76,41 +134,143 @@ function StartBudgetScreen({ onNext }) {
     onNext();
   };
 
-
-
-  
   return (
-    <SafeAreaView style={styles.container} edges={['bottom']}>
-      <View style={styles.onboardingWrap}>
-        <Text style={styles.onboardingTitle}>💰 Вот твои первые монеты!</Text>
-        <Text style={styles.onboardingText}>
-          500 🪙 — это твой бюджет на первый период.
-        </Text>
-        <Text style={styles.onboardingText}>
-          Ты сам решишь, сколько на что потратить.
-          Главное — не потратить больше, чем есть.
-        </Text>
-        <TouchableOpacity style={styles.onboardingButton} onPress={handleNext}>
-          <Text style={styles.onboardingButtonText}>Дальше →</Text>
+    <ImageBackground
+      source={require('../../assets/1.png')}  
+      style={styles.introContainer}
+      resizeMode="cover"
+    >
+      <ScrollView
+        contentContainerStyle={styles.introScroll}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Монетка большая */}
+        <View style={styles.coinCircleBig}>
+          <Text style={styles.coinEmojiBig}>🪙</Text>
+        </View>
+
+        {/* Заголовок */}
+        <Text style={styles.introTitle}>Вот твои первые монеты!</Text>
+
+        {/* Цифра 500 крупно */}
+        <View style={styles.amountCard}>
+          <Text style={styles.amountValue}>500</Text>
+          <Text style={styles.amountLabel}>монет на первый период</Text>
+        </View>
+
+        {/* Карточка с объяснением */}
+        <View style={styles.introCard}>
+          <View style={[styles.introIconCircle, { backgroundColor: '#E3F2FD' }]}>
+            <Text style={styles.introIcon}>💡</Text>
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.introCardTitle}>Ты сам решишь</Text>
+            <Text style={styles.introCardText}>
+              Сколько потратить на нужное, сколько на желаемое, а сколько отложить. Главное — не потратить больше, чем есть.
+            </Text>
+          </View>
+        </View>
+
+        {/* Кнопка */}
+        <TouchableOpacity
+          style={styles.introButton}
+          onPress={handleNext}
+          activeOpacity={0.85}
+        >
+          <Text style={styles.introButtonText}>Дальше →</Text>
         </TouchableOpacity>
-      </View>
-    </SafeAreaView>
+      </ScrollView>
+    </ImageBackground>
   );
 }
 
-  function GoalScreen({ onNext }) {
+function GoalScreen({ onNext }) {
+  const [selectedGoal, setSelectedGoal] = useState(null);
+
+  const GOALS = [
+    { id: 'bike',     emoji: '🚲', title: 'Велосипед',     cost: 500, color: '#42a4f5b6' },
+    { id: 'scooter',  emoji: '🛴', title: 'Самокат',       cost: 300, color: '#66bb6ac2' },
+    { id: 'gift',     emoji: '🎁', title: 'Подарок',  cost: 200, color: '#ff6f43b0' },
+  ];
+
+  const handleSelect = (goal) => {
+    setSelectedGoal(goal);
+  };
+const budgetPlanCtx = useBudgetPlan();
+const handleNext = () => {
+  if (!selectedGoal) return;
+  budgetPlanCtx.setGoal(selectedGoal);  
+  onNext();                                
+};
+
   return (
-    <SafeAreaView style={styles.container} edges={['bottom']}>
-      <View style={styles.onboardingWrap}>
-        <Text style={styles.onboardingTitle}>🎯 Твоя цель: Велосипед</Text>
-        <Text style={styles.onboardingText}>Стоит: 500 🪙</Text>
-        <Text style={styles.onboardingText}>Накоплено: 0 🪙</Text>
-        <Text style={styles.onboardingText}>Осталось: 500 🪙</Text>
-        <TouchableOpacity style={styles.onboardingButton} onPress={onNext}>
-          <Text style={styles.onboardingButtonText}>Составить план →</Text>
+    <ImageBackground
+      source={require('../../assets/1.png')}
+      style={styles.introContainer}
+      resizeMode="cover"
+    >
+      <ScrollView
+        contentContainerStyle={styles.introScroll}
+        showsVerticalScrollIndicator={false}
+      >
+        <Text style={styles.introTitle}> Выбери свою цель</Text>
+        <Text style={styles.introSubtitle}>
+          На что ты хочешь накопить? Выбери мечту — и мы составим план.
+        </Text>
+
+        <View style={styles.goalList}>
+          {GOALS.map((goal) => {
+            const isSelected = selectedGoal?.id === goal.id;
+            return (
+              <TouchableOpacity
+                key={goal.id}
+                style={[
+                  styles.goalCard,
+                  isSelected && {
+                    borderColor: goal.color,
+                    backgroundColor: goal.color + '15',
+                  },
+                ]}
+                onPress={() => handleSelect(goal)}
+                activeOpacity={0.8}
+              >
+                <View style={[styles.goalIconCircle, { backgroundColor: goal.color + '25' }]}>
+                  <Text style={styles.goalEmoji}>{goal.emoji}</Text>
+                </View>
+
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.goalTitle}>{goal.title}</Text>
+                  <Text style={styles.goalCost}>Стоит {goal.cost} 🪙</Text>
+                </View>
+
+                {isSelected && (
+                  <View style={[styles.goalCheck, { backgroundColor: goal.color }]}>
+                    <Text style={styles.goalCheckText}>✓</Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
+        <TouchableOpacity
+          style={[
+            styles.introButton,
+            !selectedGoal && styles.introButtonDisabled,
+          ]}
+          onPress={handleNext}
+          disabled={!selectedGoal}
+          activeOpacity={0.85}
+        >
+          <Text style={[
+            styles.introButtonText,
+            !selectedGoal && styles.introButtonTextDisabled,
+          ]}>
+            {selectedGoal ? 'Составить план →' : 'Выбери цель'}
+          </Text>
         </TouchableOpacity>
-      </View>
-    </SafeAreaView>
+      </ScrollView>
+    </ImageBackground>
   );
 }
 
@@ -130,6 +290,7 @@ function HomeScreenInner({ route, navigation }) {
   const decayTimer = useRef(null);
   const budgetPlanCtx = useBudgetPlan();
   const scale = useRef(new Animated.Value(1)).current;
+  const translateX = useRef(new Animated.Value(0)).current;
   const [onboardingDone, setOnboardingDone] = useState(petCtx.isOnboardingDone ?? false);
   const [showBudgetResult, setShowBudgetResult] = useState(false);  
   const [showNewPlan, setShowNewPlan] = useState(false);  
@@ -137,6 +298,7 @@ function HomeScreenInner({ route, navigation }) {
   const currentStage = myPet?.stage ?? 0;
   const isMaxStage = currentStage >= MAX_STAGE;
   const petSize = PET_SIZES[currentStage] ?? PET_SIZES[0];
+
   
   
   const petImage = myPet
@@ -151,6 +313,8 @@ function HomeScreenInner({ route, navigation }) {
   budgetPlanCtx.currentFact.wants > 0 ||
   budgetPlanCtx.currentFact.savings > 0
 );
+
+
   useEffect(() => {
     if (incomingPet) {
       petCtx.setNewPet(incomingPet);
@@ -159,18 +323,44 @@ function HomeScreenInner({ route, navigation }) {
     }
     }
   }, [incomingPet]);
+
+
   const panResponder = useRef(
-    PanResponder.create({
-      onMoveShouldSetPanResponder: (_, g) =>
-        Math.abs(g.dx) > SWIPE_ACTIVATE &&
-        Math.abs(g.dx) > Math.abs(g.dy) * 1.5,
-      onPanResponderRelease: (_, g) => {
-        if (g.dx > SWIPE_THRESHOLD) {
+  PanResponder.create({
+    onMoveShouldSetPanResponder: (_, g) =>
+      Math.abs(g.dx) > SWIPE_ACTIVATE &&
+      Math.abs(g.dx) > Math.abs(g.dy) * 1.5,
+    onPanResponderMove: (_, g) => {
+      translateX.setValue(g.dx);
+    },
+    onPanResponderRelease: (_, g) => {
+      if (g.dx > SWIPE_THRESHOLD) {
+        // Свайп вправо → Кухня
+        Animated.timing(translateX, {
+          toValue: width,
+          duration: 200,
+          useNativeDriver: true,
+        }).start(() => {
+          translateX.setValue(0);
           navigation.navigate('Kitchen');
-        }
-      },
-    })
-  ).current;
+        });
+      } else if (g.dx < -SWIPE_THRESHOLD) {
+        // Свайп влево → Гостиная
+        Animated.timing(translateX, {
+          toValue: -width,
+          duration: 200,
+          useNativeDriver: true,
+        }).start(() => {
+          translateX.setValue(0);
+          navigation.navigate('LivingRoomScreen');
+        });
+      } else {
+        // Не дотянул — вернуть на место
+        Animated.spring(translateX, { toValue: 0, useNativeDriver: true }).start();
+      }
+    },
+  })
+).current;
 
   useEffect(() => {
     progressRef.current = progress;
@@ -316,14 +506,14 @@ function HomeScreenInner({ route, navigation }) {
           <View style={styles.topBar}>
             <View style={styles.namePlate}>
               <Text style={styles.petName}>{petName}</Text>
-              <TouchableOpacity
+            </View>
+            <TouchableOpacity
                 style={styles.settingsBadge}
                 onPress={() => navigation.navigate('Settings')}
                 activeOpacity={0.7}
               >
                 <Text style={styles.settingsBadgeText}>⚙️</Text>
               </TouchableOpacity>
-            </View>
 
             <View style={styles.rightColumn}>
               <View style={styles.rightTopRow}>
@@ -387,13 +577,13 @@ function HomeScreenInner({ route, navigation }) {
               />
             </TouchableOpacity>
 
-            {!isMaxStage && (
+            {/* {!isMaxStage && (
               <View style={styles.progressTrack}>
                 <View
                   style={[styles.progressFill, { width: `${progress * 100}%` }]}
                 />
               </View>
-            )}
+            )} */}
 
             {currentStage >= 1 && (
               <View style={styles.stageIndicator}>
@@ -409,9 +599,10 @@ function HomeScreenInner({ route, navigation }) {
               </View>
             )}
 
-            <Text style={styles.swipeHint}>
-              свайпни вправо, чтобы пойти на кухню →
-            </Text>
+            <View style={styles.swipeHintsRow}>
+  <Text style={styles.swipeHint}>← свайп влево: гостиная</Text>
+  <Text style={styles.swipeHint}>свайп вправо: кухня →</Text>
+</View>
           </View>
           <View style={styles.bottomBar}>
             <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('Tasks')}>
@@ -420,10 +611,10 @@ function HomeScreenInner({ route, navigation }) {
             </TouchableOpacity>
             
             
-            <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('LivingRoomScreen')}>
+            {/* <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('LivingRoomScreen')}>
               <Text style={styles.actionEmoji}>🛋️</Text>
               <Text style={styles.actionText}>Гостинная</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
 
             <TouchableOpacity
               style={styles.actionButton}
@@ -537,7 +728,7 @@ function HomeScreenInner({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#d9c3a5' },
+  container: { flex: 1, backgroundColor: '#90CAF9' },
   room: { flex: 1, justifyContent: 'space-between' },
 
   emptyState: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
@@ -565,7 +756,7 @@ const styles = StyleSheet.create({
   rightTopRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
 
   levelBadge: {
-    backgroundColor: '#f1c40f',
+    backgroundColor: '#42A5F5',
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 20,
@@ -581,7 +772,106 @@ const styles = StyleSheet.create({
   },
   heart: { fontSize: 26, marginHorizontal: 2 },
   heartEmpty: { opacity: 0.5 },
+// ─── Intro Screen ───
+introContainer: { flex: 1 },
+introScroll: {
+  flexGrow: 1,
+  alignItems: 'center',
+  justifyContent: 'center',
+  paddingHorizontal: 24,
+  paddingVertical: 40,
+},
 
+introPetImage: {
+  width: 140,
+  height: 140,
+  marginBottom: 16,
+},
+
+introTitle: {
+  fontSize: 32,
+  fontWeight: '900',
+  color: '#3179b4',
+  marginBottom: 8,
+  textAlign: 'center',
+},
+introSubtitle: {
+  fontSize: 18,
+  color: '#6D4C41',
+  textAlign: 'center',
+  lineHeight: 22,
+  marginBottom: 28,
+  paddingHorizontal: 12,
+  // textAlign: 'justify',
+},
+
+introCardsRow: {
+  width: '100%',
+  marginBottom: 28,
+},
+
+introCard: {
+  backgroundColor: '#FFFFFF',
+  borderRadius: 20,
+  padding: 16,
+  marginBottom: 12,
+  flexDirection: 'row',
+  alignItems: 'center',
+  borderWidth: 2,
+  borderColor: '#90CAF9',         
+  shadowColor: '#42A5F5',
+  shadowOffset: { width: 0, height: 3 },
+  shadowOpacity: 0.15,
+  shadowRadius: 6,
+  elevation: 3,
+
+},
+
+introButton: {
+  backgroundColor: '#42A5F5',       
+  paddingVertical: 18,
+  paddingHorizontal: 60,
+  borderRadius: 30,
+  minHeight: 56,
+  alignItems: 'center',
+  justifyContent: 'center',
+  shadowColor: '#42A5F5',
+  shadowOffset: { width: 0, height: 6 },
+  shadowOpacity: 0.4,
+  shadowRadius: 10,
+  elevation: 6,
+},
+introIconCircle: {
+  width: 56,
+  height: 56,
+  borderRadius: 28,
+  alignItems: 'center',
+  justifyContent: 'center',
+  marginRight: 14,
+},
+introIcon: { fontSize: 28 },
+
+introCardTitle: {
+  fontSize: 20,
+  fontWeight: '800',
+  color: '#4E342E',
+  marginBottom: 2,
+  alignItems: 'center',
+},
+introCardText: {
+  flex: 1,
+  fontSize: 18,
+  color: '#8D6E63',
+  textAlign: 'justify',
+  lineHeight: 18,
+},
+
+introButtonText: {
+  color: '#FFF',
+  fontSize: 20,
+  fontWeight: '900',
+  letterSpacing: 0.5,
+},
   hungerBadge: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -765,6 +1055,130 @@ const styles = StyleSheet.create({
 settingsBadgeText: {
   fontSize: 20,
 },
+swipeHintsRow: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  width: '100%',
+  paddingHorizontal: 20,
+  marginTop: 10,
+},
+swipeHint: {
+  fontSize: 12,
+  color: colors.textSecondary,
+  fontStyle: 'italic',
+},
+// ─── StartBudgetScreen ───
+coinCircleBig: {
+  width: 140,
+  height: 140,
+  borderRadius: 70,
+  backgroundColor: '#FFF3E0',
+  alignItems: 'center',
+  justifyContent: 'center',
+  marginBottom: 20,
+  borderWidth: 4,
+  borderColor: '#FFB74D',
+  shadowColor: '#FFB74D',
+  shadowOffset: { width: 0, height: 6 },
+  shadowOpacity: 0.3,
+  shadowRadius: 12,
+  elevation: 8,
+},
+coinEmojiBig: {
+  fontSize: 80,
+},
+
+amountCard: {
+  backgroundColor: '#42A5F5',
+  borderRadius: 24,
+  paddingVertical: 20,
+  paddingHorizontal: 40,
+  alignItems: 'center',
+  marginBottom: 20,
+  minWidth: 240,
+  shadowColor: '#42A5F5',
+  shadowOffset: { width: 0, height: 6 },
+  shadowOpacity: 0.4,
+  shadowRadius: 10,
+  elevation: 6,
+},
+amountValue: {
+  fontSize: 56,
+  fontWeight: '900',
+  color: '#FFF',
+  letterSpacing: 2,
+},
+amountLabel: {
+  fontSize: 14,
+  fontWeight: '600',
+  color: '#E3F2FD',
+  marginTop: 4,
+  textAlign: 'center',
+},
+// ─── GoalScreen ───
+goalList: {
+  width: '100%',
+  marginBottom: 24,
+},
+
+goalCard: {
+  backgroundColor: '#FFFFFF',
+  borderRadius: 20,
+  padding: 16,
+  marginBottom: 12,
+  flexDirection: 'row',
+  alignItems: 'center',
+  borderWidth: 3,
+  borderColor: '#E3F2FD',           // ← светлая обводка по умолчанию
+  shadowColor: '#42A5F5',
+  shadowOffset: { width: 0, height: 3 },
+  shadowOpacity: 0.1,
+  shadowRadius: 6,
+  elevation: 3,
+  minHeight: 80,
+},
+goalIconCircle: {
+  width: 60,
+  height: 60,
+  borderRadius: 30,
+  alignItems: 'center',
+  justifyContent: 'center',
+  marginRight: 14,
+},
+goalEmoji: { fontSize: 32 },
+
+goalTitle: {
+  fontSize: 18,
+  fontWeight: '800',
+  color: '#2C3E50',
+  marginBottom: 2,
+},
+goalCost: {
+  fontSize: 14,
+  color: '#7F8C8D',
+},
+
+goalCheck: {
+  width: 32,
+  height: 32,
+  borderRadius: 16,
+  alignItems: 'center',
+  justifyContent: 'center',
+  marginLeft: 8,
+},
+goalCheckText: {
+  color: '#FFF',
+  fontSize: 18,
+  fontWeight: '900',
+},
+
+introButtonDisabled: {
+  backgroundColor: '#BBDEFB',
+  shadowOpacity: 0.1,
+},
+introButtonTextDisabled: {
+  color: '#E3F2FD',
+}
 });
 
 export default React.memo(HomeScreenInner);

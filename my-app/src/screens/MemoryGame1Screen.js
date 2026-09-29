@@ -147,7 +147,7 @@ export default function MemoryGame1Screen({ navigation }) {
 
 
   useEffect(() => {
-    if (matchedCards.length === 8 && cards.length > 0) {
+    if (matchedCards.length === 6 && cards.length > 0) {
       if (bank && typeof bank.addCoins === 'function') {
         bank.addCoins(30);
       }

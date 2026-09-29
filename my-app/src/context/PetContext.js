@@ -31,8 +31,10 @@ export function PetProvider({ children }) {
     (async () => {
       try {
         const raw = await AsyncStorage.getItem(STORAGE_KEY);
+        // console.log('RAW PET STORAGE:', raw); 
         if (raw) {
           const s = JSON.parse(raw);
+          // console.log('PARSED PET:', s);  
           setPet(s.pet ?? null);
           setIsOnboardingDone(s.isOnboardingDone ?? false);
           const savedLastFed = s.lastFed ?? Date.now();

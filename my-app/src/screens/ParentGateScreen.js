@@ -74,14 +74,14 @@ export default function ParentGateScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
+  container: { flex: 1, backgroundColor: colors.background, paddingTop: 10},
   backBtn: { padding: 20 },
-  backText: { fontSize: 16, color: colors.accent, fontWeight: '600' },
+  backText: { fontSize: 20, color: colors.accent, fontWeight: '600' },
 
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 },
   emoji: { fontSize: 60, marginBottom: 16 },
   title: { fontSize: 24, fontWeight: '700', color: colors.text, marginBottom: 10 },
-  subtitle: { fontSize: 15, color: colors.textSecondary, textAlign: 'center', lineHeight: 22, marginBottom: 32 },
+  subtitle: { fontSize: 17, color: colors.textSecondary, textAlign: 'center', lineHeight: 22, marginBottom: 32 },
 
   holdBtn: {
     width: 220, paddingVertical: 20, borderRadius: 16,

@@ -250,7 +250,7 @@ export default function KitchenScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
+  container: { flex: 1, backgroundColor: '#d9c3a5' },
   bg: { flex: 1, position: 'relative', alignItems: 'center' },
 
   petImage: {

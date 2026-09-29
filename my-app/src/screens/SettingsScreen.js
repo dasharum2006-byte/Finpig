@@ -6,6 +6,7 @@ import { useDemo } from '../context/DemoContext';
 import { useBank } from '../context/BankContext';
 import { usePet } from '../context/PetContext';
 import { useBudgetPlan } from '../context/BudgetPlanContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const MAX_STAGE = 3;
 
 
@@ -35,15 +36,16 @@ const handleResetProfile = () => {
       {
         text: 'Сбросить',
         style: 'destructive',
-        onPress: () => {
-          petCtx.clearPet?.();
-          budgetPlanCtx.resetPlan?.();
-          bank.setBalance?.(0);
-          bank.envelopes?.forEach((env) => {
-            bank.withdrawFromEnvelope?.(env.id, env.amount);
-          });
-          Alert.alert('Готово', 'Профиль сброшен. Перезапустите приложение.');
-        },
+        onPress: async () => {
+            petCtx.clearPet?.();
+            budgetPlanCtx.resetPlan?.();
+            bank.resetBank?.();                       // ← одна строка вместо всего
+            await AsyncStorage.clear();               // ← чистит всё хранилище
+            Alert.alert(
+              'Готово',
+    'Профиль сброшен. Закрой приложение ПОЛНОСТЬЮ и запусти заново.'
+  );
+},
       },
     ]
   );
@@ -69,6 +71,14 @@ const handleResetProfile = () => {
             <Switch value={music} onValueChange={setMusic} />
           </View>
         </View>
+        <TouchableOpacity
+          style={styles.menuRow}
+          onPress={() => navigation.navigate('History')}
+        >
+          <Text style={styles.menuEmoji}>📅</Text>
+          <Text style={styles.menuText}>История</Text>
+          <Text style={styles.menuArrow}>›</Text>
+        </TouchableOpacity>
         <View style={styles.card}>
         <View style={styles.row}>
             <View style={{ flex: 1 }}>
@@ -146,11 +156,11 @@ const handleResetProfile = () => {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
+  container: { flex: 1, backgroundColor: colors.background, paddingTop: 10 },
   scroll: { padding: 20, paddingBottom: 40 },
 
   header: { marginBottom: 20 },
-  backBtn: { fontSize: 16, color: colors.accent, fontWeight: '600', marginBottom: 8 },
+  backBtn: { fontSize: 20, color: colors.accent, fontWeight: '600', marginBottom: 8 },
   title: { fontSize: 26, fontWeight: '700', color: colors.text },
 
   card: {
@@ -163,7 +173,7 @@ const styles = StyleSheet.create({
     alignItems: 'center', paddingVertical: 14,
     borderBottomWidth: 1, borderBottomColor: '#f0f0f0',
   },
-  rowLabel: { fontSize: 16, color: colors.text },
+  rowLabel: { fontSize: 18, color: colors.text },
 
   menuRow: {
     flexDirection: 'row', alignItems: 'center',
@@ -171,8 +181,8 @@ const styles = StyleSheet.create({
     padding: 16, marginBottom: 10,
     borderWidth: 1, borderColor: '#eee',
   },
-  rowHint: { fontSize: 11, color: '#999', marginTop: 2 },
+  rowHint: { fontSize: 17, color: '#999', marginTop: 2 },
   menuEmoji: { fontSize: 22, marginRight: 12 },
-  menuText: { flex: 1, fontSize: 16, fontWeight: '600', color: colors.text },
+  menuText: { flex: 1, fontSize: 18, fontWeight: '600', color: colors.text },
   menuArrow: { fontSize: 22, color: '#bbb' },
 });

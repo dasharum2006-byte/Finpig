@@ -8,6 +8,7 @@ import { useBank } from '../context/BankContext';
 import { useBudgetPlan } from '../context/BudgetPlanContext';
 import backgroundImage from '../../assets/fonshop.png';
 
+
 const { width } = Dimensions.get('window');
 
 // ─── БД товаров «Хочется» ───
@@ -37,7 +38,7 @@ const SHOP_TOY_DATA = [
 
 export default function ToyShopScreen({ navigation }) {
   const bank = useBank();
-  const pet = usePet();
+  const petCtx = usePet();
   const budgetPlanCtx = useBudgetPlan();
 
   const [currentCategoryIndex, setCurrentCategoryIndex] = useState(0);
@@ -89,9 +90,11 @@ export default function ToyShopScreen({ navigation }) {
 
     bank.setBalance(bank.balance - totalCost);
 
-    // 👇 ВАЖНО: обновляем факт по категории «Хочется»
     budgetPlanCtx.updateFact('wants', totalCost);
-
+    petCtx.addFoodToInventory(cart.map((item) => ({
+    ...item,
+    type: 'toy',   // ← помечаем как игрушку
+  })));
     setCart([]);
     setPaymentError('');
     setIsCartVisible(false);
@@ -114,8 +117,7 @@ export default function ToyShopScreen({ navigation }) {
           style={styles.cityBackButton}
           onPress={() => navigation.goBack()}
         >
-          <Text style={styles.cityBackEmoji}>🏙</Text>
-          <Text style={styles.cityBackText}>В город</Text>
+          <Text style={styles.cityBackText}>← Назад</Text>
         </TouchableOpacity>
 
         <View style={styles.rightInfoColumn}>
@@ -225,11 +227,10 @@ export default function ToyShopScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: { flex: 1, alignItems: 'center', justifyContent: 'space-between', paddingBottom: 10, paddingTop: 30 },
   topBar: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', width: width * 0.9, zIndex: 10 },
-  cityBackButton: { backgroundColor: '#57acddd5', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 10, borderRadius: 15, borderWidth: 2, borderColor: '#1778a5d8' },
-  cityBackEmoji: { fontSize: 18, marginRight: 6 },
-  cityBackText: { color: '#fff', fontWeight: '700' },
+  cityBackButton: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 10 },
+  cityBackText: { color: '#fff', fontWeight: '700',fontSize: 20 },
   rightInfoColumn: { flexDirection: 'column', alignItems: 'flex-end' },
-  coinContainer: { backgroundColor: 'rgba(0,0,0,0.6)', paddingHorizontal: 15, paddingVertical: 8, borderRadius: 20, borderWidth: 1, borderColor: '#FFE082', marginBottom: 10 },
+  coinContainer: { backgroundColor: 'rgba(0,0,0,0.6)', paddingHorizontal: 15, paddingVertical: 8, borderRadius: 20, borderWidth: 1, borderColor: '#5a5957', marginBottom: 10 },
   coinText: { color: '#FFF', fontSize: 18, fontWeight: 'bold' },
   cartButton: { backgroundColor: '#5D4037', padding: 10, borderRadius: 50, borderWidth: 2, borderColor: '#8D6E63', position: 'relative' },
   cartEmoji: { fontSize: 24 },

@@ -13,7 +13,7 @@ const TASKS_DATA = [
 
 
 const TOTAL_STEPS = {
-  1: 16,   
+  1: 6,   
   2: 15,   
   3: 13,   
   4: 5,  
@@ -95,7 +95,7 @@ export default function TasksScreen({ navigation }) {
           activeOpacity={0.7}
           onPress={() => navigation.navigate('Home')}
         >
-          <Text style={styles.cityBackText}>Домой</Text>
+          <Text style={styles.cityBackText}>← Назад</Text>
         </TouchableOpacity>
 
         <Text style={styles.pageTitle}>Уровни</Text>
@@ -162,9 +162,17 @@ export default function TasksScreen({ navigation }) {
                 {completed ? '✅' : unlocked ? '▶' : '🔒'}
               </Text>
             </TouchableOpacity>
+            
           );
         })}
+          <TouchableOpacity
+          style={styles.glossaryBigBtn}
+          onPress={() => navigation.navigate('Glossary')}
+        >
+          <Text style={styles.glossaryBigBtnText}>📖 Словарик</Text>
+        </TouchableOpacity>
       </ScrollView>
+      
     </View>
   );
 }
@@ -172,8 +180,8 @@ export default function TasksScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#4cb9da67',
-    paddingTop: 50,
+    backgroundColor: '#ffffff',
+    paddingTop: 30,
     alignItems: 'center',
   },
   topBar: {
@@ -181,29 +189,28 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     width: width * 0.9,
-    marginBottom: 45,
+    marginBottom: 35,
   },
-  cityBackButton: {
-    backgroundColor: '#558faa',
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderRadius: 15,
-    borderWidth: 2,
-    borderColor: '#1817174b',
-  },
-  cityBackText: {
-    color: '#FFF',
-    fontWeight: 'bold',
-    fontSize: 13,
-  },
+
+  cityBackText: { fontSize: 20, color: 'black', fontWeight: '600', marginBottom: 12 },
   pageTitle: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: 'bold',
-    color: '#151516',
+    color: '#0d0d0e',
     textAlign: 'center',
-    marginTop: 0,
+    marginBottom: 12,
+  },
+  glossaryBtn: {
+    backgroundColor: '#f8f8f8',
+    padding: 8,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: '#CFD8DC',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  glossaryBtnText: {
+    fontSize: 18,
   },
   tasksList: {
     width: width * 0.9,
@@ -212,73 +219,52 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingBottom: 30,
   },
+  
   taskCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFF8E1',
-    padding: 15,
-    borderRadius: 18,
-    marginBottom: 15,
+    backgroundColor: '#FFFFFF',
+    padding: 16,
+    borderRadius: 14,
+    marginBottom: 12,
     borderWidth: 2,
-    borderColor: '#82dcff',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
+    borderColor: '#CFD8DC', 
   },
   completedCard: {
-    backgroundColor: '#C8E6C9',
-    borderColor: '#4CAF50',
+    backgroundColor: '#E8F5E9',
+    borderColor: '#81C784', 
   },
   lockedCard: {
-    backgroundColor: '#E2E8F0',
-    borderColor: '#CBD5E0',
-    opacity: 0.7,
+    backgroundColor: '#ECEFF1',
+    borderColor: '#B0BEC5', 
+    opacity: 0.6,
   },
-  // levelBadge: {
-  //   backgroundColor: '#0064e6',
-  //   height: 45,
-  //   width: 45,
-  //   borderRadius: 22.5,
-  //   justifyContent: 'center',
-  //   alignItems: 'center',
-  //   marginRight: 15,
-  // },
-  completedBadge: {
-    backgroundColor: '#4CAF50',
-  },
-  lockedBadge: {
-    backgroundColor: '#94A3B8',
-  },
-  levelBadgeText: {
-    color: '#FFF',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
+  
+  
   taskInfo: {
     flex: 1,
   },
   taskTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
-    color: '#5D4037',
+    color: '#2C3E50',
   },
   completedText: {
     color: '#2E7D32',
   },
   lockedText: {
-    color: '#64748B',
+    color: '#78909C',
   },
+  
   taskDescription: {
     fontSize: 13,
-    color: '#8D6E63',
-    marginTop: 2,
+    color: '#7F8C8D',
+    marginTop: 4,
+    textAlign: 'justify', 
+    lineHeight: 18,       
   },
   arrowIcon: {
-    fontSize: 18,
-    color: '#252321',
-    fontWeight: 'bold',
+    fontSize: 16,
     marginLeft: 10,
   },
 });
